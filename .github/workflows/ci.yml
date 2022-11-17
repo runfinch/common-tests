@@ -1,0 +1,25 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  go-linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          # Pin the version in case all the builds start to fail at the same time.
+          # There may not be an automatic way (e.g., dependabot) to update a specific parameter of a Github Action,
+          # so we will just update it manually whenever it makes sense (e.g., a feature that we want is added).
+          version: v1.50.0
+          args: --fix=false
