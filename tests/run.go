@@ -398,6 +398,136 @@ func Run(o *option.Option) {
 				verifyMountsInfo(actualMount, expectedMount)
 			})
 		})
+
+		// Cgroup version v2
+		ginkgo.When("running a container with resource flags", func() {
+			ginkgo.It("should set number of CPUs with --cpus flag", func() {
+				cpuMax := command.StdoutStr(o, "run", "--cpus", "0.42", "-w", "/sys/fs/cgroup", defaultImage, "cat", "cpu.max")
+				gomega.Expect(cpuMax).To(gomega.Equal("42000 100000"))
+			})
+
+			ginkgo.It("should limit CPU CFS (Completely Fair Scheduler) quota and period with --cpu-quota and --cpu-period flags", func() {
+				cpuMax := command.StdoutStr(o, "run", "--cpu-quota", "42000",
+					"--cpu-period", "100000", "-w", "/sys/fs/cgroup", defaultImage, "cat", "cpu.max")
+				gomega.Expect(cpuMax).To(gomega.Equal("42000 100000"))
+			})
+
+			ginkgo.It("should set the CPU shares with --cpu-shares flag", func() {
+				// CgroupV2 CPUShares => weight := 1 + ((shares-2)*9999)/262142
+				// Ref. https://github.com/google/cadvisor
+				// /blob/ce07bb28eadc18183df15ca5346293af6b020b33/integration/tests/api/docker_test.go#L216-L222
+				// Ref. https://github.com/google/cadvisor/blob/master/integration/tests/api/docker_test.go#L216-L222
+				cpuWeight := command.StdoutStr(o, "run", "--rm", "--cpu-shares", "2000",
+					"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpu.weight")
+				gomega.Expect(cpuWeight).To(gomega.Equal("77"))
+			})
+
+			// assume the host has at least 2 CPUs
+			ginkgo.When("--cpuset-cpus is used", func() {
+				ginkgo.It("should set CPUs in which to allow execution as cpu 1 with --cpuset-cpus=1", func() {
+					cpuSet := command.StdoutStr(o, "run", "--cpuset-cpus", "1",
+						"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpuset.cpus")
+					gomega.Expect(cpuSet).To(gomega.Equal("1"))
+				})
+
+				ginkgo.It("should set CPUs in which to allow execution as cpu 0-1 with --cpuset-cpus=0-1", func() {
+					cpuSet := command.StdoutStr(o, "run", "--cpuset-cpus", "0-1",
+						"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpuset.cpus")
+					gomega.Expect(cpuSet).To(gomega.Equal("0-1"))
+				})
+
+				ginkgo.It("should set CPUs in which to allow execution as cpu 0-1 with --cpuset-cpus=0,1", func() {
+					cpuSet := command.StdoutStr(o, "run", "--cpuset-cpus", "0,1",
+						"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpuset.cpus")
+					gomega.Expect(cpuSet).To(gomega.Equal("0-1"))
+				})
+			})
+
+			// The range form (e.g., `--cpuset-mems 0-1`) is not tested because maybe there's only one memory node (i.e., `0`) on the host,
+			// and if that's the case, any number other than 0 would incur an error:
+			// https://man7.org/linux/man-pages/man7/cpuset.7.html#WARNINGS
+			ginkgo.It("should set memory nodes (MEMs) in which to allow execution as memory node 0 with --cpuset-mems=0", func() {
+				cpuMems := command.StdoutStr(o, "run", "--cpuset-mems", "0",
+					"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpuset.mems")
+				gomega.Expect(cpuMems).To(gomega.Equal("0"))
+			})
+
+			ginkgo.It("should set the memory limit with --memory", func() {
+				mem := command.StdoutStr(o, "run", "--memory", "42m",
+					"-w", "/sys/fs/cgroup", defaultImage, "cat", "memory.max")
+				gomega.Expect(mem).To(gomega.Equal("44040192"))
+			})
+
+			ginkgo.It("should set the memory soft limit with --memory-reservation", func() {
+				mem := command.StdoutStr(o, "run", "--memory-reservation", "6m",
+					"-w", "/sys/fs/cgroup", defaultImage, "cat", "memory.low")
+				gomega.Expect(mem).To(gomega.Equal("6291456"))
+			})
+
+			ginkgo.It("should set the amount of memory this container is allowed to swap to disk with --memory-swap", func() {
+				mem := command.StdoutStr(o, "run", "--memory", "42m", "--memory-swap", "100m",
+					"-w", "/sys/fs/cgroup", defaultImage, "cat", "memory.max", "memory.swap.max")
+				gomega.Expect(mem).To(gomega.Equal("44040192\n60817408"))
+			})
+
+			// TODO: --memory-swappiness --oom-kill-disable --oom-score-adj --blkio-weight --cgroupns
+
+			ginkgo.It("should set the container pids limit with --pids-limit", func() {
+				pidsLimit := command.StdoutStr(o, "run", "--pids-limit", "42",
+					"-w", "/sys/fs/cgroup", defaultImage, "cat", "pids.max")
+				gomega.Expect(pidsLimit).To(gomega.Equal("42"))
+			})
+
+			// `--device` is not tested because we're not sure what host devices are available
+			// as the tests here are OS-agnostic.
+		})
+
+		for _, user := range []string{"-u", "--user"} {
+			user := user
+			ginkgo.It(fmt.Sprintf("should set the user of a container with %s flag", user), func() {
+				// Ref: https://wiki.gentoo.org/wiki/UID_GID_Assignment_Table
+				testCases := map[string]string{
+					"65534":        "uid=65534(nobody) gid=65534(nobody)",
+					"nobody":       "uid=65534(nobody) gid=65534(nobody)",
+					"nobody:users": "uid=65534(nobody) gid=100(users)",
+					"nobody:100":   "uid=65534(nobody) gid=100(users)",
+				}
+				for userStr, expected := range testCases {
+					output := command.StdoutStr(o, "run", user, userStr, defaultImage, "id")
+					gomega.Expect(output).To(gomega.Equal(expected))
+				}
+			})
+
+			ginkgo.It("should add additional groups for a specific user with --group-add flag", func() {
+				testCases := []struct {
+					groups   []string
+					expected string
+				}{
+					{
+						groups:   []string{"users"},
+						expected: "uid=65534(nobody) gid=65534(nobody) groups=100(users)",
+					},
+					{
+						groups:   []string{"100"},
+						expected: "uid=65534(nobody) gid=65534(nobody) groups=100(users)",
+					},
+					{
+						groups:   []string{"users", "nogroup"},
+						expected: "uid=65534(nobody) gid=65534(nobody) groups=100(users),65533(nogroup)",
+					},
+				}
+
+				for _, tc := range testCases {
+					args := []string{"run", user, "nobody"}
+					for _, group := range tc.groups {
+						args = append(args, "--group-add", group)
+					}
+					args = append(args, defaultImage, "id")
+					output := command.StdoutStr(o, args...)
+					gomega.Expect(output).To(gomega.Equal(tc.expected))
+				}
+			})
+		}
 	})
 }
 
