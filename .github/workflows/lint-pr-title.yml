@@ -1,7 +1,6 @@
 name: "Lint PR Title"
 
 on:
-  # TODO: Change to pull_request_target after the repo is public.
   pull_request:
     types:
       - opened
