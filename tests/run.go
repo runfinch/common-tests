@@ -27,6 +27,8 @@ type RunOption struct {
 	BaseOpt *option.Option
 	// CGMode is the cgroup mode that the host uses.
 	CGMode CGMode
+	// JournalctlOpt instructs how to run the journalctl binary. If it's nil, test cases related to `--log-driver journald` will be skipped.
+	JournalctlOpt *option.Option
 }
 
 // Run tests running a container image.
@@ -560,6 +562,127 @@ func Run(o *RunOption) {
 				}
 			})
 		}
+		ginkgo.When("running a container with logging flags", func() {
+			ginkgo.It("should set the logging driver as json-file with --log-driver json-file", func() {
+				ctrID := command.StdoutStr(o.BaseOpt, "run", "-d", "--log-driver", "json-file", "--name", testContainerName, defaultImage)
+				logPath := command.StdoutStr(o.BaseOpt, "inspect", testContainerName, "--format", "{{.LogPath}}")
+				gomega.Expect(logPath).Should(gomega.ContainSubstring(fmt.Sprintf("%s-json.log", ctrID)))
+			})
+
+			ginkgo.It("should set the logging path of the logging driver json-file with --log-opt log-path option", func() {
+				tmpDir := ffs.CreateTempDir("finch-test-logging")
+				ginkgo.DeferCleanup(os.RemoveAll, tmpDir)
+				customPath := filepath.Join(tmpDir, testContainerName, testContainerName+"-json.log")
+				command.Run(o.BaseOpt, "run", "-d", "--log-driver", "json-file", "--log-opt", fmt.Sprintf("log-path=%s", customPath),
+					"--name", testContainerName, defaultImage, "echo", "foo")
+				time.Sleep(3 * time.Second)
+				logData, err := os.ReadFile(filepath.Clean(customPath))
+				gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
+				gomega.Expect(string(logData)).To(gomega.ContainSubstring("foo"))
+			})
+
+			ginkgo.It("should set the log max size of the logging driver json-file with --log-opt max-size option", func() {
+				tmpDir := ffs.CreateTempDir("finch-test-logging")
+				ginkgo.DeferCleanup(os.RemoveAll, tmpDir)
+				customPath := filepath.Join(tmpDir, testContainerName, testContainerName+"-json.log")
+				command.Run(o.BaseOpt, "run", "-d", "--log-driver", "json-file", "--log-opt", fmt.Sprintf("log-path=%s", customPath),
+					"--log-opt", "max-size=5k", "--name", testContainerName, defaultImage, "sh", "-c",
+					"cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 100 | head -n 1000")
+				time.Sleep(3 * time.Second)
+				logs, err := filepath.Glob(customPath + "*")
+				gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
+				for _, l := range logs {
+					li, err := os.Stat(l)
+					gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
+					// The log file size is compared to 5200 bytes (instead 5k) to keep docker compatibility.
+					//nolint: lll // Ref. https://github.com/containerd/nerdctl/blob/b71443b2a3abc6288944c72229a2e21a1ae7ec6e/cmd/nerdctl/run_test.go#L242-L244
+					gomega.Expect(li.Size()).Should(gomega.BeNumerically("<=", 5200))
+				}
+			})
+
+			ginkgo.It("should set the max number of log files of the logging driver json-file with --log-opt max-file option", func() {
+				tmpDir := ffs.CreateTempDir("finch-test-logging")
+				ginkgo.DeferCleanup(os.RemoveAll, tmpDir)
+				customPath := filepath.Join(tmpDir, testContainerName, testContainerName+"-json.log")
+				command.Run(o.BaseOpt, "run", "-d", "--log-driver", "json-file", "--log-opt", fmt.Sprintf("log-path=%s", customPath),
+					"--log-opt", "max-file=2", "--log-opt", "max-size=2k", "--name", testContainerName, defaultImage, "sh", "-c",
+					"cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 100 | head -n 1000")
+				time.Sleep(3 * time.Second)
+				logs, err := filepath.Glob(filepath.Join(filepath.Dir(customPath), testContainerName+"*"))
+				gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
+				gomega.Expect(len(logs)).To(gomega.Equal(2))
+			})
+
+			ginkgo.It("should set the logging driver as journald with --log-driver journald", func() {
+				if o.JournalctlOpt == nil {
+					ginkgo.Skip("Skip the test spec because the journald option is nil.")
+				}
+				ctrID := command.StdoutStr(o.BaseOpt, "run", "-d", "--log-driver", "journald", "--name",
+					testContainerName, defaultImage, "sh", "-c", "echo test")
+				time.Sleep(3 * time.Second)
+				output := command.StdoutStr(o.JournalctlOpt, "--since", "1 minute ago", fmt.Sprintf("SYSLOG_IDENTIFIER=%s", ctrID[:12]))
+				gomega.Expect(output).Should(gomega.ContainSubstring("test"))
+			})
+
+			// TODO: figure out why custom logging tags doesn't work https://docs.docker.com/config/containers/logging/log_tags/
+			ginkgo.It("should set the tag option of the logging driver journald with --log-driver=journald --log-opt=tag={{.FullID}}}", func() {
+				if o.JournalctlOpt == nil {
+					ginkgo.Skip("Skip the test spec because the journald option is nil.")
+				}
+				ctrID := command.StdoutStr(o.BaseOpt, "run", "-d", "--log-driver", "journald", "--name", testContainerName,
+					"--log-opt", "tag={{.FullID}}", defaultImage, "sh", "-c", "echo foo")
+				time.Sleep(3 * time.Second)
+				output := command.StdoutStr(o.JournalctlOpt, "--since", "3 minute ago", fmt.Sprintf("SYSLOG_IDENTIFIER=%s", ctrID))
+				gomega.Expect(output).Should(gomega.ContainSubstring("foo"))
+			})
+
+			ginkgo.It("should set the logging driver as fluentd with --log-driver fluentd", func() {
+				testConfStr := `<source>
+   @type forward
+ </source>
+
+ <match *>
+   @type file
+   path /tmp/log
+ </match>`
+				testConfFilename := "test.conf"
+				testConfFile := ffs.CreateTempFile(testConfFilename, testConfStr)
+				ginkgo.DeferCleanup(os.RemoveAll, testConfFile)
+				fluentCtrID := command.StdoutStr(o.BaseOpt, "run", "-d", "-p", "24224:24224", "-v",
+					fmt.Sprintf("%s:/fluentd/etc/%s", testConfFile, testConfFilename),
+					"-u", "root", "-e", fmt.Sprintf("FLUENTD_CONF=%s", testConfFilename), fluentdImage)
+				time.Sleep(3 * time.Second)
+				ctrID := command.StdoutStr(o.BaseOpt, "run", "-d", "--log-driver", "fluentd", defaultImage, "sh", "-c", "echo foo")
+				output := command.StdoutStr(o.BaseOpt, "exec", fluentCtrID, "sh", "-c", "cat /tmp/log/*.log")
+				gomega.Expect(output).Should(gomega.ContainSubstring("foo"))
+				gomega.Expect(output).Should(gomega.ContainSubstring(ctrID))
+			})
+
+			ginkgo.It("should set the fluentd address with --log-driver fluentd --fluentd-address=127.0.0.1:24225", func() {
+				testConfStr := `<source>
+   @type forward
+ </source>
+
+ <match *>
+   @type file
+   path /tmp/log
+ </match>`
+				testConfFilename := "test.conf"
+				testConfFile := ffs.CreateTempFile(testConfFilename, testConfStr)
+				ginkgo.DeferCleanup(os.RemoveAll, testConfFile)
+				fluentCtrID := command.StdoutStr(o.BaseOpt, "run", "-d", "-p", "24225:24224", "-v",
+					fmt.Sprintf("%s:/fluentd/etc/%s", testConfFile, testConfFilename),
+					"-u", "root", "-e", fmt.Sprintf("FLUENTD_CONF=%s", testConfFilename), fluentdImage)
+				time.Sleep(3 * time.Second)
+				ctrID := command.StdoutStr(o.BaseOpt, "run", "-d", "--log-driver", "fluentd", "--log-opt",
+					"fluentd-address=127.0.0.1:24225", defaultImage, "sh", "-c", "echo foo")
+				output := command.StdoutStr(o.BaseOpt, "exec", fluentCtrID, "sh", "-c", "cat /tmp/log/*.log")
+				gomega.Expect(output).Should(gomega.ContainSubstring("foo"))
+				gomega.Expect(output).Should(gomega.ContainSubstring(ctrID))
+			})
+
+			// TODO: test syslog
+		})
 	})
 }
 

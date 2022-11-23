@@ -27,6 +27,7 @@ import (
 const (
 	alpineImage              = "public.ecr.aws/docker/library/alpine:latest"
 	olderAlpineImage         = "public.ecr.aws/docker/library/alpine:3.13"
+	fluentdImage             = "public.ecr.aws/docker/library/fluentd:latest"
 	testImageName            = "test:tag"
 	nonexistentImageName     = "ne-repo:ne-tag"
 	nonexistentContainerName = "ne-ctr"
