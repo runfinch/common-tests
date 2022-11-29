@@ -205,11 +205,16 @@ func Run(o *option.Option) {
 		})
 
 		ginkgo.It("should share PID namespace with host with --pid=host", func() {
-			command.Run(o, "run", "-d", "--name", testContainerName, "--pid", "host", defaultImage, "sleep", "infinity")
-			processes := command.StdoutStr(o, "top", testContainerName)
-			pid := strings.Fields(processes)[9]
-			output := command.StdOutAsLines(o, "exec", "-d", testContainerName, "ps", "-o", "pid")
-			gomega.Expect(output).Should(gomega.ContainElement(pid))
+			command.Run(o, "run", "-d", "--name", testContainerName, "--pid=host", defaultImage, "sleep", "infinity")
+			pid := command.StdoutStr(o, "inspect", "--format", "{{.State.Pid}}", testContainerName)
+			output := command.StdoutStr(o, "exec", testContainerName, "sh", "-c", fmt.Sprintf("ps ax | grep %s | awk '{print $1}'", pid))
+			gomega.Expect(output).Should(gomega.ContainSubstring(pid))
+		})
+
+		ginkgo.It("should share PID namespace with a container with --pid=container:<container>", func() {
+			command.Run(o, "run", "-d", "--name", testContainerName, defaultImage, "sleep", "infinity")
+			output := command.StdoutStr(o, "run", fmt.Sprintf("--pid=container:%s", testContainerName), defaultImage, "sh", "-c", "ps aux")
+			gomega.Expect(output).Should(gomega.ContainSubstring("sleep infinity"))
 		})
 
 		ginkgo.When("running a container with network related flags", func() {
