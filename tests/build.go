@@ -19,7 +19,7 @@ import (
 
 // Build command building an image.
 //
-// TODO:  --no-cache, --output, --ssh, syntax check for docker files
+// TODO:  --no-cache, --ssh, syntax check for docker files
 // --no-cache flag is added to tests asserting the output from `RUN` command.
 // [Discussion]: https://github.com/runfinch/common-tests/pull/4#discussion_r971338825
 func Build(o *option.Option) {
@@ -114,6 +114,15 @@ func Build(o *option.Option) {
 				ffs.WriteFile(dockerFilePath, dockerFile)
 				stdErr := command.StdErr(o, "build", "-f", dockerFilePath, "--no-cache", "--progress=plain", buildContext)
 				gomega.Expect(stdErr).Should(gomega.ContainSubstring("progress flag set:2"))
+			})
+
+			ginkgo.It("build image with --output flag", func() {
+				outputFilePath := filepath.Join(buildContext, "out.tar")
+				dest := fmt.Sprintf("type=tar,dest=%s", outputFilePath)
+				command.Run(o, "build", "-t", "output:tag", "--output", dest, buildContext)
+				// When --output flag is enabled build artifacts exported as files and not as a local image.
+				imageShouldNotExist(o, "output:tag")
+				gomega.Expect(ffs.CheckIfFileExists(outputFilePath)).To(gomega.Equal(true))
 			})
 
 			ginkgo.Context("Docker file syntax tests", func() {
