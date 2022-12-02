@@ -15,6 +15,7 @@ import (
 	"github.com/runfinch/common-tests/option"
 )
 
+// Syntax Tests for instructions described in https://docs.docker.com/engine/reference/builder/
 // Syntax TODO: #syntax directive has a bug see: https://github.com/moby/buildkit/issues/3138, ONBUILD, HEALTHCHECK,STOPSIGNAL.
 func Syntax(o *option.Option) {
 	ginkgo.Describe("Syntax tests", func() {
