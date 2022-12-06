@@ -213,11 +213,16 @@ func Run(o *RunOption) {
 		})
 
 		ginkgo.It("should share PID namespace with host with --pid=host", func() {
-			command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--pid", "host", defaultImage, "sleep", "infinity")
-			processes := command.StdoutStr(o.BaseOpt, "top", testContainerName)
-			pid := strings.Fields(processes)[9]
-			output := command.StdOutAsLines(o.BaseOpt, "exec", "-d", testContainerName, "ps", "-o", "pid")
-			gomega.Expect(output).Should(gomega.ContainElement(pid))
+			command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--pid=host", defaultImage, "sleep", "infinity")
+			pid := command.StdoutStr(o, "inspect", "--format", "{{.State.Pid}}", testContainerName)
+			command.Run(o.BaseOpt, "exec", testContainerName, "sh", "-c", fmt.Sprintf("ps -o pid,comm | grep '%s sleep'", pid))
+		})
+
+		ginkgo.It("should share PID namespace with a container with --pid=container:<container>", func() {
+			command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, defaultImage, "sleep", "infinity")
+			// We are joining the pid namespace that was "created" by testContainerName,
+			// so the pid=1 process will be the main process of testContainerName, which is `sleep`.
+			command.Run(o.BaseOpt, "exec", testContainerName, "sh", "-c", "ps -o pid,comm | grep '1 sleep'")
 		})
 
 		ginkgo.When("running a container with network related flags", func() {
