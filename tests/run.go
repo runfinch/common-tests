@@ -470,7 +470,7 @@ func Run(o *option.Option) {
 				gomega.Expect(mem).To(gomega.Equal("44040192\n60817408"))
 			})
 
-			// TODO: --memory-swappiness --oom-kill-disable --oom-score-adj --blkio-weight --cgroupns
+			// TODO: --memory-swappiness --oom-kill-disable --blkio-weight --cgroupns
 
 			ginkgo.It("should set the container pids limit with --pids-limit", func() {
 				pidsLimit := command.StdoutStr(o, "run", "--pids-limit", "42",
@@ -478,8 +478,22 @@ func Run(o *option.Option) {
 				gomega.Expect(pidsLimit).To(gomega.Equal("42"))
 			})
 
+			ginkgo.It("should set the container OOM score with --oom-score-adj", func() {
+				testcases := []string{"100", "1000"}
+				for _, tc := range testcases {
+					score := command.StdoutStr(o, "run", "--oom-score-adj", tc, defaultImage, "cat", "/proc/self/oom_score_adj")
+					gomega.Expect(score).To(gomega.Equal(tc))
+				}
+			})
+
+			// TODO: --memory-swappiness --oom-kill-disable --blkio-weight --cgroupns
 			// `--device` is not tested because we're not sure what host devices are available
 			// as the tests here are OS-agnostic.
+			// `--memory-swappiness` is not tested because /sys/fs/cgroup/memory/memory.swappiness is only available in cgroup v1
+			// which we are not supporting now
+			// `--oom-kill-disable` is not supported until the GitHub issue is resolved
+			// https://github.com/containerd/nerdctl/issues/1520
+			// `--blkio-weight` is not tested until next lima release https://github.com/containerd/nerdctl/issues/1514
 		})
 
 		for _, user := range []string{"-u", "--user"} {
