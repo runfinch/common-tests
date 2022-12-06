@@ -414,8 +414,7 @@ func Run(o *option.Option) {
 
 			ginkgo.It("should set the CPU shares with --cpu-shares flag", func() {
 				// CgroupV2 CPUShares => weight := 1 + ((shares-2)*9999)/262142
-				// Ref. https://github.com/google/cadvisor
-				// /blob/ce07bb28eadc18183df15ca5346293af6b020b33/integration/tests/api/docker_test.go#L216-L222
+				//nolint: lll // Ref. https://github.com/google/cadvisor/blob/ce07bb28eadc18183df15ca5346293af6b020b33/integration/tests/api/docker_test.go#L216-L222
 				// Ref. https://github.com/google/cadvisor/blob/master/integration/tests/api/docker_test.go#L216-L222
 				cpuWeight := command.StdoutStr(o, "run", "--rm", "--cpu-shares", "2000",
 					"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpu.weight")
