@@ -47,6 +47,7 @@ func TestRun(t *testing.T) {
 		tests.Run(o)
 		tests.Start(o)
 		tests.Stop(o)
+		tests.Cp(o)
 		tests.Tag(o)
 		tests.Save(o)
 		tests.Load(o)
