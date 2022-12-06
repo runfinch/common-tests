@@ -214,7 +214,7 @@ func Run(o *RunOption) {
 
 		ginkgo.It("should share PID namespace with host with --pid=host", func() {
 			command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--pid=host", defaultImage, "sleep", "infinity")
-			pid := command.StdoutStr(o, "inspect", "--format", "{{.State.Pid}}", testContainerName)
+			pid := command.StdoutStr(o.BaseOpt, "inspect", "--format", "{{.State.Pid}}", testContainerName)
 			command.Run(o.BaseOpt, "exec", testContainerName, "sh", "-c", fmt.Sprintf("ps -o pid,comm | grep '%s sleep'", pid))
 		})
 
