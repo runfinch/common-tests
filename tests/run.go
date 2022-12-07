@@ -329,7 +329,8 @@ func Run(o *RunOption) {
 					expectedMount := []MountJSON{makeMount(volumeType, srcDir, destDir, "", true)}
 					actualMount := getContainerMounts(o.BaseOpt, testContainerName)
 					verifyMountsInfo(actualMount, expectedMount)
-					output := command.StdoutStr(o.BaseOpt, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), defaultImage, "cat", "/tmp/test.txt")
+					output := command.StdoutStr(o.BaseOpt, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), defaultImage,
+						"cat", "/tmp/test.txt")
 					gomega.Expect(output).Should(gomega.Equal("foo"))
 				})
 
@@ -341,7 +342,8 @@ func Run(o *RunOption) {
 					actualMount := getContainerMounts(o.BaseOpt, testContainerName)
 					verifyMountsInfo(actualMount, expectedMount)
 					// verify the volume is readonly
-					command.RunWithoutSuccessfulExit(o.BaseOpt, "exec", testContainerName, "sh", "-c", fmt.Sprintf("echo foo > %s/test.txt", destDir))
+					command.RunWithoutSuccessfulExit(o.BaseOpt, "exec", testContainerName, "sh", "-c",
+						fmt.Sprintf("echo foo > %s/test.txt", destDir))
 				})
 			}
 
@@ -604,17 +606,17 @@ func verifyMountsInfo(actual []MountJSON, want []MountJSON) {
 	}
 }
 
-// CGMode is the cgroups mode of the host system
-// nolint: lll // Ref. https://github.com/containerd/cgroups/blob/cc78c6c1e32dc5bde018d92999910fdace3cfa27/utils.go#L38-L50
+// CGMode is the cgroups mode of the host system.
+// Ref. https://github.com/containerd/cgroups/blob/cc78c6c1e32dc5bde018d92999910fdace3cfa27/utils.go#L38-L50
 type CGMode int
 
 const (
-	// Unavailable cgroup mountpoint
+	// Unavailable cgroup mountpoint.
 	Unavailable CGMode = iota
-	// Legacy cgroups v1
+	// Legacy cgroups v1.
 	Legacy
-	// Hybrid with cgroups v1 and v2 controllers mounted
+	// Hybrid with cgroups v1 and v2 controllers mounted.
 	Hybrid
-	// Unified with only cgroups v2 mounted
+	// Unified with only cgroups v2 mounted.
 	Unified
 )
