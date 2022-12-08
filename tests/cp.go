@@ -56,6 +56,7 @@ func Cp(o *option.Option) {
 			})
 
 			for _, link := range []string{"-L", "--follow-link"} {
+				link := link
 				ginkgo.It(fmt.Sprintf("with %s flag, should be able to copy file from host to container and follow symbolic link",
 					link), func() {
 					path := ffs.CreateTempFile(filename, content)
@@ -88,8 +89,7 @@ func Cp(o *option.Option) {
 				fileDir := ffs.CreateTempDir("finch-test")
 				ginkgo.DeferCleanup(os.RemoveAll, fileDir)
 
-				cmdOut := command.RunWithoutSuccessfulExit(o, "cp", filepath.Join(fileDir, filename), containerResource)
-				gomega.Expect(cmdOut.Err.Contents()).To(gomega.ContainSubstring("no such file or directory"))
+				command.RunWithoutSuccessfulExit(o, "cp", filepath.Join(fileDir, filename), containerResource)
 				fileShouldNotExistInContainer(o, testContainerName, containerFilepath)
 			})
 
@@ -98,8 +98,7 @@ func Cp(o *option.Option) {
 				path := filepath.Join(fileDir, filename)
 				ginkgo.DeferCleanup(os.RemoveAll, fileDir)
 
-				cmdOut := command.RunWithoutSuccessfulExit(o, "cp", containerResource, path)
-				gomega.Expect(cmdOut.Err.Contents()).To(gomega.ContainSubstring("no such file or directory"))
+				command.RunWithoutSuccessfulExit(o, "cp", containerResource, path)
 				fileShouldNotExist(path)
 			})
 		})
@@ -109,8 +108,7 @@ func Cp(o *option.Option) {
 				command.Run(o, "run", "--name", testContainerName, defaultImage)
 				path := ffs.CreateTempFile(filename, content)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(path))
-				cmdOut := command.RunWithoutSuccessfulExit(o, "cp", path, containerResource)
-				gomega.Expect(cmdOut.Err.Contents()).To(gomega.ContainSubstring("expected container status running"))
+				command.RunWithoutSuccessfulExit(o, "cp", path, containerResource)
 			})
 
 			ginkgo.It("should not be able to copy file from container to host", func() {
@@ -119,29 +117,8 @@ func Cp(o *option.Option) {
 				fileDir := ffs.CreateTempDir("finch-test")
 				path := filepath.Join(fileDir, filename)
 				ginkgo.DeferCleanup(os.RemoveAll, fileDir)
-				cmdOut := command.RunWithoutSuccessfulExit(o, "cp", containerResource, path)
-				gomega.Expect(cmdOut.Err.Contents()).To(gomega.ContainSubstring("expected container status running"))
+				command.RunWithoutSuccessfulExit(o, "cp", containerResource, path)
 			})
 		})
 	})
-}
-
-func fileShouldExist(path string, content string) {
-	gomega.Expect(path).To(gomega.BeARegularFile())
-	actualContent, err := os.ReadFile(filepath.Clean(path))
-	gomega.Expect(err).ToNot(gomega.HaveOccurred())
-	gomega.Expect(string(actualContent)).To(gomega.Equal(content))
-}
-
-func fileShouldNotExist(path string) {
-	gomega.Expect(path).ToNot(gomega.BeAnExistingFile())
-}
-
-func fileShouldExistInContainer(o *option.Option, containerName string, path string, content string) {
-	gomega.Expect(command.StdoutStr(o, "exec", containerName, "cat", path)).To(gomega.Equal(content))
-}
-
-func fileShouldNotExistInContainer(o *option.Option, containerName string, path string) {
-	cmdOut := command.RunWithoutSuccessfulExit(o, "exec", containerName, "cat", path)
-	gomega.Expect(cmdOut.Err.Contents()).To(gomega.ContainSubstring("No such file or directory"))
 }
