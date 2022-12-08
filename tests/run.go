@@ -434,8 +434,8 @@ func Run(o *RunOption) {
 
 			ginkgo.It("should set the CPU shares with --cpu-shares flag", func() {
 				// CgroupV2 CPUShares => weight := 1 + ((shares-2)*9999)/262142
-				//nolint: lll // Ref. https://github.com/google/cadvisor/blob/ce07bb28eadc18183df15ca5346293af6b020b33/integration/tests/api/docker_test.go#L216-L222
-				// Ref. https://github.com/google/cadvisor/blob/master/integration/tests/api/docker_test.go#L216-L222
+				//nolint: lll // the source of the CPUShares calculation formula
+				// Ref. https://github.com/google/cadvisor/blob/ce07bb28eadc18183df15ca5346293af6b020b33/integration/tests/api/docker_test.go#L216-L222
 				cpuWeight := command.StdoutStr(o.BaseOpt, "run", "--rm", "--cpu-shares", "2000",
 					"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpu.weight")
 				gomega.Expect(cpuWeight).To(gomega.Equal("77"))
@@ -498,6 +498,7 @@ func Run(o *RunOption) {
 			})
 
 			ginkgo.It("should set the container OOM score with --oom-score-adj", func() {
+				// 100 is the minimum because finch VM runs rootless containerd inside.
 				testcases := []string{"100", "1000"}
 				for _, tc := range testcases {
 					score := command.StdoutStr(o.BaseOpt, "run", "--oom-score-adj", tc, defaultImage, "cat", "/proc/self/oom_score_adj")
@@ -505,7 +506,6 @@ func Run(o *RunOption) {
 				}
 			})
 
-			// TODO: --oom-kill-disable --blkio-weight --cgroupns
 			// `--device` is not tested because we're not sure what host devices are available
 			// as the tests here are OS-agnostic.
 			// `--memory-swappiness` is not tested because /sys/fs/cgroup/memory/memory.swappiness is only available in cgroup v1
@@ -607,7 +607,12 @@ func verifyMountsInfo(actual []MountJSON, want []MountJSON) {
 }
 
 // CGMode is the cgroups mode of the host system.
-// Ref. https://github.com/containerd/cgroups/blob/cc78c6c1e32dc5bde018d92999910fdace3cfa27/utils.go#L38-L50
+// We copy the struct from containerd/cgroups [1] instead of using it as a library
+// because it only builds on linux,
+// while we don't really need the functions that make it only build on linux
+// (e.g., determine the cgroup version of the current host).
+//
+// [1] https://github.com/containerd/cgroups/blob/cc78c6c1e32dc5bde018d92999910fdace3cfa27/utils.go#L38-L50
 type CGMode int
 
 const (
