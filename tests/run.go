@@ -489,8 +489,6 @@ func Run(o *RunOption) {
 				gomega.Expect(mem).To(gomega.Equal("44040192\n60817408"))
 			})
 
-			// TODO: --memory-swappiness --oom-kill-disable --blkio-weight --cgroupns
-
 			ginkgo.It("should set the container pids limit with --pids-limit", func() {
 				pidsLimit := command.StdoutStr(o.BaseOpt, "run", "--pids-limit", "42",
 					"-w", "/sys/fs/cgroup", defaultImage, "cat", "pids.max")
@@ -506,6 +504,7 @@ func Run(o *RunOption) {
 				}
 			})
 
+			// TODO: --oom-kill-disable --blkio-weight --cgroupns
 			// `--device` is not tested because we're not sure what host devices are available
 			// as the tests here are OS-agnostic.
 			// `--memory-swappiness` is not tested because /sys/fs/cgroup/memory/memory.swappiness is only available in cgroup v1
