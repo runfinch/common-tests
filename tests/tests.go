@@ -42,6 +42,26 @@ const (
 
 var defaultImage = alpineImage
 
+// CGMode is the cgroups mode of the host system.
+// We copy the struct from containerd/cgroups [1] instead of using it as a library
+// because it only builds on linux,
+// while we don't really need the functions that make it only build on linux
+// (e.g., determine the cgroup version of the current host).
+//
+// [1] https://github.com/containerd/cgroups/blob/cc78c6c1e32dc5bde018d92999910fdace3cfa27/utils.go#L38-L50
+type CGMode int
+
+const (
+	// Unavailable cgroup mountpoint.
+	Unavailable CGMode = iota
+	// Legacy cgroups v1.
+	Legacy
+	// Hybrid with cgroups v1 and v2 controllers mounted.
+	Hybrid
+	// Unified with only cgroups v2 mounted.
+	Unified
+)
+
 // SetupLocalRegistry can be invoked before running the tests to save time when pulling defaultImage.
 //
 // It spins up a local registry, tags the alpine image, pushes the tagged image to local registry,
