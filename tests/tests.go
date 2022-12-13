@@ -12,6 +12,7 @@ package tests
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -150,6 +151,26 @@ func volumeShouldExist(o *option.Option, volumeName string) {
 func volumeShouldNotExist(o *option.Option, volumeName string) {
 	gomega.Expect(command.StdOut(o, "volume", "ls", "-q", "--filter",
 		fmt.Sprintf("name=%s", volumeName))).To(gomega.BeEmpty())
+}
+
+func fileShouldExist(path, content string) {
+	gomega.Expect(path).To(gomega.BeARegularFile())
+	actualContent, err := os.ReadFile(filepath.Clean(path))
+	gomega.Expect(err).ToNot(gomega.HaveOccurred())
+	gomega.Expect(string(actualContent)).To(gomega.Equal(content))
+}
+
+func fileShouldNotExist(path string) {
+	gomega.Expect(path).ToNot(gomega.BeAnExistingFile())
+}
+
+func fileShouldExistInContainer(o *option.Option, containerName, path, content string) {
+	gomega.Expect(command.StdoutStr(o, "exec", containerName, "cat", path)).To(gomega.Equal(content))
+}
+
+func fileShouldNotExistInContainer(o *option.Option, containerName, path string) {
+	cmdOut := command.RunWithoutSuccessfulExit(o, "exec", containerName, "cat", path)
+	gomega.Expect(cmdOut.Err.Contents()).To(gomega.ContainSubstring("No such file or directory"))
 }
 
 func buildImage(o *option.Option, imageName string) {
