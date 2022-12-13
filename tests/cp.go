@@ -31,7 +31,7 @@ func Cp(o *option.Option) {
 			command.RemoveAll(o)
 		})
 
-		ginkgo.Context("when the container is running", func() {
+		ginkgo.When("the container is running", func() {
 			ginkgo.BeforeEach(func() {
 				command.Run(o, "run", "-d", "--name", testContainerName, defaultImage, "sleep", "infinity")
 			})
@@ -103,7 +103,7 @@ func Cp(o *option.Option) {
 			})
 		})
 
-		ginkgo.Context("when the container is not running", func() {
+		ginkgo.When("the container is not running", func() {
 			ginkgo.It("should not be able to copy file from host to container", func() {
 				command.Run(o, "run", "--name", testContainerName, defaultImage)
 				path := ffs.CreateTempFile(filename, content)
