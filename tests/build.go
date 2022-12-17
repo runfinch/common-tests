@@ -19,7 +19,7 @@ import (
 
 // Build command building an image.
 //
-// TODO:  --no-cache, --output, --ssh, syntax check for docker files
+// TODO:  --no-cache, --output, --ssh
 // --no-cache flag is added to tests asserting the output from `RUN` command.
 // [Discussion]: https://github.com/runfinch/common-tests/pull/4#discussion_r971338825
 func Build(o *option.Option) {
@@ -114,46 +114,6 @@ func Build(o *option.Option) {
 				ffs.WriteFile(dockerFilePath, dockerFile)
 				stdErr := command.StdErr(o, "build", "-f", dockerFilePath, "--no-cache", "--progress=plain", buildContext)
 				gomega.Expect(stdErr).Should(gomega.ContainSubstring("progress flag set:2"))
-			})
-
-			ginkgo.Context("Docker file syntax tests", func() {
-				negativeTests := []struct {
-					test         string
-					fileName     string
-					instructions string
-					errorMessage string
-				}{
-					{
-						test:         "Empty Dockerfile",
-						fileName:     "Dockerfile.Empty",
-						instructions: "",
-						errorMessage: "Dockerfile cannot be empty",
-					},
-					{
-						test:     "Env no value",
-						fileName: "Dockerfile.NoEnv",
-						instructions: fmt.Sprintf(`FROM %s
-				ENV PATH
-				`, defaultImage),
-						errorMessage: "ENV must have two arguments",
-					},
-					{
-						test:         "Only comments",
-						fileName:     "Dockerfile.OnlyComments",
-						instructions: "# Hello\n# These are just comments",
-						errorMessage: "file with no instructions",
-					},
-				}
-
-				for _, test := range negativeTests {
-					test := test
-					ginkgo.It("should not successfully build a container", func() {
-						dockerFilePath := filepath.Join(buildContext, test.fileName)
-						ffs.WriteFile(dockerFilePath, test.instructions)
-						stdErr := command.RunWithoutSuccessfulExit(o, "build", "-f", dockerFilePath, buildContext).Err.Contents()
-						gomega.Expect(stdErr).Should(gomega.ContainSubstring(test.errorMessage))
-					})
-				}
 			})
 		})
 
