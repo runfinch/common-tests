@@ -5,11 +5,12 @@ package tests
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/option"
-	"os"
 )
 
 // Ps tests functionality of `ps` command.
@@ -175,6 +176,5 @@ func Ps(o *option.Option) {
 				})
 			}
 		})
-
 	})
 }
