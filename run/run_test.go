@@ -28,6 +28,19 @@ func TestRun(t *testing.T) {
 		t.Fatalf("failed to initialize a testing option: %v", err)
 	}
 
+	var journalctlOpt *option.Option
+	var jerr error
+
+	if *subject == "finch" {
+		journalctlOpt, jerr = option.New(
+			[]string{"/Applications/Finch/lima/bin/limactl", "shell", "finch", "sudo", "journalctl"},
+			option.Env([]string{"LIMA_HOME=/Applications/Finch/lima/data"}),
+		)
+	}
+	if jerr != nil {
+		t.Fatalf("failed to initialize the journactl option: %v", err)
+	}
+
 	ginkgo.SynchronizedBeforeSuite(func() []byte {
 		tests.SetupLocalRegistry(o)
 		return nil
@@ -44,7 +57,7 @@ func TestRun(t *testing.T) {
 		tests.Pull(o)
 		tests.Rm(o)
 		tests.Rmi(o)
-		tests.Run(&tests.RunOption{BaseOpt: o, CGMode: tests.Unified})
+		tests.Run(&tests.RunOption{BaseOpt: o, CGMode: tests.Unified, JournalctlOpt: journalctlOpt})
 		tests.Start(o)
 		tests.Stop(o)
 		tests.Cp(o)
