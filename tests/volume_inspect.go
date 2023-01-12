@@ -33,7 +33,7 @@ func VolumeInspect(o *option.Option) {
 			const testVol2 = "testVol2"
 			command.Run(o, "volume", "create", testVolumeName)
 			command.Run(o, "volume", "create", testVol2)
-			lines := command.StdOutAsLines(o, "volume", "inspect", testVolumeName, "testVol2", "--format", "{{.Name}}")
+			lines := command.StdoutAsLines(o, "volume", "inspect", testVolumeName, "testVol2", "--format", "{{.Name}}")
 			gomega.Expect(lines).Should(gomega.ContainElements(testVolumeName, testVol2))
 		})
 

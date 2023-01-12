@@ -57,7 +57,7 @@ func Run(o *RunOption) {
 			})
 
 			ginkgo.It("should not echo dummy output if running with -d flag", func() {
-				output := command.StdOut(o.BaseOpt, "run", "-d", testImageName)
+				output := command.Stdout(o.BaseOpt, "run", "-d", testImageName)
 				gomega.Expect(output).ShouldNot(gomega.ContainSubstring("finch-test-dummy-output"))
 			})
 		})
@@ -108,7 +108,7 @@ func Run(o *RunOption) {
 				}()
 				command.Run(o.BaseOpt, "build", "-q", "-t", testImageName, buildContext)
 
-				envOutput := command.StdOut(o.BaseOpt, "run", "--rm", "--entrypoint", "time", testImageName, "echo", "blah")
+				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--entrypoint", "time", testImageName, "echo", "blah")
 				gomega.Expect(envOutput).NotTo(gomega.ContainSubstring("foo"))
 				gomega.Expect(envOutput).NotTo(gomega.ContainSubstring("bar"))
 				gomega.Expect(envOutput).To(gomega.ContainSubstring("blah"))
@@ -123,7 +123,7 @@ func Run(o *RunOption) {
 
 			for _, env := range []string{"-e", "--env"} {
 				ginkgo.It(fmt.Sprintf("with %s flag, environment variables should be set in the container", env), func() {
-					envOutput := command.StdOut(o.BaseOpt, "run", "--rm",
+					envOutput := command.Stdout(o.BaseOpt, "run", "--rm",
 						"--env", "FOO=BAR", "--env", "FOO1", "-e", "ENV1=1", "-e", "ENV1=2",
 						defaultImage, "env")
 					gomega.Expect(envOutput).To(gomega.ContainSubstring("FOO=BAR"))
@@ -137,7 +137,7 @@ func Run(o *RunOption) {
 				envPath := ffs.CreateTempFile("env", envPair)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(envPath))
 
-				envOutput := command.StdOut(o.BaseOpt, "run", "--rm", "--env-file", envPath, defaultImage, "env")
+				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--env-file", envPath, defaultImage, "env")
 				gomega.Expect(envOutput).To(gomega.ContainSubstring(envPair))
 			})
 		})
@@ -261,13 +261,13 @@ func Run(o *RunOption) {
 
 			ginkgo.It("should be able to set custom DNS servers with --dns flag", func() {
 				const nameserver = "10.10.10.10"
-				lines := command.StdOutAsLines(o.BaseOpt, "run", "--dns", nameserver, "--name", testContainerName,
+				lines := command.StdoutAsLines(o.BaseOpt, "run", "--dns", nameserver, "--name", testContainerName,
 					defaultImage, "cat", "/etc/resolv.conf")
 				gomega.Expect(lines).Should(gomega.ContainElement(fmt.Sprintf("nameserver %s", nameserver)))
 			})
 
 			ginkgo.It("should be able to set custom DNS search domains with --dns-search flag", func() {
-				lines := command.StdOutAsLines(o.BaseOpt, "run", "--dns-search", "test", "--name", testContainerName,
+				lines := command.StdoutAsLines(o.BaseOpt, "run", "--dns-search", "test", "--name", testContainerName,
 					defaultImage, "cat", "/etc/resolv.conf")
 				gomega.Expect(lines).Should(gomega.ContainElement("search test"))
 			})
@@ -275,7 +275,7 @@ func Run(o *RunOption) {
 			for _, dnsOption := range []string{"--dns-opt", "--dns-option"} {
 				dnsOption := dnsOption
 				ginkgo.It(fmt.Sprintf("should be able to set DNS option with %s flag", dnsOption), func() {
-					lines := command.StdOutAsLines(o.BaseOpt, "run", dnsOption, "debug", "--name", testContainerName,
+					lines := command.StdoutAsLines(o.BaseOpt, "run", dnsOption, "debug", "--name", testContainerName,
 						defaultImage, "cat", "/etc/resolv.conf")
 					gomega.Expect(lines).Should(gomega.ContainElement("options debug"))
 				})

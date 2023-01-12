@@ -29,7 +29,7 @@ func NetworkLs(o *option.Option) {
 		})
 
 		ginkgo.It("should only display network name with --format flag", func() {
-			lines := command.StdOutAsLines(o, "network", "ls", "--format", "{{.Name}}")
+			lines := command.StdoutAsLines(o, "network", "ls", "--format", "{{.Name}}")
 			gomega.Expect(lines).Should(gomega.ContainElement(bridgeNetwork))
 		})
 

@@ -70,7 +70,7 @@ func Exec(o *option.Option) {
 				env := env
 				ginkgo.It(fmt.Sprintf("should set the environment variable with %s flag", env), func() {
 					const envPair = "ENV=1"
-					lines := command.StdOutAsLines(o, "exec", env, envPair, testContainerName, "env")
+					lines := command.StdoutAsLines(o, "exec", env, envPair, testContainerName, "env")
 					gomega.Expect(lines).Should(gomega.ContainElement(envPair))
 				})
 			}
@@ -80,7 +80,7 @@ func Exec(o *option.Option) {
 				envPath := ffs.CreateTempFile("env", envPair)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(envPath))
 
-				envOutput := command.StdOutAsLines(o, "exec", "--env-file", envPath, testContainerName, "env")
+				envOutput := command.StdoutAsLines(o, "exec", "--env-file", envPath, testContainerName, "env")
 				gomega.Expect(envOutput).Should(gomega.ContainElement(envPair))
 			})
 

@@ -139,33 +139,33 @@ func RunWithoutSuccessfulExit(o *option.Option, args ...string) *gexec.Session {
 	return New(o, args...).WithoutSuccessfulExit().Run()
 }
 
-// StdOut invokes Run and returns the stdout.
-func StdOut(o *option.Option, args ...string) []byte {
+// Stdout invokes Run and returns the stdout.
+func Stdout(o *option.Option, args ...string) []byte {
 	return Run(o, args...).Out.Contents()
 }
 
 // StdoutStr invokes Run and returns the output in string format.
 func StdoutStr(o *option.Option, args ...string) string {
-	return strings.TrimSpace(string(StdOut(o, args...)))
+	return strings.TrimSpace(string(Stdout(o, args...)))
 }
 
-// StdOutAsLines invokes Run and returns the stdout as lines.
-func StdOutAsLines(o *option.Option, args ...string) []string {
+// StdoutAsLines invokes Run and returns the stdout as lines.
+func StdoutAsLines(o *option.Option, args ...string) []string {
 	return toLines(Run(o, args...).Out)
 }
 
-// StdErr invokes Run and returns the stderr.
-func StdErr(o *option.Option, args ...string) []byte {
+// Stderr invokes Run and returns the stderr.
+func Stderr(o *option.Option, args ...string) []byte {
 	return Run(o, args...).Err.Contents()
 }
 
-// StdErrAsLines invokes Run and returns the stderr as lines.
-func StdErrAsLines(o *option.Option, args ...string) []string {
+// StderrAsLines invokes Run and returns the stderr as lines.
+func StderrAsLines(o *option.Option, args ...string) []string {
 	return toLines(Run(o, args...).Err)
 }
 
-// StdErrStr invokes Run and returns the output in string format.
-func StdErrStr(o *option.Option, args ...string) string {
+// StderrStr invokes Run and returns the output in string format.
+func StderrStr(o *option.Option, args ...string) string {
 	return string(Run(o, args...).Err.Contents())
 }
 

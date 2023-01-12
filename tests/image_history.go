@@ -36,13 +36,13 @@ func ImageHistory(o *option.Option) {
 		for _, quiet := range []string{"-q", "--quiet"} {
 			quiet := quiet
 			ginkgo.It(fmt.Sprintf("should only display snapshot ID with %s flag", quiet), func() {
-				ids := removeMissingID(command.StdOutAsLines(o, "image", "history", quiet, defaultImage))
+				ids := removeMissingID(command.StdoutAsLines(o, "image", "history", quiet, defaultImage))
 				gomega.Expect(ids).Should(gomega.HaveEach(gomega.MatchRegexp(sha256RegexFull)))
 			})
 		}
 
 		ginkgo.It("should only display snapshot ID with --format flag", func() {
-			ids := removeMissingID(command.StdOutAsLines(o, "image", "history", defaultImage, "--format", "{{.Snapshot}}"))
+			ids := removeMissingID(command.StdoutAsLines(o, "image", "history", defaultImage, "--format", "{{.Snapshot}}"))
 			gomega.Expect(ids).Should(gomega.HaveEach(gomega.MatchRegexp(sha256RegexFull)))
 		})
 

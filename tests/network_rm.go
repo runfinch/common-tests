@@ -24,16 +24,16 @@ func NetworkRm(o *option.Option) {
 		})
 
 		ginkgo.It("should remove a network", func() {
-			gomega.Expect(command.StdOutAsLines(o, "network", "ls", "--format", "{{.Name}}")).Should(gomega.ContainElement(testNetwork))
+			gomega.Expect(command.StdoutAsLines(o, "network", "ls", "--format", "{{.Name}}")).Should(gomega.ContainElement(testNetwork))
 			command.Run(o, "network", "rm", testNetwork)
-			gomega.Expect(command.StdOutAsLines(o, "network", "ls", "--format", "{{.Name}}")).ShouldNot(gomega.ContainElement(testNetwork))
+			gomega.Expect(command.StdoutAsLines(o, "network", "ls", "--format", "{{.Name}}")).ShouldNot(gomega.ContainElement(testNetwork))
 		})
 
 		ginkgo.It("should remove multiple networks", func() {
 			const testNetwork2 = "test-network2"
 			command.Run(o, "network", "create", testNetwork2)
 			command.Run(o, "network", "rm", testNetwork, testNetwork2)
-			lines := command.StdOutAsLines(o, "network", "ls", "--format", "{{.Name}}")
+			lines := command.StdoutAsLines(o, "network", "ls", "--format", "{{.Name}}")
 			gomega.Expect(lines).ShouldNot(gomega.ContainElement(testNetwork))
 			gomega.Expect(lines).ShouldNot(gomega.ContainElement(testNetwork2))
 		})
