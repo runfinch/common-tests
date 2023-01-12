@@ -27,7 +27,7 @@ func VolumeLs(o *option.Option) {
 			const testVol2 = "testVol2"
 			command.Run(o, "volume", "create", testVolumeName)
 			command.Run(o, "volume", "create", testVol2)
-			lines := command.StdOutAsLines(o, "volume", "ls", "--format", "{{.Name}}")
+			lines := command.StdoutAsLines(o, "volume", "ls", "--format", "{{.Name}}")
 			gomega.Expect(lines).Should(gomega.ContainElements(testVolumeName, testVol2))
 		})
 
@@ -35,7 +35,7 @@ func VolumeLs(o *option.Option) {
 			quiet := quiet
 			ginkgo.It(fmt.Sprintf("should only display volume names with %s flag", quiet), func() {
 				command.Run(o, "volume", "create", testVolumeName)
-				gomega.Expect(command.StdOutAsLines(o, "volume", "ls", quiet)).Should(gomega.ContainElement(testVolumeName))
+				gomega.Expect(command.StdoutAsLines(o, "volume", "ls", quiet)).Should(gomega.ContainElement(testVolumeName))
 			})
 		}
 	})

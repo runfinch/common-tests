@@ -33,7 +33,7 @@ func ImageInspect(o *option.Option) {
 
 		ginkgo.It("should display multiple image RepoTags with --format flag", func() {
 			pullImage(o, olderAlpineImage)
-			lines := command.StdOutAsLines(o, "image", "inspect", defaultImage, olderAlpineImage, "--format", "{{(index .RepoTags 0)}}")
+			lines := command.StdoutAsLines(o, "image", "inspect", defaultImage, olderAlpineImage, "--format", "{{(index .RepoTags 0)}}")
 			gomega.Expect(lines).Should(gomega.ConsistOf(defaultImage, olderAlpineImage))
 		})
 

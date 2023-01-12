@@ -45,7 +45,7 @@ func ComposeBuild(o *option.Option) {
 		})
 
 		ginkgo.It("should output progress in plain text format", func() {
-			composeBuildOutput := command.StdErrStr(o, "compose", "build", "--progress",
+			composeBuildOutput := command.StderrStr(o, "compose", "build", "--progress",
 				"plain", "--no-cache", "--file", composeFilePath)
 			// The docker file contains following command.
 			// RUN printf 'should only see the final answer when "--progress" is set to be "plain": %d\n' $(expr 1 + 1)

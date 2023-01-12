@@ -97,59 +97,59 @@ func CleanupLocalRegistry(o *option.Option) {
 
 func pullImage(o *option.Option, imageName string) {
 	command.Run(o, "pull", "-q", imageName)
-	imageID := command.StdOut(o, "images", "--quiet", imageName)
+	imageID := command.Stdout(o, "images", "--quiet", imageName)
 	gomega.Expect(imageID).ShouldNot(gomega.BeEmpty())
 }
 
 func removeImage(o *option.Option, imageName string) {
 	command.Run(o, "rmi", "--force", imageName)
-	imageID := command.StdOut(o, "images", "--quiet", imageName)
+	imageID := command.Stdout(o, "images", "--quiet", imageName)
 	gomega.Expect(string(imageID)).Should(gomega.BeEmpty())
 }
 
 func containerShouldBeRunning(o *option.Option, containerNames ...string) {
 	for _, containerName := range containerNames {
-		gomega.Expect(command.StdOut(o, "ps", "-q", "--filter",
+		gomega.Expect(command.Stdout(o, "ps", "-q", "--filter",
 			fmt.Sprintf("name=%s", containerName))).NotTo(gomega.BeEmpty())
 	}
 }
 
 func containerShouldNotBeRunning(o *option.Option, containerNames ...string) {
 	for _, containerName := range containerNames {
-		gomega.Expect(command.StdOut(o, "ps", "-q", "--filter",
+		gomega.Expect(command.Stdout(o, "ps", "-q", "--filter",
 			fmt.Sprintf("name=%s", containerName))).To(gomega.BeEmpty())
 	}
 }
 
 func containerShouldExist(o *option.Option, containerNames ...string) {
 	for _, containerName := range containerNames {
-		gomega.Expect(command.StdOut(o, "ps", "-a", "-q", "--filter",
+		gomega.Expect(command.Stdout(o, "ps", "-a", "-q", "--filter",
 			fmt.Sprintf("name=%s", containerName))).NotTo(gomega.BeEmpty())
 	}
 }
 
 func containerShouldNotExist(o *option.Option, containerNames ...string) {
 	for _, containerName := range containerNames {
-		gomega.Expect(command.StdOut(o, "ps", "-a", "-q", "--filter",
+		gomega.Expect(command.Stdout(o, "ps", "-a", "-q", "--filter",
 			fmt.Sprintf("name=%s", containerName))).To(gomega.BeEmpty())
 	}
 }
 
 func imageShouldExist(o *option.Option, imageName string) {
-	gomega.Expect(command.StdOut(o, "images", "-q", imageName)).NotTo(gomega.BeEmpty())
+	gomega.Expect(command.Stdout(o, "images", "-q", imageName)).NotTo(gomega.BeEmpty())
 }
 
 func imageShouldNotExist(o *option.Option, imageName string) {
-	gomega.Expect(command.StdOut(o, "images", "-q", imageName)).To(gomega.BeEmpty())
+	gomega.Expect(command.Stdout(o, "images", "-q", imageName)).To(gomega.BeEmpty())
 }
 
 func volumeShouldExist(o *option.Option, volumeName string) {
-	gomega.Expect(command.StdOut(o, "volume", "ls", "-q", "--filter",
+	gomega.Expect(command.Stdout(o, "volume", "ls", "-q", "--filter",
 		fmt.Sprintf("name=%s", volumeName))).NotTo(gomega.BeEmpty())
 }
 
 func volumeShouldNotExist(o *option.Option, volumeName string) {
-	gomega.Expect(command.StdOut(o, "volume", "ls", "-q", "--filter",
+	gomega.Expect(command.Stdout(o, "volume", "ls", "-q", "--filter",
 		fmt.Sprintf("name=%s", volumeName))).To(gomega.BeEmpty())
 }
 

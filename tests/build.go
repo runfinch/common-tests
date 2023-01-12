@@ -58,7 +58,7 @@ func Build(o *option.Option) {
 				for _, file := range []string{"-f", "--file"} {
 					file := file
 					ginkgo.It(fmt.Sprintf("build an image with %s option", file), func() {
-						stdErr := command.StdErr(o, "build", "--no-cache", file, dockerFilePath, buildContext)
+						stdErr := command.Stderr(o, "build", "--no-cache", file, dockerFilePath, buildContext)
 						gomega.Expect(stdErr).Should(gomega.ContainSubstring("built from AnotherDockerfile"))
 					})
 				}
@@ -73,7 +73,7 @@ func Build(o *option.Option) {
 				secretFile := filepath.Join(buildContext, "secret.txt")
 				ffs.WriteFile(secretFile, "somesecret")
 				secret := fmt.Sprintf("id=mysecret,src=%s", secretFile)
-				stdErr := command.StdErr(o, "build", "--progress=plain", "--no-cache", "-f", dockerFilePath, "--secret", secret, buildContext)
+				stdErr := command.Stderr(o, "build", "--progress=plain", "--no-cache", "-f", dockerFilePath, "--secret", secret, buildContext)
 				gomega.Expect(stdErr).Should(gomega.ContainSubstring("somesecret"))
 			})
 
@@ -85,7 +85,7 @@ func Build(o *option.Option) {
 			`, defaultImage, defaultImage)
 				dockerFilePath := filepath.Join(buildContext, "Dockerfile.with-target")
 				ffs.WriteFile(dockerFilePath, containerWithTarget)
-				stdEr := command.StdErr(o, "build", "--progress=plain", "--no-cache",
+				stdEr := command.Stderr(o, "build", "--progress=plain", "--no-cache",
 					"-f", dockerFilePath, "--target", "build_env", buildContext)
 				gomega.Expect(stdEr).Should(gomega.ContainSubstring("output from build_env"))
 				gomega.Expect(stdEr).ShouldNot(gomega.ContainSubstring("output from prod_env"))
@@ -101,7 +101,7 @@ func Build(o *option.Option) {
 				containerWithBuildArg := "ARG VERSION=latest \n FROM public.ecr.aws/docker/library/alpine:${VERSION}"
 				dockerFilePath := filepath.Join(buildContext, "Dockerfile.with-build-arg")
 				ffs.WriteFile(dockerFilePath, containerWithBuildArg)
-				stdErr := command.StdErr(o, "build", "-f", dockerFilePath, "--no-cache", "--progress=plain",
+				stdErr := command.Stderr(o, "build", "-f", dockerFilePath, "--no-cache", "--progress=plain",
 					"--build-arg", "VERSION=3.13", buildContext)
 				gomega.Expect(stdErr).Should(gomega.ContainSubstring("public.ecr.aws/docker/library/alpine:3.13"))
 			})
@@ -112,7 +112,7 @@ func Build(o *option.Option) {
 			`, defaultImage)
 				dockerFilePath := filepath.Join(buildContext, "Dockerfile.progress")
 				ffs.WriteFile(dockerFilePath, dockerFile)
-				stdErr := command.StdErr(o, "build", "-f", dockerFilePath, "--no-cache", "--progress=plain", buildContext)
+				stdErr := command.Stderr(o, "build", "-f", dockerFilePath, "--no-cache", "--progress=plain", buildContext)
 				gomega.Expect(stdErr).Should(gomega.ContainSubstring("progress flag set:2"))
 			})
 
