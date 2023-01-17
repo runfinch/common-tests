@@ -78,8 +78,9 @@ func NetworkCreate(o *option.Option) {
 		})
 
 		for _, driverFlag := range []string{"-d", "--driver"} {
+			driverFlag := driverFlag
 			for _, driver := range []string{"macvlan", "ipvlan"} {
-				driverFlag, driver := driverFlag, driver
+				driver := driver
 				ginkgo.It(fmt.Sprintf("should create %s network with %s flag", driver, driverFlag), func() {
 					command.Run(o, "network", "create", driverFlag, driver, testNetwork)
 					netType := command.StdoutStr(o, "network", "inspect", testNetwork, "--mode=native",
