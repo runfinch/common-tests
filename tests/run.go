@@ -115,6 +115,7 @@ func Run(o *RunOption) {
 			})
 
 			for _, workDir := range []string{"--workdir", "-w"} {
+				workDir := workDir
 				ginkgo.It(fmt.Sprintf("should set working directory inside the container specified by %s flag", workDir), func() {
 					dir := "/tmp"
 					gomega.Expect(command.StdoutStr(o.BaseOpt, "run", workDir, dir, defaultImage, "pwd")).Should(gomega.Equal(dir))
@@ -122,9 +123,10 @@ func Run(o *RunOption) {
 			}
 
 			for _, env := range []string{"-e", "--env"} {
+				env := env
 				ginkgo.It(fmt.Sprintf("with %s flag, environment variables should be set in the container", env), func() {
 					envOutput := command.Stdout(o.BaseOpt, "run", "--rm",
-						"--env", "FOO=BAR", "--env", "FOO1", "-e", "ENV1=1", "-e", "ENV1=2",
+						env, "FOO=BAR", env, "FOO1", env, "ENV1=1", env, "ENV1=2",
 						defaultImage, "env")
 					gomega.Expect(envOutput).To(gomega.ContainSubstring("FOO=BAR"))
 					gomega.Expect(envOutput).ToNot(gomega.ContainSubstring("FOO1"))
