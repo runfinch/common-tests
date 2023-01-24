@@ -85,6 +85,7 @@ func TestRun(t *testing.T) {
 		tests.NetworkInspect(o)
 		tests.NetworkLs(o)
 		tests.NetworkRm(o)
+		tests.Syntax(o)
 	})
 
 	gomega.RegisterFailHandler(ginkgo.Fail)
