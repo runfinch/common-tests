@@ -134,6 +134,14 @@ func Run(o *RunOption) {
 				})
 			}
 
+			ginkgo.It("with -e flag passing env variables without a value, only host set vars should be set in the container", func() {
+				gomega.Expect(os.Setenv("AVAR1", "avalue")).To(gomega.Succeed())
+				envOutput := command.Stdout(o.BaseOpt, "run", "--rm",
+					"-e", "AVAR1", "-e", "AVAR2", defaultImage, "env")
+				gomega.Expect(envOutput).To(gomega.ContainSubstring("AVAR1=avalue"))
+				gomega.Expect(envOutput).ToNot(gomega.ContainSubstring("AVAR2"))
+			})
+
 			ginkgo.It("with --env-file flag, environment variables in container should pick up those in environment file", func() {
 				const envPair = "ENVKEY=ENVVAL"
 				envPath := ffs.CreateTempFile("env", envPair)
@@ -141,6 +149,28 @@ func Run(o *RunOption) {
 
 				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--env-file", envPath, defaultImage, "env")
 				gomega.Expect(envOutput).To(gomega.ContainSubstring(envPair))
+			})
+
+			ginkgo.It("using an env var file, env vars without values should only be set in the container if they are set on the host", func() {
+				const envPair = "ENVKEY=ENVVAL\nAVAR1\nAVAR2\n"
+				envPath := ffs.CreateTempFile("env", envPair)
+				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(envPath))
+				gomega.Expect(os.Setenv("AVAR1", "avalue")).To(gomega.Succeed())
+				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--env-file", envPath, defaultImage, "env")
+				gomega.Expect(envOutput).To(gomega.ContainSubstring("ENVKEY=ENVVAL"))
+				gomega.Expect(envOutput).To(gomega.ContainSubstring("AVAR1=avalue"))
+				gomega.Expect(envOutput).ToNot(gomega.ContainSubstring("AVAR2"))
+			})
+
+			ginkgo.It("using a file with the --env-file flag, comments and whitespace should be ignored properly", func() {
+				const envPair = "ENVKEY=ENVVAL   \n# this is a comment\n\n AVAR1\nAVAR1\nAVAR2\n  # comment 2\n"
+				envPath := ffs.CreateTempFile("env", envPair)
+				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(envPath))
+				gomega.Expect(os.Setenv("AVAR1", "avalue")).To(gomega.Succeed())
+				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--env-file", envPath, defaultImage, "env")
+				gomega.Expect(envOutput).To(gomega.ContainSubstring("ENVKEY=ENVVAL"))
+				gomega.Expect(envOutput).To(gomega.ContainSubstring("AVAR1=avalue"))
+				gomega.Expect(envOutput).ToNot(gomega.ContainSubstring("AVAR2"))
 			})
 		})
 
