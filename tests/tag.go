@@ -24,8 +24,8 @@ func Tag(o *option.Option) {
 			pullImage(o, defaultImage)
 
 			command.Run(o, "tag", defaultImage, testImageName)
-			defaultImageID := command.StdOut(o, "images", "--quiet", "--no-trunc", defaultImage)
-			taggedImageID := command.StdOut(o, "images", "--quiet", "--no-trunc", testImageName)
+			defaultImageID := command.Stdout(o, "images", "--quiet", "--no-trunc", defaultImage)
+			taggedImageID := command.Stdout(o, "images", "--quiet", "--no-trunc", testImageName)
 			gomega.Expect(taggedImageID).ShouldNot(gomega.BeEmpty())
 			gomega.Expect(taggedImageID).To(gomega.Equal(defaultImageID))
 		})

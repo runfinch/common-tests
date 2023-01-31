@@ -28,7 +28,7 @@ func NetworkInspect(o *option.Option) {
 
 		ginkgo.It("should display detailed information on multiple networks", func() {
 			command.Run(o, "network", "create", testNetwork)
-			lines := command.StdOutAsLines(o, "network", "inspect", bridgeNetwork, testNetwork, "--format", "{{.Name}}")
+			lines := command.StdoutAsLines(o, "network", "inspect", bridgeNetwork, testNetwork, "--format", "{{.Name}}")
 			gomega.Expect(lines).Should(gomega.ConsistOf(bridgeNetwork, testNetwork))
 		})
 	})

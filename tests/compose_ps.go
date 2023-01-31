@@ -36,7 +36,7 @@ func ComposePs(o *option.Option) {
 			command.RemoveAll(o)
 		})
 		ginkgo.It("should list services defined in compose file", func() {
-			psOutput := command.StdOutAsLines(o, "compose", "ps", "--file", composeFilePath)
+			psOutput := command.StdoutAsLines(o, "compose", "ps", "--file", composeFilePath)
 			gomega.Expect(psOutput).Should(gomega.ContainElements(
 				gomega.ContainSubstring(services[0]),
 				gomega.ContainSubstring(services[1])))

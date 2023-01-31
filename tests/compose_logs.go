@@ -37,7 +37,7 @@ func ComposeLogs(o *option.Option) {
 			command.RemoveAll(o)
 		})
 		ginkgo.It("should show the logs with prefixes", func() {
-			output := command.StdOutAsLines(o, "compose", "logs", "--file", composeFilePath)
+			output := command.StdoutAsLines(o, "compose", "logs", "--file", composeFilePath)
 			// Log format: container_name |log_msg
 			// example: container1_composelogs |hello from service 1
 			gomega.Expect(output).Should(gomega.ContainElements(
@@ -45,7 +45,7 @@ func ComposeLogs(o *option.Option) {
 				gomega.HavePrefix(containerNames[1])))
 		})
 		ginkgo.It("should show the logs without prefixes", func() {
-			output := command.StdOutAsLines(o, "compose", "logs", "--no-log-prefix", "--file", composeFilePath)
+			output := command.StdoutAsLines(o, "compose", "logs", "--no-log-prefix", "--file", composeFilePath)
 			// Log format: log_msg
 			// example: hello from service 1
 			gomega.Expect(output).ShouldNot(gomega.ContainElements(
@@ -58,7 +58,7 @@ func ComposeLogs(o *option.Option) {
 			gomega.Expect(output).ShouldNot(gomega.ContainSubstring("\x1b[3"))
 		})
 		ginkgo.It("should show the last line of the logs", func() {
-			output := command.StdOutAsLines(o, "compose", "logs", services[0], "--tail", "1", "--file", composeFilePath)
+			output := command.StdoutAsLines(o, "compose", "logs", services[0], "--tail", "1", "--file", composeFilePath)
 			gomega.Expect(output).Should(gomega.HaveLen(1))
 		})
 
@@ -67,7 +67,7 @@ func ComposeLogs(o *option.Option) {
 			ginkgo.It(fmt.Sprintf("should show the logs with timestamp with no prefixes and no color [flag %s]", tFlag), func() {
 				// Log format: YYYY-MM-DDThh:mm:ss.000000000Z LOG MSG
 				timestampMatcher := gomega.MatchRegexp("^[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2}T[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.*")
-				output := command.StdOutAsLines(o, "compose", "logs", tFlag, "--no-log-prefix", "--no-color", "--file", composeFilePath)
+				output := command.StdoutAsLines(o, "compose", "logs", tFlag, "--no-log-prefix", "--no-color", "--file", composeFilePath)
 				gomega.Expect(output).Should(gomega.HaveEach(timestampMatcher))
 			})
 		}

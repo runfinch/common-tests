@@ -36,7 +36,7 @@ func VolumeRm(o *option.Option) {
 			ginkgo.It("should remove multiple volumes", func() {
 				const testVol2 = "testVol2"
 				command.Run(o, "volume", "create", "testVol2")
-				gomega.Expect(command.StdOutAsLines(o, "volume", "ls", "--quiet")).Should(gomega.ContainElements(testVolumeName, testVol2))
+				gomega.Expect(command.StdoutAsLines(o, "volume", "ls", "--quiet")).Should(gomega.ContainElements(testVolumeName, testVol2))
 				command.Run(o, "volume", "rm", testVolumeName, testVol2)
 				volumeShouldNotExist(o, testVolumeName)
 			})

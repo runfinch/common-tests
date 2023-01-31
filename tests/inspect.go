@@ -33,7 +33,7 @@ func Inspect(o *option.Option) {
 			const oldContainerName = "ctr-old"
 			command.Run(o, "run", "--name", testContainerName, defaultImage)
 			command.Run(o, "run", "--name", oldContainerName, olderAlpineImage)
-			images := command.StdOutAsLines(o, "inspect", "--format", "{{.Image}}", testContainerName, oldContainerName)
+			images := command.StdoutAsLines(o, "inspect", "--format", "{{.Image}}", testContainerName, oldContainerName)
 			gomega.Expect(images).Should(gomega.ConsistOf(defaultImage, olderAlpineImage))
 		})
 

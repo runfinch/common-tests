@@ -9,25 +9,25 @@ import (
 
 // GetAllContainerIDs returns all container IDs.
 func GetAllContainerIDs(o *option.Option) []string {
-	return StdOutAsLines(o, "ps", "--all", "--quiet", "--no-trunc")
+	return StdoutAsLines(o, "ps", "--all", "--quiet", "--no-trunc")
 }
 
 // GetAllImageNames returns all image names.
 func GetAllImageNames(o *option.Option) []string {
-	return StdOutAsLines(o, "images", "--all", "--format", "{{.Repository}}:{{.Tag}}")
+	return StdoutAsLines(o, "images", "--all", "--format", "{{.Repository}}:{{.Tag}}")
 }
 
 // GetAllVolumeNames returns all volume names.
 func GetAllVolumeNames(o *option.Option) []string {
-	return StdOutAsLines(o, "volume", "ls", "--quiet")
+	return StdoutAsLines(o, "volume", "ls", "--quiet")
 }
 
 // GetAllNetworkNames returns all network names.
 func GetAllNetworkNames(o *option.Option) []string {
-	return StdOutAsLines(o, "network", "ls", "--format", "{{.Name}}")
+	return StdoutAsLines(o, "network", "ls", "--format", "{{.Name}}")
 }
 
 // GetAllImageIDs returns all image IDs.
 func GetAllImageIDs(o *option.Option) []string {
-	return StdOutAsLines(o, "images", "--all", "--quiet")
+	return StdoutAsLines(o, "images", "--all", "--quiet")
 }
