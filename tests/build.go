@@ -116,6 +116,7 @@ func Build(o *option.Option) {
 				gomega.Expect(stdErr).Should(gomega.ContainSubstring("progress flag set:2"))
 			})
 
+			// TODO: Test if we can `import` the tar ball after `nerdctl import` is supported.
 			ginkgo.It("build image with --output flag", func() {
 				outputFilePath := filepath.Join(buildContext, "out.tar")
 				dest := fmt.Sprintf("type=tar,dest=%s", outputFilePath)
