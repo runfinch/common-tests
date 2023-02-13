@@ -4,8 +4,11 @@
 package tests
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,6 +30,8 @@ type RunOption struct {
 	BaseOpt *option.Option
 	// CGMode is the cgroup mode that the host uses.
 	CGMode CGMode
+	// DefaultHostGatewayIP is the IP that the test subject will resolve special IP `host-gateway` to.
+	DefaultHostGatewayIP string
 }
 
 // Run tests running a container image.
@@ -325,6 +330,24 @@ func Run(o *RunOption) {
 				mapping := command.StdoutStr(o.BaseOpt, "run", "--add-host", "test-host:6.6.6.6", defaultImage, "cat", "/etc/hosts")
 				gomega.Expect(mapping).Should(gomega.ContainSubstring("6.6.6.6"))
 				gomega.Expect(mapping).Should(gomega.ContainSubstring("test-host"))
+			})
+
+			ginkgo.It("should add a custom host-to-IP mapping with --add-host flag with special IP", func() {
+				response := "This is the expected response for --add-host special IP test."
+				http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+					io.WriteString(w, response) //nolint:errcheck,gosec // Function call in server handler for testing only.
+				})
+				hostPort := fnet.GetFreePort()
+				s := http.Server{Addr: fmt.Sprintf(":%d", hostPort), Handler: nil, ReadTimeout: 30 * time.Second}
+				go s.ListenAndServe() //nolint:errcheck // Asynchronously starting server for testing only.
+				ginkgo.DeferCleanup(s.Shutdown, context.Background())
+				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--add-host", "test-host:host-gateway",
+					amazonLinux2Image, "sleep", "infinity")
+				mapping := command.StdoutStr(o.BaseOpt, "exec", testContainerName, "cat", "/etc/hosts")
+				gomega.Expect(mapping).Should(gomega.ContainSubstring(o.DefaultHostGatewayIP))
+				gomega.Expect(mapping).Should(gomega.ContainSubstring("test-host"))
+				gomega.Expect(command.StdoutStr(o.BaseOpt, "exec", testContainerName, "curl",
+					fmt.Sprintf("test-host:%d", hostPort))).Should(gomega.Equal(response))
 			})
 
 			for _, publish := range []string{"-p", "--publish"} {

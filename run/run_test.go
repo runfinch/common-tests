@@ -38,13 +38,14 @@ func TestRun(t *testing.T) {
 	}, func() {})
 
 	const description = "Finch Shared E2E Tests"
+	const defaultHostGatewayIP = "192.168.5.2"
 	ginkgo.Describe(description, func() {
 		// Every test should be listed here.
 		// TODO: add tests for "system prune" and "network prune" after upgrading nerdctl to v0.23
 		tests.Pull(o)
 		tests.Rm(o)
 		tests.Rmi(o)
-		tests.Run(&tests.RunOption{BaseOpt: o, CGMode: tests.Unified})
+		tests.Run(&tests.RunOption{BaseOpt: o, CGMode: tests.Unified, DefaultHostGatewayIP: defaultHostGatewayIP})
 		tests.Start(o)
 		tests.Stop(o)
 		tests.Cp(o)

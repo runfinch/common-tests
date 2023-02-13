@@ -27,6 +27,7 @@ import (
 const (
 	alpineImage              = "public.ecr.aws/docker/library/alpine:latest"
 	olderAlpineImage         = "public.ecr.aws/docker/library/alpine:3.13"
+	amazonLinux2Image        = "public.ecr.aws/amazonlinux/amazonlinux:2"
 	testImageName            = "test:tag"
 	nonexistentImageName     = "ne-repo:ne-tag"
 	nonexistentContainerName = "ne-ctr"
