@@ -348,6 +348,13 @@ func Run(o *RunOption) {
 				gomega.Expect(mapping).Should(gomega.ContainSubstring("test-host"))
 				gomega.Expect(command.StdoutStr(o.BaseOpt, "exec", testContainerName, "curl",
 					fmt.Sprintf("test-host:%d", hostPort))).Should(gomega.Equal(response))
+				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName2, "--add-host=test-host:host-gateway",
+					amazonLinux2Image, "sleep", "infinity")
+				mapping = command.StdoutStr(o.BaseOpt, "exec", testContainerName2, "cat", "/etc/hosts")
+				gomega.Expect(mapping).Should(gomega.ContainSubstring(o.DefaultHostGatewayIP))
+				gomega.Expect(mapping).Should(gomega.ContainSubstring("test-host"))
+				gomega.Expect(command.StdoutStr(o.BaseOpt, "exec", testContainerName2, "curl",
+					fmt.Sprintf("test-host:%d", hostPort))).Should(gomega.Equal(response))
 			})
 
 			for _, publish := range []string{"-p", "--publish"} {

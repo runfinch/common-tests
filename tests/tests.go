@@ -32,6 +32,7 @@ const (
 	nonexistentImageName     = "ne-repo:ne-tag"
 	nonexistentContainerName = "ne-ctr"
 	testContainerName        = "ctr-test"
+	testContainerName2       = "ctr-test-2"
 	testVolumeName           = "testVol"
 	registryImage            = "public.ecr.aws/docker/library/registry:latest"
 	localRegistryName        = "local-registry"
