@@ -360,17 +360,12 @@ func Run(o *RunOption) {
 			for _, publish := range []string{"-p", "--publish"} {
 				publish := publish
 				ginkgo.It(fmt.Sprintf("port of the container should be published to the host port with %s flag", publish), func() {
-					const (
-						containerPort = 80
-						strEchoed     = "hello"
-					)
+					const containerPort = 80
 					hostPort := fnet.GetFreePort()
-					// The nc version used by alpine image is https://busybox.net/downloads/BusyBox.html#nc,
-					// which is different from that in linux: https://linux.die.net/man/1/nc.
-					command.Run(o.BaseOpt, "run", "-d", publish, fmt.Sprintf("%d:%d", hostPort, containerPort), defaultImage,
-						"sh", "-c", fmt.Sprintf("echo %s | nc -l -p %d", strEchoed, containerPort))
-
-					fnet.DialAndRead("tcp", fmt.Sprintf("localhost:%d", hostPort), strEchoed, 20, 200*time.Millisecond)
+					// Start an Nginx container in detached mode with the specified publish flag and mapping the container port to
+					// a randomly selected host port.
+					command.Run(o.BaseOpt, "run", "-d", publish, fmt.Sprintf("%d:%d", hostPort, containerPort), nginxImage)
+					fnet.HTTPGetAndAssert(fmt.Sprintf("http://localhost:%d", hostPort), 200, 20, 200*time.Millisecond)
 				})
 			}
 		})
