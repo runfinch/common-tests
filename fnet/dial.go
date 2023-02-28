@@ -14,16 +14,19 @@ import (
 // HTTPGetAndAssert sends an HTTP GET request to the specified URL, asserts the response status code against want, and closes the response body.
 func HTTPGetAndAssert(url string, want int, maxRetry int, retryInterval time.Duration) {
 	var err error
+	client := http.Client{
+		Timeout: 5 * time.Second,
+	}
+
 	for i := 0; i < maxRetry; i++ {
 		// #nosec G107 // it does not matter if url is not a constant for testing.
-		resp, err := http.Get(url)
+		resp, err := client.Get(url)
 		if err != nil {
 			time.Sleep(retryInterval)
 			continue
 		}
-
+		defer func() { gomega.Expect(resp.Body.Close()).To(gomega.Succeed()) }()
 		gomega.Expect(resp.StatusCode).To(gomega.Equal(want))
-		gomega.Expect(resp.Body.Close()).To(gomega.Succeed())
 		return
 	}
 	ginkgo.Fail(err.Error())
