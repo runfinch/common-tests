@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.1](https://github.com/runfinch/common-tests/compare/v0.6.0...v0.6.1) (2023-02-28)
+
+
+### Bug Fixes
+
+* Switch from `nc -l` to `nginx` in `run -p/--publish` test ([7a6a6c3](https://github.com/runfinch/common-tests/commit/7a6a6c36d11796b2048d90353f06d25013b132a8))
+
+
+### Build System or External Dependencies
+
+* **deps:** bump github.com/onsi/ginkgo/v2 from 2.8.0 to 2.8.3 ([#37](https://github.com/runfinch/common-tests/issues/37)) ([7b76f03](https://github.com/runfinch/common-tests/commit/7b76f03b77bb7a39b0a68aa6ad75942e67998e29))
+* **deps:** bump github.com/onsi/gomega from 1.26.0 to 1.27.1 ([#36](https://github.com/runfinch/common-tests/issues/36)) ([e5a684e](https://github.com/runfinch/common-tests/commit/e5a684eada0303629645d600cf94cc49e8fbdba2))
+* **deps:** bump golang.org/x/net from 0.5.0 to 0.7.0 ([#34](https://github.com/runfinch/common-tests/issues/34)) ([f218705](https://github.com/runfinch/common-tests/commit/f218705a28f93d8ae6463b75662c3ff108433e7b))
+
 ## [0.6.0](https://github.com/runfinch/common-tests/compare/v0.5.0...v0.6.0) (2023-02-20)
 
 
