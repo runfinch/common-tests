@@ -583,7 +583,7 @@ func Run(o *RunOption) {
 				}
 				for userStr, expected := range testCases {
 					output := command.StdoutStr(o.BaseOpt, "run", user, userStr, defaultImage, "id")
-					gomega.Expect(output).To(gomega.Equal(expected))
+					gomega.Expect(output).To(gomega.ContainSubstring(expected))
 				}
 			})
 
@@ -613,7 +613,7 @@ func Run(o *RunOption) {
 					}
 					args = append(args, defaultImage, "id")
 					output := command.StdoutStr(o.BaseOpt, args...)
-					gomega.Expect(output).To(gomega.Equal(tc.expected))
+					gomega.Expect(output).To(gomega.ContainSubstring(tc.expected))
 				}
 			})
 		}

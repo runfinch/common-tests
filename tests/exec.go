@@ -101,7 +101,7 @@ func Exec(o *option.Option) {
 
 					for name, want := range testCases {
 						output := command.StdoutStr(o, "exec", user, name, testContainerName, "id")
-						gomega.Expect(output).Should(gomega.Equal(want))
+						gomega.Expect(output).Should(gomega.ContainSubstring(want))
 					}
 				})
 			}

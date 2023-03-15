@@ -52,7 +52,9 @@ func Images(o *option.Option) {
 		ginkgo.It("should list truncated IMAGE IDs", func() {
 			images := command.StdoutAsLines(o, "images", "--quiet")
 			gomega.Expect(images).ShouldNot(gomega.BeEmpty())
-			gomega.Expect(images).Should(gomega.HaveEach(gomega.MatchRegexp(sha256RegexTruncated)))
+			// TODO: Remove the Or operator after upgrading the nerdctl dependency to 1.2.1 to only match sha256RegexFull
+			gomega.Expect(images).To(gomega.Or(gomega.HaveEach(gomega.MatchRegexp(sha256RegexFull)),
+				gomega.HaveEach(gomega.MatchRegexp(sha256RegexTruncated))))
 		})
 		ginkgo.It("should list full IMAGE IDs", func() {
 			images := command.StdoutAsLines(o, "images", "--quiet", "--no-trunc")
