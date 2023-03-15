@@ -575,34 +575,44 @@ func Run(o *RunOption) {
 			user := user
 			ginkgo.It(fmt.Sprintf("should set the user of a container with %s flag", user), func() {
 				// Ref: https://wiki.gentoo.org/wiki/UID_GID_Assignment_Table
-				testCases := map[string]string{
-					"65534":        "uid=65534(nobody) gid=65534(nobody)",
-					"nobody":       "uid=65534(nobody) gid=65534(nobody)",
-					"nobody:users": "uid=65534(nobody) gid=100(users)",
-					"nobody:100":   "uid=65534(nobody) gid=100(users)",
+				testCases := map[string][]string{
+					"65534":        {"uid=65534(nobody) gid=65534(nobody)", "uid=65534(nobody) gid=65534(nobody) groups=65534(nobody)"},
+					"nobody":       {"uid=65534(nobody) gid=65534(nobody)", "uid=65534(nobody) gid=65534(nobody) groups=65534(nobody)"},
+					"nobody:users": {"uid=65534(nobody) gid=100(users)", "uid=65534(nobody) gid=100(users) groups=100(users)"},
+					"nobody:100":   {"uid=65534(nobody) gid=100(users)", "uid=65534(nobody) gid=100(users) groups=100(users)"},
 				}
 				for userStr, expected := range testCases {
 					output := command.StdoutStr(o.BaseOpt, "run", user, userStr, defaultImage, "id")
-					gomega.Expect(output).To(gomega.ContainSubstring(expected))
+					// TODO: Remove the Or operator after upgrading the nerdctl dependency to 1.2.1 to only match expected[1]
+					gomega.Expect(output).Should(gomega.Or(gomega.Equal(expected[0]), gomega.Equal(expected[1])))
 				}
 			})
 
 			ginkgo.It("should add additional groups for a specific user with --group-add flag", func() {
 				testCases := []struct {
 					groups   []string
-					expected string
+					expected []string
 				}{
 					{
-						groups:   []string{"users"},
-						expected: "uid=65534(nobody) gid=65534(nobody) groups=100(users)",
+						groups: []string{"users"},
+						expected: []string{
+							"uid=65534(nobody) gid=65534(nobody) groups=100(users)",
+							"uid=65534(nobody) gid=65534(nobody) groups=100(users),65534(nobody)",
+						},
 					},
 					{
-						groups:   []string{"100"},
-						expected: "uid=65534(nobody) gid=65534(nobody) groups=100(users)",
+						groups: []string{"100"},
+						expected: []string{
+							"uid=65534(nobody) gid=65534(nobody) groups=100(users)",
+							"uid=65534(nobody) gid=65534(nobody) groups=100(users),65534(nobody)",
+						},
 					},
 					{
-						groups:   []string{"users", "nogroup"},
-						expected: "uid=65534(nobody) gid=65534(nobody) groups=100(users),65533(nogroup)",
+						groups: []string{"users", "nogroup"},
+						expected: []string{
+							"uid=65534(nobody) gid=65534(nobody) groups=100(users),65533(nogroup)",
+							"uid=65534(nobody) gid=65534(nobody) groups=100(users),65533(nogroup),65534(nobody)",
+						},
 					},
 				}
 
@@ -613,7 +623,8 @@ func Run(o *RunOption) {
 					}
 					args = append(args, defaultImage, "id")
 					output := command.StdoutStr(o.BaseOpt, args...)
-					gomega.Expect(output).To(gomega.ContainSubstring(tc.expected))
+					// TODO: Remove the Or operator after upgrading the nerdctl dependency to 1.2.1 to only match tc.expected[1]
+					gomega.Expect(output).Should(gomega.Or(gomega.Equal(tc.expected[0]), gomega.Equal(tc.expected[1])))
 				}
 			})
 		}

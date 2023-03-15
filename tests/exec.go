@@ -94,14 +94,15 @@ func Exec(o *option.Option) {
 			for _, user := range []string{"-u", "--user"} {
 				user := user
 				ginkgo.It(fmt.Sprintf("should output user id according to user name specified by %s flag", user), func() {
-					testCases := map[string]string{
-						"1000":       "uid=1000 gid=0(root)",
-						"1000:users": "uid=1000 gid=100(users)",
+					testCases := map[string][]string{
+						"1000":       {"uid=1000 gid=0(root)", "uid=1000 gid=0(root) groups=0(root)"},
+						"1000:users": {"uid=1000 gid=100(users)", "uid=1000 gid=100(users) groups=100(users)"},
 					}
 
 					for name, want := range testCases {
 						output := command.StdoutStr(o, "exec", user, name, testContainerName, "id")
-						gomega.Expect(output).Should(gomega.ContainSubstring(want))
+						// TODO: Remove the Or operator after upgrading the nerdctl dependency to 1.2.1 to only match want[1]
+						gomega.Expect(output).Should(gomega.Or(gomega.Equal(want[0]), gomega.Equal(want[1])))
 					}
 				})
 			}
