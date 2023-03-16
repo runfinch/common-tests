@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.2](https://github.com/runfinch/common-tests/compare/v0.6.1...v0.6.2) (2023-03-16)
+
+
+### Bug Fixes
+
+* Fix tests to match nerdctl 1.2.1 outputs ([#50](https://github.com/runfinch/common-tests/issues/50)) ([3d9b4f4](https://github.com/runfinch/common-tests/commit/3d9b4f4794d8df965dd2d611b2bed59aabff7dc2))
+
+
+### Build System or External Dependencies
+
+* **deps:** bump github.com/onsi/ginkgo/v2 from 2.8.3 to 2.8.4 ([#41](https://github.com/runfinch/common-tests/issues/41)) ([a9476c1](https://github.com/runfinch/common-tests/commit/a9476c13bc4febd40a4f98cc8e6f8eebc04cfb5e))
+* **deps:** bump github.com/onsi/gomega from 1.27.1 to 1.27.2 ([#40](https://github.com/runfinch/common-tests/issues/40)) ([e8fc71a](https://github.com/runfinch/common-tests/commit/e8fc71a9c94afe2084bfdb129de5f5828adfa8b8))
+
 ## [0.6.1](https://github.com/runfinch/common-tests/compare/v0.6.0...v0.6.1) (2023-02-28)
 
 
