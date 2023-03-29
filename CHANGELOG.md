@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.3](https://github.com/runfinch/common-tests/compare/v0.6.2...v0.6.3) (2023-03-27)
+
+
+### Build System or External Dependencies
+
+* **deps:** bump github.com/onsi/gomega from 1.27.2 to 1.27.4 ([#48](https://github.com/runfinch/common-tests/issues/48)) ([f113e7b](https://github.com/runfinch/common-tests/commit/f113e7b2f65a66982773079a30dee06dd5e6e326))
+* **deps:** bump github.com/onsi/gomega from 1.27.4 to 1.27.5 ([#52](https://github.com/runfinch/common-tests/issues/52)) ([bd056e7](https://github.com/runfinch/common-tests/commit/bd056e7d947a2432611ca923585422c399c56395))
+
 ## [0.6.2](https://github.com/runfinch/common-tests/compare/v0.6.1...v0.6.2) (2023-03-16)
 
 
