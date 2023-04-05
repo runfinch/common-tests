@@ -20,20 +20,13 @@ func Ps(o *option.Option) {
 
 	containerNames := []string{"ctr_1", "ctr_2"}
 	ginkgo.Describe("Ps command", func() {
-		pwd, _ := os.Getwd()
 		ginkgo.BeforeEach(func() {
 			command.RemoveAll(o)
 			command.Run(o, "network", "create", testNetwork)
 			command.Run(o, "run", "-d",
 				"--name", containerNames[0],
-				"--label", "color=red",
-				"-v", fmt.Sprintf("%s:%s", pwd, pwd),
-				"-w", pwd,
 				defaultImage)
 			command.Run(o, "run", "-d",
-				"--label", "color=green",
-				"--network", testNetwork,
-				"-p", "8081:80",
 				"--name", containerNames[1],
 				defaultImage, "sleep", "infinity")
 		})
@@ -70,10 +63,6 @@ func Ps(o *option.Option) {
 		ginkgo.It("should list creation date of the containers", func() {
 			psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.CreatedAt}}")
 			gomega.Expect(psOutput).ShouldNot(gomega.ContainElement(gomega.BeEmpty()))
-		})
-		ginkgo.It("should list port forwarding info of the containers", func() {
-			psOutput := command.StdoutStr(o, "ps", "--format", "{{.Ports}}")
-			gomega.Expect(psOutput).Should(gomega.ContainSubstring("8081"))
 		})
 		ginkgo.It("should list only running containers", func() {
 			psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.Status}}")
@@ -120,61 +109,110 @@ func Ps(o *option.Option) {
 				gomega.Expect(psOutput).Should(gomega.ContainElement(containerNames[1]))
 			})
 		}
+	})
 
-		ginkgo.Context("should list container ", func() {
-			filterTests := []struct {
-				filter         string
-				expectedOutput []string
-			}{
-				{
-					filter:         fmt.Sprintf("name=%s", containerNames[0]),
-					expectedOutput: []string{containerNames[0]},
-				},
-				{
-					filter:         "label=color=green",
-					expectedOutput: []string{containerNames[1]},
-				},
-				{
-					filter:         "label=color",
-					expectedOutput: containerNames,
-				},
-				{
-					filter:         "exited=0",
-					expectedOutput: []string{containerNames[0]},
-				},
-				{
-					filter:         "status=exited",
-					expectedOutput: []string{containerNames[0]},
-				},
-				{
-					filter:         "status=running",
-					expectedOutput: []string{containerNames[1]},
-				},
-				{
-					filter:         fmt.Sprintf("before=%s", containerNames[1]),
-					expectedOutput: []string{containerNames[0]},
-				},
-				{
-					filter:         fmt.Sprintf("since=%s", containerNames[0]),
-					expectedOutput: []string{containerNames[1]},
-				},
-				{
-					filter:         fmt.Sprintf("volume=%s", pwd),
-					expectedOutput: []string{containerNames[0]},
-				},
-				{
-					filter:         fmt.Sprintf("network=%s", testNetwork),
-					expectedOutput: []string{containerNames[1]},
-				},
-			}
-
-			for _, test := range filterTests {
-				test := test
-				ginkgo.It(fmt.Sprintf("with filter %s", test.filter), func() {
-					output := command.StdOutAsLines(o, "ps", "-a", "--format", "{{.Names}}", "--filter", test.filter)
-					gomega.Expect(output).Should(gomega.ContainElements(test.expectedOutput))
-				})
-			}
+	ginkgo.Describe("Ps command", func() {
+		pwd, _ := os.Getwd()
+		ginkgo.BeforeEach(func() {
+			command.RemoveAll(o)
+			command.Run(o, "network", "create", testNetwork)
+			command.Run(o, "run", "-d",
+				"--name", containerNames[0],
+				"--label", "color=red",
+				"-v", fmt.Sprintf("%s:%s", pwd, pwd),
+				"-w", pwd,
+				defaultImage)
+			command.Run(o, "run", "-d",
+				"--label", "color=green",
+				"--network", testNetwork,
+				"-p", "8081:80",
+				"--name", containerNames[1],
+				defaultImage, "sleep", "infinity")
 		})
+
+		ginkgo.AfterEach(func() {
+			command.RemoveAll(o)
+		})
+		ginkgo.It("should list port forwarding info of the containers", func() {
+			psOutput := command.StdoutStr(o, "ps", "--format", "{{.Ports}}")
+			gomega.Expect(psOutput).Should(gomega.ContainSubstring("8081"))
+		})
+	})
+
+	ginkgo.Describe("Ps command", func() {
+		pwd, _ := os.Getwd()
+		ginkgo.BeforeEach(func() {
+			command.RemoveAll(o)
+			command.Run(o, "network", "create", testNetwork)
+			command.Run(o, "run", "-d",
+				"--name", containerNames[0],
+				"--label", "color=red",
+				"-v", fmt.Sprintf("%s:%s", pwd, pwd),
+				"-w", pwd,
+				defaultImage)
+			command.Run(o, "run", "-d",
+				"--label", "color=green",
+				"--network", testNetwork,
+				"-p", "8081:80",
+				"--name", containerNames[1],
+				defaultImage, "sleep", "infinity")
+		})
+
+		ginkgo.AfterEach(func() {
+			command.RemoveAll(o)
+		})
+		filterTests := []struct {
+			filter         string
+			expectedOutput []string
+		}{
+			{
+				filter:         fmt.Sprintf("name=%s", containerNames[0]),
+				expectedOutput: []string{containerNames[0]},
+			},
+			{
+				filter:         "label=color=green",
+				expectedOutput: []string{containerNames[1]},
+			},
+			{
+				filter:         "label=color",
+				expectedOutput: containerNames,
+			},
+			{
+				filter:         "exited=0",
+				expectedOutput: []string{containerNames[0]},
+			},
+			{
+				filter:         "status=exited",
+				expectedOutput: []string{containerNames[0]},
+			},
+			{
+				filter:         "status=running",
+				expectedOutput: []string{containerNames[1]},
+			},
+			{
+				filter:         fmt.Sprintf("before=%s", containerNames[1]),
+				expectedOutput: []string{containerNames[0]},
+			},
+			{
+				filter:         fmt.Sprintf("since=%s", containerNames[0]),
+				expectedOutput: []string{containerNames[1]},
+			},
+			{
+				filter:         fmt.Sprintf("volume=%s", pwd),
+				expectedOutput: []string{containerNames[0]},
+			},
+			{
+				filter:         fmt.Sprintf("network=%s", testNetwork),
+				expectedOutput: []string{containerNames[1]},
+			},
+		}
+
+		for _, test := range filterTests {
+			test := test
+			ginkgo.It(fmt.Sprintf(" should list container with filter %s", test.filter), func() {
+				output := command.StdOutAsLines(o, "ps", "-a", "--format", "{{.Names}}", "--filter", test.filter)
+				gomega.Expect(output).Should(gomega.ContainElements(test.expectedOutput))
+			})
+		}
 	})
 }
