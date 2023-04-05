@@ -6,10 +6,10 @@ package tests
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/ffs"
 	"github.com/runfinch/common-tests/option"
@@ -44,6 +44,11 @@ func ComposeDown(o *option.Option) {
 			volumes := volumes
 			ginkgo.It(fmt.Sprintf("should stop compose services and delete volumes by specifying %s flag", volumes), func() {
 				volumes := volumes
+				// Wait 10 sec before calling compose down since compose down cmd sometimes fails to delete the volume
+				// due to concurrent access of the volume.
+				// For more details - https://github.com/runfinch/finch/issues/261
+				time.Sleep(10 * time.Second)
+
 				command.Run(o, "compose", "down", volumes, "--file", composeFilePath)
 				containerShouldNotExist(o, containerNames...)
 				volumeShouldNotExist(o, "compose_data_volume")
