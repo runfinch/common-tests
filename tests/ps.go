@@ -35,7 +35,7 @@ func Ps(o *option.Option) {
 			command.RemoveAll(o)
 		})
 		ginkgo.It("should list only running containers", func() {
-			psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.Names}}")
+			psOutput := command.StdoutAsLines(o, "ps", "--format", "{{.Names}}")
 			gomega.Expect(psOutput).ShouldNot(gomega.ContainElement(containerNames[0]))
 			gomega.Expect(psOutput).Should(gomega.ContainElement(containerNames[1]))
 		})
@@ -43,17 +43,17 @@ func Ps(o *option.Option) {
 		for _, flag := range []string{"-a", "--all"} {
 			flag := flag
 			ginkgo.It(fmt.Sprintf("should list all containers [%s flag]", flag), func() {
-				psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.Names}}", flag)
+				psOutput := command.StdoutAsLines(o, "ps", "--format", "{{.Names}}", flag)
 				gomega.Expect(psOutput).Should(gomega.ContainElements(containerNames))
 			})
 		}
 
 		ginkgo.It("should list ID of the containers", func() {
-			psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.ID}}")
+			psOutput := command.StdoutAsLines(o, "ps", "--format", "{{.ID}}")
 			gomega.Expect(psOutput).Should(gomega.HaveEach(gomega.MatchRegexp(sha256RegexTruncated)))
 		})
 		ginkgo.It("should list image of the containers", func() {
-			psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.Image}}")
+			psOutput := command.StdoutAsLines(o, "ps", "--format", "{{.Image}}")
 			gomega.Expect(psOutput).Should(gomega.ContainElement(defaultImage))
 		})
 		ginkgo.It("should list command of the containers", func() {
@@ -61,25 +61,25 @@ func Ps(o *option.Option) {
 			gomega.Expect(psOutput).Should(gomega.ContainSubstring("sleep infinity"))
 		})
 		ginkgo.It("should list creation date of the containers", func() {
-			psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.CreatedAt}}")
+			psOutput := command.StdoutAsLines(o, "ps", "--format", "{{.CreatedAt}}")
 			gomega.Expect(psOutput).ShouldNot(gomega.ContainElement(gomega.BeEmpty()))
 		})
 		ginkgo.It("should list only running containers", func() {
-			psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.Status}}")
+			psOutput := command.StdoutAsLines(o, "ps", "--format", "{{.Status}}")
 			gomega.Expect(psOutput).Should(gomega.ContainElement("Up"))
 		})
 
 		for _, flag := range []string{"-q", "--quiet"} {
 			flag := flag
 			ginkgo.It(fmt.Sprintf("should list truncated container IDs [%s flag]", flag), func() {
-				psOutput := command.StdOutAsLines(o, "ps", flag)
+				psOutput := command.StdoutAsLines(o, "ps", flag)
 				gomega.Expect(psOutput).ShouldNot(gomega.BeEmpty())
 				gomega.Expect(psOutput).Should(gomega.HaveEach(gomega.MatchRegexp(sha256RegexTruncated)))
 			})
 		}
 
 		ginkgo.It("should list full container IDs", func() {
-			psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.ID}}", "--no-trunc")
+			psOutput := command.StdoutAsLines(o, "ps", "--format", "{{.ID}}", "--no-trunc")
 			gomega.Expect(psOutput).ShouldNot(gomega.BeEmpty())
 			gomega.Expect(psOutput).Should(gomega.HaveEach(gomega.MatchRegexp(sha256RegexFull)))
 		})
@@ -95,7 +95,7 @@ func Ps(o *option.Option) {
 		for _, flag := range []string{"-n", "--last"} {
 			flag := flag
 			ginkgo.It(fmt.Sprintf("should list last 1 containers [%s flag]", flag), func() {
-				psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.Names}}", flag, "1")
+				psOutput := command.StdoutAsLines(o, "ps", "--format", "{{.Names}}", flag, "1")
 				gomega.Expect(psOutput).ShouldNot(gomega.ContainElement(containerNames[0]))
 				gomega.Expect(psOutput).Should(gomega.ContainElement(containerNames[1]))
 			})
@@ -104,7 +104,7 @@ func Ps(o *option.Option) {
 		for _, flag := range []string{"-l", "--latest"} {
 			flag := flag
 			ginkgo.It(fmt.Sprintf("should list last 1 containers [%s flag]", flag), func() {
-				psOutput := command.StdOutAsLines(o, "ps", "--format", "{{.Names}}", flag)
+				psOutput := command.StdoutAsLines(o, "ps", "--format", "{{.Names}}", flag)
 				gomega.Expect(psOutput).ShouldNot(gomega.ContainElement(containerNames[0]))
 				gomega.Expect(psOutput).Should(gomega.ContainElement(containerNames[1]))
 			})
@@ -210,7 +210,7 @@ func Ps(o *option.Option) {
 		for _, test := range filterTests {
 			test := test
 			ginkgo.It(fmt.Sprintf(" should list container with filter %s", test.filter), func() {
-				output := command.StdOutAsLines(o, "ps", "-a", "--format", "{{.Names}}", "--filter", test.filter)
+				output := command.StdoutAsLines(o, "ps", "-a", "--format", "{{.Names}}", "--filter", test.filter)
 				gomega.Expect(output).Should(gomega.ContainElements(test.expectedOutput))
 			})
 		}
