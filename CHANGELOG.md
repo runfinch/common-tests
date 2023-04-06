@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.4](https://github.com/runfinch/common-tests/compare/v0.6.3...v0.6.4) (2023-04-06)
+
+
+### Bug Fixes
+
+* better handling of concurrent http servers ([#57](https://github.com/runfinch/common-tests/issues/57)) ([0ae6182](https://github.com/runfinch/common-tests/commit/0ae6182b53beffdc279ffc1df7d539fe8205fd56))
+
 ## [0.6.3](https://github.com/runfinch/common-tests/compare/v0.6.2...v0.6.3) (2023-03-27)
 
 
