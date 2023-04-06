@@ -4,7 +4,6 @@
 package tests
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -332,15 +331,16 @@ func Run(o *RunOption) {
 				gomega.Expect(mapping).Should(gomega.ContainSubstring("test-host"))
 			})
 
-			ginkgo.It("should add a custom host-to-IP mapping with --add-host flag with special IP", func() {
+			ginkgo.It("should add a custom host-to-IP mapping with --add-host flag with special IP", func(ctx ginkgo.SpecContext) {
 				response := "This is the expected response for --add-host special IP test."
-				http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+				mux := http.NewServeMux()
+				mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 					io.WriteString(w, response) //nolint:errcheck,gosec // Function call in server handler for testing only.
 				})
 				hostPort := fnet.GetFreePort()
-				s := http.Server{Addr: fmt.Sprintf(":%d", hostPort), Handler: nil, ReadTimeout: 30 * time.Second}
+				s := http.Server{Addr: fmt.Sprintf(":%d", hostPort), Handler: mux, ReadTimeout: 30 * time.Second}
 				go s.ListenAndServe() //nolint:errcheck // Asynchronously starting server for testing only.
-				ginkgo.DeferCleanup(s.Shutdown, context.Background())
+				ginkgo.DeferCleanup(s.Shutdown, ctx)
 				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--add-host", "test-host:host-gateway",
 					amazonLinux2Image, "sleep", "infinity")
 				mapping := command.StdoutStr(o.BaseOpt, "exec", testContainerName, "cat", "/etc/hosts")
