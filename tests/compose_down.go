@@ -6,10 +6,10 @@ package tests
 import (
 	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/ffs"
 	"github.com/runfinch/common-tests/option"
@@ -44,12 +44,26 @@ func ComposeDown(o *option.Option) {
 			volumes := volumes
 			ginkgo.It(fmt.Sprintf("should stop compose services and delete volumes by specifying %s flag", volumes), func() {
 				volumes := volumes
-				command.Run(o, "compose", "down", volumes, "--file", composeFilePath)
+				output := command.StdoutStr(o, "compose", "down", volumes, "--file", composeFilePath)
 				containerShouldNotExist(o, containerNames...)
-				volumeShouldNotExist(o, "compose_data_volume")
+				if !isVolumeInUse(output) {
+					volumeShouldNotExist(o, "compose_data_volume")
+				}
 			})
 		}
 	})
+}
+
+// sometimes nerdctl fails to delete the volume due to concurrent usage of the volume by the container.
+// For more details - https://github.com/runfinch/finch/issues/261
+func isVolumeInUse(output string) bool {
+	if len(output) < 1 {
+		return false
+	}
+	// Error msg is generated from nerdctl volume rm cmd.
+	// see: https://github.com/containerd/nerdctl/blob/main/pkg/cmd/volume/rm.go#L52
+	re := regexp.MustCompile(`volume.*in use`)
+	return re.MatchString(output)
 }
 
 func createComposeYmlForDownCmd(serviceNames []string, containerNames []string) (string, string) {
