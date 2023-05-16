@@ -27,6 +27,8 @@ func Inspect(o *option.Option) {
 			gomega.Expect(image).To(gomega.Equal(defaultImage))
 			containerName := command.StdoutStr(o, "inspect", "--format", "{{.Name}}", testContainerName)
 			gomega.Expect(containerName).To(gomega.Equal(testContainerName))
+			gomega.Expect(command.StdoutStr(o, "inspect", "--format", "{{.State.Status}}", testContainerName)).To(gomega.Equal("exited"))
+			gomega.Expect(command.StdoutStr(o, "inspect", "--format", "{{.State.Error}}", testContainerName)).To(gomega.Equal(""))
 		})
 
 		ginkgo.It("should display multiple container image with --format flag", func() {
