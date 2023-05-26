@@ -60,3 +60,20 @@ func CreateTempDir(directoryPrefix string) string {
 	gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
 	return tempDir
 }
+
+// CreateNestedDir creates a nested directory and returns the path of the created directory.
+// It is the caller's responsibility to remove the directory when it is no longer needed.
+func CreateNestedDir(dirPath string) string {
+	homeDir, err := os.UserHomeDir()
+	gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
+	fullPath := filepath.Join(homeDir, dirPath)
+	err = os.MkdirAll(fullPath, 0o740)
+	gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
+	return fullPath
+}
+
+// DeleteDirectory deletes the directory including nested directories.
+func DeleteDirectory(directoryPath string) {
+	err := os.RemoveAll(directoryPath)
+	gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
+}

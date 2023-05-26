@@ -446,6 +446,40 @@ func Run(o *RunOption) {
 				verifyMountsInfo(actualMount, expectedMount)
 			})
 
+			ginkgo.It("should create nested bind mounts within a container", func() {
+				const (
+					outerDir  = "/outer"
+					nestedDir = "/outer/nested"
+				)
+
+				// Create the nested directory on the host
+				hostDirectory := ffs.CreateNestedDir(outerDir)
+				nestedDirectory := ffs.CreateNestedDir(nestedDir)
+				defer ffs.DeleteDirectory(hostDirectory)
+
+				// Directory on host to be mounted at hostDirectory in container
+				tempDir := ffs.CreateTempDir("some_dir")
+				defer ffs.DeleteDirectory(tempDir)
+				// Write a file to the nested directory
+				nestedFilePath := filepath.Join(nestedDirectory, "file1.txt")
+				ffs.WriteFile(nestedFilePath, "test")
+
+				// Mount nested directory first followed by parent directory
+				command.RunWithoutSuccessfulExit(o.BaseOpt, "run", "--rm", "--name", testContainerName,
+					"-v", nestedDirectory+":"+nestedDirectory,
+					"-v", tempDir+":"+hostDirectory,
+					defaultImage, "sh", "-c", "ls "+nestedDirectory)
+
+				// Mount parent directory first followed by nested
+				output := command.StdoutStr(o.BaseOpt, "run", "--rm", "--name", testContainerName2,
+					"-v", tempDir+":"+hostDirectory,
+					"-v", nestedDirectory+":"+nestedDirectory,
+					defaultImage, "sh", "-c", "ls "+nestedDirectory)
+				gomega.Expect(output).Should(gomega.ContainSubstring("file1.txt"))
+
+				// Test with env variable
+			})
+
 			ginkgo.It("should create a tmpfs mount using --mount type=tmpfs flag", func() {
 				tmpfsDir := "/tmpfsDir"
 				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--mount",
