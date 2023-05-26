@@ -447,7 +447,7 @@ func Run(o *RunOption) {
 				verifyMountsInfo(actualMount, expectedMount)
 			})
 
-			ginkgo.It("should create nested bind mounts within a container when DOCKER_COMPAT is not set", func() {
+			ginkgo.It("should create nested bind mounts within a container when FINCH_DOCKER_COMPAT is not set", func() {
 				const (
 					outerDir  = "/outer"
 					nestedDir = "/outer/nested"
@@ -466,6 +466,7 @@ func Run(o *RunOption) {
 				ffs.WriteFile(nestedFilePath, "test")
 
 				// Mount nested directory first followed by parent directory
+				// Upstream issue: https://github.com/containerd/nerdctl/issues/2254
 				command.RunWithoutSuccessfulExit(o.BaseOpt, "run", "--rm", "--name", testContainerName,
 					"-v", nestedDirectory+":"+nestedDirectory,
 					"-v", tempDir+":"+hostDirectory,
@@ -482,7 +483,7 @@ func Run(o *RunOption) {
 			// TODO: Remove FINCH_DOCKER_COMPAT=1 check when FINCH_DOCKER_COMPAT flag is removed in finch
 			// https://github.com/runfinch/finch/pull/417/files
 
-			ginkgo.It("should create nested bind mounts within a container when DOCKER_COMPAT is set", func() {
+			ginkgo.It("should create nested bind mounts within a container when FINCH_DOCKER_COMPAT is set", func() {
 				const (
 					outerDir  = "/outer"
 					nestedDir = "/outer/nested"
