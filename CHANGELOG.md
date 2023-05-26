@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.7.0](https://github.com/runfinch/common-tests/compare/v0.6.5...v0.7.0) (2023-05-26)
+
+
+### Features
+
+* Tests for bind mounts ([#66](https://github.com/runfinch/common-tests/issues/66)) ([22a7f7e](https://github.com/runfinch/common-tests/commit/22a7f7e7bd917e443aa47aaa9eaa5dac03a5a10b))
+* verify the result of finch inspect has State.Status and State.Error ([#64](https://github.com/runfinch/common-tests/issues/64)) ([b761a7a](https://github.com/runfinch/common-tests/commit/b761a7ab19fe15e0d0bf34441fad1248ac6b3e83))
+
+
+### Build System or External Dependencies
+
+* **deps:** bump github.com/onsi/ginkgo/v2 from 2.9.2 to 2.9.5 ([#62](https://github.com/runfinch/common-tests/issues/62)) ([0bd0901](https://github.com/runfinch/common-tests/commit/0bd090128548cdeb8cf381c8c53b2177fe009ab6))
+* **deps:** bump github.com/onsi/gomega from 1.27.5 to 1.27.6 ([#54](https://github.com/runfinch/common-tests/issues/54)) ([72120b5](https://github.com/runfinch/common-tests/commit/72120b57b4c70945df307a1aea80d609e7c27a95))
+* **deps:** bump github.com/onsi/gomega from 1.27.6 to 1.27.7 ([#65](https://github.com/runfinch/common-tests/issues/65)) ([590a984](https://github.com/runfinch/common-tests/commit/590a9845b46218c1c8d669a5e5a9269dfc86a232))
+
 ## [0.6.4](https://github.com/runfinch/common-tests/compare/v0.6.3...v0.6.4) (2023-04-06)
 
 
