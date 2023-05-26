@@ -447,12 +447,16 @@ func Run(o *RunOption) {
 				verifyMountsInfo(actualMount, expectedMount)
 			})
 
+			// TODO: Remove FINCH_DOCKER_COMPAT=1 check when FINCH_DOCKER_COMPAT flag is removed in finch
 			ginkgo.It("should create nested bind mounts within a container when FINCH_DOCKER_COMPAT is not set", func() {
 				const (
 					outerDir  = "/outer"
 					nestedDir = "/outer/nested"
 				)
 
+				if fenv.GetEnv("FINCH_DOCKER_COMPAT") == "1" {
+					ginkgo.Skip("Skipping test: FINCH_DOCKER_COMPAT is set to 1")
+				}
 				// Create the nested directory on the host
 				hostDirectory := ffs.CreateNestedDir(outerDir)
 				nestedDirectory := ffs.CreateNestedDir(nestedDir)
