@@ -16,6 +16,7 @@ import (
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
+	"github.com/runfinch/common-tests/fenv"
 
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/ffs"
@@ -444,6 +445,81 @@ func Run(o *RunOption) {
 				expectedMount := []MountJSON{makeMount(bindType, fileDir, destDir, "ro", false)}
 				actualMount := getContainerMounts(o.BaseOpt, testContainerName)
 				verifyMountsInfo(actualMount, expectedMount)
+			})
+
+			// TODO: Remove FINCH_DOCKER_COMPAT=1 check when FINCH_DOCKER_COMPAT flag is removed in finch
+			ginkgo.It("should create nested bind mounts within a container when FINCH_DOCKER_COMPAT is not set", func() {
+				const (
+					outerDir  = "/outer"
+					nestedDir = "/outer/nested"
+				)
+
+				if fenv.GetEnv("FINCH_DOCKER_COMPAT") == "1" {
+					ginkgo.Skip("Skipping test: FINCH_DOCKER_COMPAT is set to 1")
+				}
+				// Create the nested directory on the host
+				hostDirectory := ffs.CreateNestedDir(outerDir)
+				nestedDirectory := ffs.CreateNestedDir(nestedDir)
+				defer ffs.DeleteDirectory(hostDirectory)
+
+				// Directory on host to be mounted at hostDirectory in container
+				tempDir := ffs.CreateTempDir("some_dir")
+				defer ffs.DeleteDirectory(tempDir)
+				// Write a file to the nested directory
+				nestedFilePath := filepath.Join(nestedDirectory, "file1.txt")
+				ffs.WriteFile(nestedFilePath, "test")
+
+				// Mount nested directory first followed by parent directory
+				// Upstream issue: https://github.com/containerd/nerdctl/issues/2254
+				command.RunWithoutSuccessfulExit(o.BaseOpt, "run", "--rm", "--name", testContainerName,
+					"-v", nestedDirectory+":"+nestedDirectory,
+					"-v", tempDir+":"+hostDirectory,
+					defaultImage, "sh", "-c", "ls "+nestedDirectory)
+
+				// Mount parent directory first followed by nested
+				output := command.StdoutStr(o.BaseOpt, "run", "--rm", "--name", testContainerName2,
+					"-v", tempDir+":"+hostDirectory,
+					"-v", nestedDirectory+":"+nestedDirectory,
+					defaultImage, "sh", "-c", "ls "+nestedDirectory)
+				gomega.Expect(output).Should(gomega.ContainSubstring("file1.txt"))
+			})
+
+			// TODO: Remove FINCH_DOCKER_COMPAT=1 check when FINCH_DOCKER_COMPAT flag is removed in finch
+			// https://github.com/runfinch/finch/pull/417/files
+
+			ginkgo.It("should create nested bind mounts within a container when FINCH_DOCKER_COMPAT is set", func() {
+				const (
+					outerDir  = "/outer"
+					nestedDir = "/outer/nested"
+				)
+				if fenv.GetEnv("FINCH_DOCKER_COMPAT") != "1" {
+					ginkgo.Skip("Skipping test: FINCH_DOCKER_COMPAT is not set to 1")
+				}
+				// Create the nested directory on the host
+				hostDirectory := ffs.CreateNestedDir(outerDir)
+				nestedDirectory := ffs.CreateNestedDir(nestedDir)
+				defer ffs.DeleteDirectory(hostDirectory)
+
+				// Directory on host to be mounted at hostDirectory in container
+				tempDir := ffs.CreateTempDir("some_dir")
+				defer ffs.DeleteDirectory(tempDir)
+				// Write a file to the nested directory
+				nestedFilePath := filepath.Join(nestedDirectory, "file1.txt")
+				ffs.WriteFile(nestedFilePath, "test")
+
+				// Mount nested directory first followed by parent directory
+				output := command.StdoutStr(o.BaseOpt, "run", "--rm", "--name", testContainerName,
+					"-v", nestedDirectory+":"+nestedDirectory,
+					"-v", tempDir+":"+hostDirectory,
+					defaultImage, "sh", "-c", "ls "+nestedDirectory)
+				gomega.Expect(output).Should(gomega.ContainSubstring("file1.txt"))
+
+				// Mount parent directory first followed by nested
+				output = command.StdoutStr(o.BaseOpt, "run", "--rm", "--name", testContainerName2,
+					"-v", tempDir+":"+hostDirectory,
+					"-v", nestedDirectory+":"+nestedDirectory,
+					defaultImage, "sh", "-c", "ls "+nestedDirectory)
+				gomega.Expect(output).Should(gomega.ContainSubstring("file1.txt"))
 			})
 
 			ginkgo.It("should create a tmpfs mount using --mount type=tmpfs flag", func() {
