@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -36,7 +37,11 @@ func ComposeDown(o *option.Option) {
 		})
 		ginkgo.It("should stop services defined in compose file without deleting volumes", func() {
 			command.Run(o, "compose", "down", "--file", composeFilePath)
-			containerShouldNotExist(o, containerNames...)
+			// Container removing is asynchronous in compose down.
+			// https://github.com/containerd/nerdctl/blob/242c6b92bcb6a6d1522104dc7206d2886b7e9cc8/pkg/composer/rm.go#L89.
+			gomega.Eventually(func() error {
+				return containerShouldNotExist(o, containerNames...)
+			}, 10*time.Second, 5*time.Second).Should(gomega.BeNil())
 			volumeShouldExist(o, "compose_data_volume")
 		})
 
@@ -45,7 +50,9 @@ func ComposeDown(o *option.Option) {
 			ginkgo.It(fmt.Sprintf("should stop compose services and delete volumes by specifying %s flag", volumes), func() {
 				volumes := volumes
 				output := command.StdoutStr(o, "compose", "down", volumes, "--file", composeFilePath)
-				containerShouldNotExist(o, containerNames...)
+				gomega.Eventually(func() error {
+					return containerShouldNotExist(o, containerNames...)
+				}, 10*time.Second, 5*time.Second).Should(gomega.BeNil())
 				if !isVolumeInUse(output) {
 					volumeShouldNotExist(o, "compose_data_volume")
 				}

@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/onsi/ginkgo/v2"
+	"github.com/onsi/gomega"
 
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/option"
@@ -27,7 +28,8 @@ func Rm(o *option.Option) {
 			containerShouldExist(o, testContainerName)
 
 			command.Run(o, "rm", testContainerName)
-			containerShouldNotExist(o, testContainerName)
+			err := containerShouldNotExist(o, testContainerName)
+			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		})
 
 		ginkgo.Context("when the container is running", func() {
@@ -44,7 +46,8 @@ func Rm(o *option.Option) {
 				force := force
 				ginkgo.It(fmt.Sprintf("should be able to remove the container with %s flag", force), func() {
 					command.Run(o, "rm", force, testContainerName)
-					containerShouldNotExist(o, testContainerName)
+					err := containerShouldNotExist(o, testContainerName)
+					gomega.Expect(err).NotTo(gomega.HaveOccurred())
 				})
 			}
 		})
@@ -60,7 +63,8 @@ func Rm(o *option.Option) {
 						containerShouldExist(o, testContainerName)
 						volumeShouldExist(o, anonymousVolume)
 						command.Run(o, "rm", volumes, testContainerName)
-						containerShouldNotExist(o, testContainerName)
+						err := containerShouldNotExist(o, testContainerName)
+						gomega.Expect(err).NotTo(gomega.HaveOccurred())
 						volumeShouldNotExist(o, anonymousVolume)
 					},
 				)
@@ -71,7 +75,8 @@ func Rm(o *option.Option) {
 						volumeShouldExist(o, "foo")
 
 						command.Run(o, "rm", volumes, testContainerName)
-						containerShouldNotExist(o, testContainerName)
+						err := containerShouldNotExist(o, testContainerName)
+						gomega.Expect(err).NotTo(gomega.HaveOccurred())
 						volumeShouldExist(o, "foo")
 					},
 				)

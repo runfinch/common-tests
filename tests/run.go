@@ -69,7 +69,8 @@ func Run(o *RunOption) {
 
 		ginkgo.It("with --rm flag, container should be removed when it exits", func() {
 			command.Run(o.BaseOpt, "run", "--rm", "--name", testContainerName, defaultImage)
-			containerShouldNotExist(o.BaseOpt, testContainerName)
+			err := containerShouldNotExist(o.BaseOpt, testContainerName)
+			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		})
 
 		ginkgo.When("running a container with metadata related flags", func() {
