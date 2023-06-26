@@ -131,11 +131,15 @@ func containerShouldExist(o *option.Option, containerNames ...string) {
 	}
 }
 
-func containerShouldNotExist(o *option.Option, containerNames ...string) {
+func containerShouldNotExist(o *option.Option, containerNames ...string) error {
 	for _, containerName := range containerNames {
-		gomega.Expect(command.Stdout(o, "ps", "-a", "-q", "--filter",
-			fmt.Sprintf("name=%s", containerName))).To(gomega.BeEmpty())
+		containerExists := command.Stdout(o, "ps", "-a", "-q", "--filter",
+			fmt.Sprintf("name=%s", containerName))
+		if len(containerExists) > 0 {
+			return fmt.Errorf("containerd '%s' exists but should not", containerName)
+		}
 	}
+	return nil
 }
 
 func imageShouldExist(o *option.Option, imageName string) {
