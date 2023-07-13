@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.1](https://github.com/runfinch/common-tests/compare/v0.7.0...v0.7.1) (2023-06-27)
+
+
+### Bug Fixes
+
+* add retry to assert containers do not exist for compose down ([#73](https://github.com/runfinch/common-tests/issues/73)) ([88f732f](https://github.com/runfinch/common-tests/commit/88f732f12979b0064b852812db4b48affedf5e4c))
+
+
+### Build System or External Dependencies
+
+* **deps:** bump github.com/onsi/ginkgo/v2 from 2.10.0 to 2.11.0 ([#71](https://github.com/runfinch/common-tests/issues/71)) ([45e9414](https://github.com/runfinch/common-tests/commit/45e9414dba27581a286784e16ff0ab54301220b2))
+* **deps:** bump github.com/onsi/ginkgo/v2 from 2.9.5 to 2.10.0 ([#69](https://github.com/runfinch/common-tests/issues/69)) ([a6ad55d](https://github.com/runfinch/common-tests/commit/a6ad55dd08ee0d3316f51891a795e4f4f5dc9dcd))
+* **deps:** bump github.com/onsi/gomega from 1.27.7 to 1.27.8 ([#68](https://github.com/runfinch/common-tests/issues/68)) ([6c72750](https://github.com/runfinch/common-tests/commit/6c7275007bf34fb6ddecc4013c16f1d79ff6d1d0))
+
 ## [0.7.0](https://github.com/runfinch/common-tests/compare/v0.6.5...v0.7.0) (2023-05-26)
 
 
