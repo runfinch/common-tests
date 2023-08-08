@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/runfinch/common-tests/compare/v0.7.1...v0.7.2) (2023-08-08)
+
+
+### Bug Fixes
+
+* make tests compatible with nerdctlv1.5 ([#75](https://github.com/runfinch/common-tests/issues/75)) ([6876cd0](https://github.com/runfinch/common-tests/commit/6876cd046728c28f527b56770fd04735f7dc7067))
+
 ## [0.7.1](https://github.com/runfinch/common-tests/compare/v0.7.0...v0.7.1) (2023-06-27)
 
 
