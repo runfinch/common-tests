@@ -104,20 +104,27 @@ func Cp(o *option.Option) {
 		})
 
 		ginkgo.When("the container is not running", func() {
-			ginkgo.It("should not be able to copy file from host to container", func() {
-				command.Run(o, "run", "--name", testContainerName, defaultImage)
+			ginkgo.It("should be able to copy file from host to container", func() {
+				command.Run(o, "run", "--name", testContainerName, defaultImage, "sleep", "1")
+				command.Run(o, "stop", testContainerName)
 				path := ffs.CreateTempFile(filename, content)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(path))
-				command.RunWithoutSuccessfulExit(o, "cp", path, containerResource)
+				command.Run(o, "cp", path, containerResource)
+
+				// Need to run container to cat file, can't exec in stopped container.
+				// Start here will sleep 1s again so we can check file in container.
+				command.Run(o, "container", "start", testContainerName)
+				fileShouldExistInContainer(o, testContainerName, containerFilepath, content)
 			})
 
-			ginkgo.It("should not be able to copy file from container to host", func() {
+			ginkgo.It("should be able to copy file from container to host", func() {
 				cmd := fmt.Sprintf("echo -n %s > %s", content, containerFilepath)
 				command.Run(o, "run", "--name", testContainerName, defaultImage, "sh", "-c", cmd)
 				fileDir := ffs.CreateTempDir("finch-test")
 				path := filepath.Join(fileDir, filename)
 				ginkgo.DeferCleanup(os.RemoveAll, fileDir)
-				command.RunWithoutSuccessfulExit(o, "cp", containerResource, path)
+				command.Run(o, "cp", containerResource, path)
+				fileShouldExist(path, content)
 			})
 		})
 	})

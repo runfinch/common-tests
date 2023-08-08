@@ -19,7 +19,7 @@ import (
 // ComposeBuild tests functionality of `compose build` command.
 func ComposeBuild(o *option.Option) {
 	services := []string{"svc1_build_cmd", "svc2_build_cmd"}
-	imageSuffix := []string{"alpine:latest", "_svc2_build_cmd:latest"}
+	imageSuffix := []string{"alpine:latest", "-svc2_build_cmd:latest"}
 	ginkgo.Describe("Compose build command", func() {
 		var composeContext string
 		var composeFilePath string
