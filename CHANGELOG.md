@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.3](https://github.com/runfinch/common-tests/compare/v0.7.2...v0.7.3) (2023-08-25)
+
+
+### Build System or External Dependencies
+
+* **deps:** bump github.com/onsi/ginkgo/v2 from 2.11.0 to 2.12.0 ([#78](https://github.com/runfinch/common-tests/issues/78)) ([7bae5c1](https://github.com/runfinch/common-tests/commit/7bae5c16524336711c8258ab27c59c54ebf399cd))
+* **deps:** bump github.com/onsi/gomega from 1.27.8 to 1.27.10 ([#74](https://github.com/runfinch/common-tests/issues/74)) ([f0f6fa1](https://github.com/runfinch/common-tests/commit/f0f6fa1a053db57b741068b208d463cb729a274f))
+
 ## [0.7.2](https://github.com/runfinch/common-tests/compare/v0.7.1...v0.7.2) (2023-08-08)
 
 
