@@ -20,7 +20,7 @@ import (
 func Cp(o *option.Option) {
 	filename := "test-file"
 	content := "test-content"
-	containerFilepath := filepath.Join("/tmp", filename)
+	containerFilepath := filepath.ToSlash(filepath.Join("/tmp", filename))
 	containerResource := fmt.Sprintf("%s:%s", testContainerName, containerFilepath)
 
 	ginkgo.Describe("copy from container to host and vice versa", func() {
