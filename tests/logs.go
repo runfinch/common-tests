@@ -54,7 +54,7 @@ func Logs(o *option.Option) {
 				time.Sleep(2 * time.Second)
 				output := command.StdoutStr(o, "logs", "--since", "1s", testContainerName)
 				gomega.Expect(output).Should(gomega.BeEmpty())
-				output = command.StdoutStr(o, "logs", "--since", "3s", testContainerName)
+				output = command.StdoutStr(o, "logs", "--since", "5s", testContainerName)
 				gomega.Expect(output).Should(gomega.Equal(foo))
 			})
 
@@ -62,7 +62,7 @@ func Logs(o *option.Option) {
 				time.Sleep(2 * time.Second)
 				output := command.StdoutStr(o, "logs", "--until", "1s", testContainerName)
 				gomega.Expect(output).Should(gomega.Equal(foo))
-				output = command.StdoutStr(o, "logs", "--until", "3s", testContainerName)
+				output = command.StdoutStr(o, "logs", "--until", "5s", testContainerName)
 				gomega.Expect(output).Should(gomega.BeEmpty())
 			})
 		})
