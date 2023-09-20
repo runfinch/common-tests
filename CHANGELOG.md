@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.4](https://github.com/runfinch/common-tests/compare/v0.7.3...v0.7.4) (2023-09-20)
+
+
+### Bug Fixes
+
+* Fix container filepath to make it platform independent ([#80](https://github.com/runfinch/common-tests/issues/80)) ([5496e94](https://github.com/runfinch/common-tests/commit/5496e94a7ec5db81f58e787a7d6dcf29efab7e37))
+* increase acceptable time deviation for stop tests with -t ([#81](https://github.com/runfinch/common-tests/issues/81)) ([c292f6d](https://github.com/runfinch/common-tests/commit/c292f6d8f79cf51b0ec2b5ec42db186e9e5661df))
+
 ## [0.7.3](https://github.com/runfinch/common-tests/compare/v0.7.2...v0.7.3) (2023-08-25)
 
 
