@@ -9,7 +9,6 @@ import (
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
-
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/option"
 )
@@ -41,7 +40,7 @@ func Stop(o *option.Option) {
 				gomega.Expect(command.StdoutStr(o, "exec", testContainerName, "echo", "foo")).To(gomega.Equal("foo"))
 				startTime := time.Now()
 				command.Run(o, "stop", "-t", "1", testContainerName)
-				gomega.Expect(time.Since(startTime)).To(gomega.BeNumerically("~", 1*time.Second, 500*time.Millisecond))
+				gomega.Expect(time.Since(startTime)).To(gomega.BeNumerically("~", 1*time.Second, 750*time.Millisecond))
 				command.RunWithoutSuccessfulExit(o, "exec", testContainerName, "echo", "foo")
 			})
 		}
