@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.5](https://github.com/runfinch/common-tests/compare/v0.7.4...v0.7.5) (2023-09-21)
+
+
+### Bug Fixes
+
+* adds --all to the volume prune command to prune named volumes ([#86](https://github.com/runfinch/common-tests/issues/86)) ([4973e9f](https://github.com/runfinch/common-tests/commit/4973e9fa956b1339fa282d065576b417acfe2c52))
+* Update logs test args ([#83](https://github.com/runfinch/common-tests/issues/83)) ([011c2e3](https://github.com/runfinch/common-tests/commit/011c2e335c4da40842bfacccab24779ce63aaa04))
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.12.0 to 2.12.1 ([#85](https://github.com/runfinch/common-tests/issues/85)) ([89d408f](https://github.com/runfinch/common-tests/commit/89d408f34ceb0be386cc0ff780aaa52638b267d5))
+
 ## [0.7.4](https://github.com/runfinch/common-tests/compare/v0.7.3...v0.7.4) (2023-09-20)
 
 
