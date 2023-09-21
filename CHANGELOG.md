@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.6](https://github.com/runfinch/common-tests/compare/v0.7.5...v0.7.6) (2023-09-21)
+
+
+### Bug Fixes
+
+* add --all to volume prune tests ([#87](https://github.com/runfinch/common-tests/issues/87)) ([9248bec](https://github.com/runfinch/common-tests/commit/9248bec81bbbd68b588a746bc409cd7b2c41ae03))
+
 ## [0.7.5](https://github.com/runfinch/common-tests/compare/v0.7.4...v0.7.5) (2023-09-21)
 
 
