@@ -5,7 +5,6 @@ package command
 
 import (
 	"github.com/onsi/ginkgo/v2"
-
 	"github.com/runfinch/common-tests/option"
 )
 
@@ -42,7 +41,7 @@ func RemoveVolumes(o *option.Option) {
 		ginkgo.GinkgoWriter.Println("No volumes to be removed")
 		return
 	}
-	Run(o, "volume", "prune", "--force")
+	Run(o, "volume", "prune", "--force", "--all")
 }
 
 // RemoveImages removes all container images in the testing environment specified by o.
