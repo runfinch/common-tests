@@ -77,8 +77,6 @@ func CreateFilePathInHome(dirPath string) string {
 	homeDir, err := os.UserHomeDir()
 	gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
 	fullPath := filepath.Join(homeDir, dirPath)
-	err = os.MkdirAll(fullPath, 0o740)
-	gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
 	return fullPath
 }
 
