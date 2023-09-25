@@ -724,8 +724,6 @@ func verifyMountsInfo(actual []MountJSON, want []MountJSON) {
 }
 
 func getWslPath(winPath string) (string, error) {
-	var err error
-
 	path, err := filepath.Abs(filepath.Clean(winPath))
 	if err != nil {
 		return "", err
