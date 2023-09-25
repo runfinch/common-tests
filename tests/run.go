@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -420,12 +421,18 @@ func Run(o *RunOption) {
 			})
 
 			ginkgo.It("should create a bind mount in a container", func() {
+				var err error
 				file := ffs.CreateTempFile("bar.txt", "foo")
 				fileDir := filepath.Dir(file)
 				ginkgo.DeferCleanup(os.RemoveAll, fileDir)
 				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--mount",
 					fmt.Sprintf("type=bind,source=%s,target=%s", fileDir, destDir),
 					defaultImage, "sleep", "infinity")
+
+				if runtime.GOOS == "windows" {
+					fileDir, err = getWslPath(fileDir)
+					gomega.Expect(err).Should(gomega.BeNil())
+				}
 				expectedMount := []MountJSON{makeMount(bindType, fileDir, destDir, "", true)}
 				actualMount := getContainerMounts(o.BaseOpt, testContainerName)
 				verifyMountsInfo(actualMount, expectedMount)
@@ -434,6 +441,7 @@ func Run(o *RunOption) {
 			})
 
 			ginkgo.It("should set the bind mount as readonly with --mount <src>=/src,<target>=/target,ro", func() {
+				var err error
 				file := ffs.CreateTempFile("bar.txt", "foo")
 				fileDir := filepath.Dir(file)
 				ginkgo.DeferCleanup(os.RemoveAll, fileDir)
@@ -442,41 +450,49 @@ func Run(o *RunOption) {
 				command.New(o.BaseOpt, "run", "-i", "--name", testContainerName, "--mount",
 					fmt.Sprintf("type=bind,source=%s,target=%s,ro", fileDir, destDir),
 					defaultImage).WithStdin(gbytes.BufferWithBytes(cmd)).WithoutSuccessfulExit().Run()
+
+				if runtime.GOOS == "windows" {
+					fileDir, err = getWslPath(fileDir)
+					gomega.Expect(err).Should(gomega.BeNil())
+				}
 				expectedMount := []MountJSON{makeMount(bindType, fileDir, destDir, "ro", false)}
 				actualMount := getContainerMounts(o.BaseOpt, testContainerName)
 				verifyMountsInfo(actualMount, expectedMount)
 			})
 
 			ginkgo.It("should create nested bind mounts within a container", func() {
-				const (
-					outerDir  = "/outer"
-					nestedDir = "/outer/nested"
-				)
-
+				var err error
 				// Create the nested directory on the host
-				hostDirectory := ffs.CreateNestedDir(outerDir)
-				nestedDirectory := ffs.CreateNestedDir(nestedDir)
-				defer ffs.DeleteDirectory(hostDirectory)
+				containerOuterDir := ffs.CreateFilePathInHome("outer")
+				nestedHostDir := ffs.CreateNestedDir(filepath.Join("outer", "nested"))
+				nestedContainerDir := nestedHostDir
+				if runtime.GOOS == "windows" {
+					nestedContainerDir, err = getWslPath(nestedHostDir)
+					gomega.Expect(err).Should(gomega.BeNil())
+					containerOuterDir, err = getWslPath(containerOuterDir)
+					gomega.Expect(err).Should(gomega.BeNil())
+				}
+				defer ffs.DeleteDirectory(nestedHostDir)
 
 				// Directory on host to be mounted at hostDirectory in container
 				tempDir := ffs.CreateTempDir("some_dir")
 				defer ffs.DeleteDirectory(tempDir)
 				// Write a file to the nested directory
-				nestedFilePath := filepath.Join(nestedDirectory, "file1.txt")
+				nestedFilePath := filepath.Join(nestedHostDir, "file1.txt")
 				ffs.WriteFile(nestedFilePath, "test")
 
 				// Mount nested directory first followed by parent directory
 				output := command.StdoutStr(o.BaseOpt, "run", "--rm", "--name", testContainerName,
-					"-v", nestedDirectory+":"+nestedDirectory,
-					"-v", tempDir+":"+hostDirectory,
-					defaultImage, "sh", "-c", "ls "+nestedDirectory)
+					"-v", nestedHostDir+":"+nestedContainerDir,
+					"-v", tempDir+":"+containerOuterDir,
+					defaultImage, "sh", "-c", "ls "+nestedContainerDir)
 				gomega.Expect(output).Should(gomega.ContainSubstring("file1.txt"))
 
 				// Mount parent directory first followed by nested
 				output = command.StdoutStr(o.BaseOpt, "run", "--rm", "--name", testContainerName2,
-					"-v", tempDir+":"+hostDirectory,
-					"-v", nestedDirectory+":"+nestedDirectory,
-					defaultImage, "sh", "-c", "ls "+nestedDirectory)
+					"-v", tempDir+":"+containerOuterDir,
+					"-v", nestedHostDir+":"+nestedContainerDir,
+					defaultImage, "sh", "-c", "ls "+nestedContainerDir)
 				gomega.Expect(output).Should(gomega.ContainSubstring("file1.txt"))
 			})
 
@@ -705,4 +721,22 @@ func verifyMountsInfo(actual []MountJSON, want []MountJSON) {
 			gomega.Expect(strings.Split(a.Mode, ",")).Should(gomega.ContainElements(strings.Split(w.Mode, ",")))
 		}
 	}
+}
+
+func getWslPath(winPath string) (string, error) {
+	var err error
+
+	path, err := filepath.Abs(filepath.Clean(winPath))
+	if err != nil {
+		return "", err
+	}
+	if len(path) >= 2 && path[1] == ':' {
+		drive := strings.ToLower(string(path[0]))
+		remainingPath := ""
+		if len(path) > 3 {
+			remainingPath = path[3:]
+		}
+		return filepath.ToSlash(filepath.Join(string(filepath.Separator), "mnt", drive, remainingPath)), nil
+	}
+	return path, nil
 }
