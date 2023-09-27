@@ -72,6 +72,14 @@ func CreateNestedDir(dirPath string) string {
 	return fullPath
 }
 
+// CreateFilePathInHome creates a filepath and returns the path.
+func CreateFilePathInHome(dirPath string) string {
+	homeDir, err := os.UserHomeDir()
+	gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
+	fullPath := filepath.Join(homeDir, dirPath)
+	return fullPath
+}
+
 // DeleteDirectory deletes the directory including nested directories.
 func DeleteDirectory(directoryPath string) {
 	err := os.RemoveAll(directoryPath)
