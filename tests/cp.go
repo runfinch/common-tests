@@ -105,7 +105,7 @@ func Cp(o *option.Option) {
 
 		ginkgo.When("the container is not running", func() {
 			ginkgo.It("should be able to copy file from host to container", func() {
-				command.Run(o, "run", "--name", testContainerName, defaultImage, "sleep", "1")
+				command.Run(o, "run", "--name", testContainerName, defaultImage, "sleep", "5")
 				command.Run(o, "stop", testContainerName)
 				path := ffs.CreateTempFile(filename, content)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(path))

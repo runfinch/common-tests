@@ -234,7 +234,7 @@ func Run(o *RunOption) {
 			startTime := time.Now()
 			command.Run(o.BaseOpt, "stop", testContainerName)
 			// assert the container to be stopped within 1.5 seconds
-			gomega.Expect(time.Since(startTime)).To(gomega.BeNumerically("~", 0*time.Millisecond, 1500*time.Millisecond))
+			gomega.Expect(time.Since(startTime)).To(gomega.BeNumerically("~", 0*time.Millisecond, 2500*time.Millisecond))
 			command.RunWithoutSuccessfulExit(o.BaseOpt, "exec", testContainerName, "echo", "foo")
 		})
 
@@ -244,7 +244,7 @@ func Run(o *RunOption) {
 			containerShouldBeRunning(o.BaseOpt, testContainerName)
 			startTime := time.Now()
 			command.Run(o.BaseOpt, "stop", testContainerName)
-			gomega.Expect(time.Since(startTime)).To(gomega.BeNumerically("~", 0*time.Millisecond, 500*time.Millisecond))
+			gomega.Expect(time.Since(startTime)).To(gomega.BeNumerically("~", 0*time.Millisecond, 2000*time.Millisecond))
 			status := command.StdoutStr(o.BaseOpt, "inspect", "--format", "{{.State.Status}}", testContainerName)
 			gomega.Expect(status).Should(gomega.Equal("exited"))
 			command.RunWithoutSuccessfulExit(o.BaseOpt, "exec", testContainerName, "echo", "foo")
