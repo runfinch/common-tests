@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.8](https://github.com/runfinch/common-tests/compare/v0.7.7...v0.7.8) (2023-10-10)
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.12.1 to 2.13.0 ([#93](https://github.com/runfinch/common-tests/issues/93)) ([dcd9dee](https://github.com/runfinch/common-tests/commit/dcd9dee430a5bdc8690472b34c675143ff56ec4c))
+
 ## [0.7.7](https://github.com/runfinch/common-tests/compare/v0.7.6...v0.7.7) (2023-10-05)
 
 
