@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.9](https://github.com/runfinch/common-tests/compare/v0.7.8...v0.7.9) (2023-11-21)
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.13.0 to 2.13.1 ([#100](https://github.com/runfinch/common-tests/issues/100)) ([9aae0d5](https://github.com/runfinch/common-tests/commit/9aae0d51e3f52a4b52445a367291e9d9b6401bb1))
+* **deps:** Bump github.com/onsi/gomega from 1.28.0 to 1.29.0 ([#98](https://github.com/runfinch/common-tests/issues/98)) ([1cb5cc6](https://github.com/runfinch/common-tests/commit/1cb5cc6d4f3ae20ca617f82c083caa5bc56f5531))
+* **deps:** Bump github.com/onsi/gomega from 1.29.0 to 1.30.0 ([#99](https://github.com/runfinch/common-tests/issues/99)) ([fffae02](https://github.com/runfinch/common-tests/commit/fffae0218ec7836bc98d7392781918fed2fefa68))
+* **deps:** Bump golang.org/x/net from 0.14.0 to 0.17.0 ([#95](https://github.com/runfinch/common-tests/issues/95)) ([4e8bcda](https://github.com/runfinch/common-tests/commit/4e8bcdae827a129fb08761594114561949793990))
+
 ## [0.7.8](https://github.com/runfinch/common-tests/compare/v0.7.7...v0.7.8) (2023-10-10)
 
 
