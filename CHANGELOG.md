@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.10](https://github.com/runfinch/common-tests/compare/v0.7.9...v0.7.10) (2024-01-05)
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.13.1 to 2.13.2 ([#102](https://github.com/runfinch/common-tests/issues/102)) ([91f0e82](https://github.com/runfinch/common-tests/commit/91f0e82764480a5be385d3cdcee91d6b38e4d6be))
+
+
+### Bug Fixes
+
+* disable build --ssh test on Windows ([#106](https://github.com/runfinch/common-tests/issues/106)) ([e7fe1eb](https://github.com/runfinch/common-tests/commit/e7fe1ebc083f5ab66c7426a1d464e78c941faa12))
+
 ## [0.7.9](https://github.com/runfinch/common-tests/compare/v0.7.8...v0.7.9) (2023-11-21)
 
 
