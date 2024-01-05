@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/onsi/ginkgo/v2"
@@ -127,6 +128,9 @@ func Build(o *option.Option) {
 			})
 
 			ginkgo.It("Build an image with --ssh option", func() {
+				if runtime.GOOS == "windows" {
+					ginkgo.Skip("non-functional on Windows, see https://github.com/runfinch/finch/issues/750")
+				}
 				containerWithSSH := fmt.Sprintf(`FROM %s
 				RUN ["echo", "built from Dockerfile.with-ssh"]
 			`, defaultImage)
