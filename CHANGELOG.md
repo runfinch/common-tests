@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.11](https://github.com/runfinch/common-tests/compare/v0.7.10...v0.7.11) (2024-01-06)
+
+
+### Bug Fixes
+
+* fix panic in HTTPGetAndAssert ([#109](https://github.com/runfinch/common-tests/issues/109)) ([b572343](https://github.com/runfinch/common-tests/commit/b5723431c20c68df7f93bbb99a04f6683368c8bc))
+
 ## [0.7.10](https://github.com/runfinch/common-tests/compare/v0.7.9...v0.7.10) (2024-01-05)
 
 
