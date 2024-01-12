@@ -4,6 +4,8 @@
 package tests
 
 import (
+	"time"
+
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 
@@ -26,7 +28,11 @@ func Events(o *option.Option) {
 			defer session.Kill()
 			gomega.Expect(session.Out.Contents()).Should(gomega.BeEmpty())
 			command.Run(o, "pull", defaultImage)
-			gomega.Expect(session.Out.Contents()).Should(gomega.ContainSubstring(defaultImage))
+			// allow propagation time
+			gomega.Eventually(session.Out.Contents()).
+				WithTimeout(15 * time.Second).
+				WithPolling(1 * time.Second).
+				Should(gomega.ContainSubstring(defaultImage))
 		})
 	})
 }
