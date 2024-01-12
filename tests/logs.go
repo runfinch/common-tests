@@ -99,9 +99,8 @@ func Logs(o *option.Option) {
 					defer session.Kill()
 					gomega.Expect(session.Out.Contents()).Should(gomega.BeEmpty())
 					command.Run(o, "exec", testContainerName, "sh", "-c", fmt.Sprintf("echo %s >> /proc/1/fd/1", newLog))
-					output := strings.TrimSpace(string(session.Out.Contents()))
 					// allow propagation time
-					gomega.Eventually(output).
+					gomega.Eventually(strings.TrimSpace(string(session.Out.Contents()))).
 						WithTimeout(15 * time.Second).
 						WithPolling(1 * time.Second).
 						Should(gomega.Equal(newLog))
