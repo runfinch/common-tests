@@ -366,7 +366,10 @@ func Run(o *RunOption) {
 					hostPort := fnet.GetFreePort()
 					// Start an Nginx container in detached mode with the specified publish flag and mapping the container port to
 					// a randomly selected host port.
-					command.Run(o.BaseOpt, "run", "-d", publish, fmt.Sprintf("%d:%d", hostPort, containerPort), nginxImage)
+					command.
+						New(o.BaseOpt, "run", "-d", publish, fmt.Sprintf("%d:%d", hostPort, containerPort), nginxImage).
+						WithTimeoutInSeconds(20).
+						Run()
 					fnet.HTTPGetAndAssert(fmt.Sprintf("http://localhost:%d", hostPort), 200, 20, 200*time.Millisecond)
 				})
 			}
