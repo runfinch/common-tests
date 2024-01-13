@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.12](https://github.com/runfinch/common-tests/compare/v0.7.11...v0.7.12) (2024-01-13)
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.13.2 to 2.14.0 ([#112](https://github.com/runfinch/common-tests/issues/112)) ([ece5ec6](https://github.com/runfinch/common-tests/commit/ece5ec6eab9870208c693bdf34ee8371373b3501))
+
+
+### Bug Fixes
+
+* allow propagation time for async conditions ([#111](https://github.com/runfinch/common-tests/issues/111)) ([8aeb41a](https://github.com/runfinch/common-tests/commit/8aeb41a875c62a0aedfe7042861c424d42ab7bb1))
+* increase nginx pull timeout ([#114](https://github.com/runfinch/common-tests/issues/114)) ([33308d0](https://github.com/runfinch/common-tests/commit/33308d0ea9235454783bd88cc40de3d84852974a))
+
 ## [0.7.11](https://github.com/runfinch/common-tests/compare/v0.7.10...v0.7.11) (2024-01-06)
 
 
