@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.13](https://github.com/runfinch/common-tests/compare/v0.7.12...v0.7.13) (2024-02-12)
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.14.0 to 2.15.0 ([#115](https://github.com/runfinch/common-tests/issues/115)) ([70f9539](https://github.com/runfinch/common-tests/commit/70f953921afa4c81090a63a218613946200b3f19))
+* **deps:** Bump github.com/onsi/gomega from 1.30.0 to 1.31.1 ([#117](https://github.com/runfinch/common-tests/issues/117)) ([70cc410](https://github.com/runfinch/common-tests/commit/70cc410777cb65616e80b30684be4491cf7be2de))
+
+
+### Bug Fixes
+
+* increase event timeout ([#118](https://github.com/runfinch/common-tests/issues/118)) ([22ca9e4](https://github.com/runfinch/common-tests/commit/22ca9e496d21e2a2b88cb149b4e8123375697518))
+
 ## [0.7.12](https://github.com/runfinch/common-tests/compare/v0.7.11...v0.7.12) (2024-01-13)
 
 
