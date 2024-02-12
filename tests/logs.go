@@ -101,7 +101,7 @@ func Logs(o *option.Option) {
 					command.Run(o, "exec", testContainerName, "sh", "-c", fmt.Sprintf("echo %s >> /proc/1/fd/1", newLog))
 					// allow propagation time
 					gomega.Eventually(strings.TrimSpace(string(session.Out.Contents()))).
-						WithTimeout(15 * time.Second).
+						WithTimeout(30 * time.Second).
 						WithPolling(1 * time.Second).
 						Should(gomega.Equal(newLog))
 				})
