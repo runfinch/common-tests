@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.14](https://github.com/runfinch/common-tests/compare/v0.7.13...v0.7.14) (2024-02-27)
+
+
+### Bug Fixes
+
+* use new values of session ([#121](https://github.com/runfinch/common-tests/issues/121)) ([a09ae51](https://github.com/runfinch/common-tests/commit/a09ae519d21f7a6886a54f3c1a36f4d3ea5e8309))
+
 ## [0.7.13](https://github.com/runfinch/common-tests/compare/v0.7.12...v0.7.13) (2024-02-12)
 
 
