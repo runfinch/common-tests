@@ -10,6 +10,7 @@ import (
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+	"github.com/onsi/gomega/gexec"
 
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/option"
@@ -100,7 +101,9 @@ func Logs(o *option.Option) {
 					gomega.Expect(session.Out.Contents()).Should(gomega.BeEmpty())
 					command.Run(o, "exec", testContainerName, "sh", "-c", fmt.Sprintf("echo %s >> /proc/1/fd/1", newLog))
 					// allow propagation time
-					gomega.Eventually(strings.TrimSpace(string(session.Out.Contents()))).
+					gomega.Eventually(func(session *gexec.Session) string {
+						return strings.TrimSpace(string(session.Out.Contents()))
+					}).WithArguments(session).
 						WithTimeout(30 * time.Second).
 						WithPolling(1 * time.Second).
 						Should(gomega.Equal(newLog))
