@@ -342,6 +342,8 @@ func Run(o *RunOption) {
 				hostPort := fnet.GetFreePort()
 				s := http.Server{Addr: fmt.Sprintf(":%d", hostPort), Handler: mux, ReadTimeout: 30 * time.Second}
 				go s.ListenAndServe() //nolint:errcheck // Asynchronously starting server for testing only.
+
+				time.Sleep(5 * time.Second)
 				ginkgo.DeferCleanup(s.Shutdown, ctx)
 				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--add-host", "test-host:host-gateway",
 					amazonLinux2Image, "sleep", "infinity")
