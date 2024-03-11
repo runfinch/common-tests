@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.15](https://github.com/runfinch/common-tests/compare/v0.7.14...v0.7.15) (2024-03-11)
+
+
+### Bug Fixes
+
+* Add a wait for server to start before doing a curl, to avoid sync issue ([#124](https://github.com/runfinch/common-tests/issues/124)) ([cb3138e](https://github.com/runfinch/common-tests/commit/cb3138e72fe7284e2c27a34859ce22e24ae440e9))
+
 ## [0.7.14](https://github.com/runfinch/common-tests/compare/v0.7.13...v0.7.14) (2024-02-27)
 
 
