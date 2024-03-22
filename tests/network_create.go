@@ -29,9 +29,9 @@ func NetworkCreate(o *option.Option) {
 		})
 
 		ginkgo.It("containers under the same network can communicate with each other", func() {
-			command.Run(o, "run", "-d", "--name", testContainerName, defaultImage, "sh", "-c", "echo hello | nc -l -p 80")
+			command.Run(o, "run", "-d", "--name", testContainerName, localImages[defaultImage], "sh", "-c", "echo hello | nc -l -p 80")
 			ipAddr := command.StdoutStr(o, "inspect", "--format", "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}", testContainerName)
-			output := command.StdoutStr(o, "run", defaultImage, "nc", fmt.Sprintf("%s:80", ipAddr))
+			output := command.StdoutStr(o, "run", localImages[defaultImage], "nc", fmt.Sprintf("%s:80", ipAddr))
 			gomega.Expect(output).Should(gomega.Equal("hello"))
 		})
 
@@ -63,12 +63,12 @@ func NetworkCreate(o *option.Option) {
 			output := command.StdoutStr(o, "network", "inspect", testNetwork, "--format", "{{(index .IPAM.Config 0).IPRange}}")
 			gomega.Expect(output).Should(gomega.Equal(ipRange))
 
-			command.Run(o, "run", "-d", "--name", testContainerName, "--network", testNetwork, defaultImage, "sleep", "infinity")
+			command.Run(o, "run", "-d", "--name", testContainerName, "--network", testNetwork, localImages[defaultImage], "sleep", "infinity")
 			ipAddr := command.StdoutStr(o, "inspect", testContainerName, "--format", "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}")
 			// Must be 10.5.1.1 because there is only one IP in the IP range.
 			gomega.Expect(ipAddr).Should(gomega.Equal("10.5.1.1"))
 			// Must fail because there is no available IP in the IP range now.
-			command.RunWithoutSuccessfulExit(o, "run", "--name", "test-ctr2", "--network", testNetwork, defaultImage)
+			command.RunWithoutSuccessfulExit(o, "run", "--name", "test-ctr2", "--network", testNetwork, localImages[defaultImage])
 		})
 
 		ginkgo.It("should create a network with label using --label flag", func() {

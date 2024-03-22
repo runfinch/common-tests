@@ -18,9 +18,9 @@ func RemoveAll(o *option.Option) {
 
 // RemoveContainers removes all containers in the testing environment specified by o.
 func RemoveContainers(o *option.Option) {
-	allIds := GetAllContainerIDs(o)
+	allIDs := GetAllContainerIDs(o)
 	var ids []string
-	for _, id := range allIds {
+	for _, id := range allIDs {
 		if id != localRegistryContainerID {
 			ids = append(ids, id)
 		}
@@ -46,9 +46,9 @@ func RemoveVolumes(o *option.Option) {
 
 // RemoveImages removes all container images in the testing environment specified by o.
 func RemoveImages(o *option.Option) {
-	allIds := GetAllImageIDs(o)
+	allIDs := GetAllImageIDs(o)
 	var ids []string
-	for _, id := range allIds {
+	for _, id := range allIDs {
 		if id != localRegistryImageID {
 			ids = append(ids, id)
 		}

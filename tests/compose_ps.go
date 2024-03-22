@@ -19,7 +19,7 @@ import (
 func ComposePs(o *option.Option) {
 	services := []string{"svc1_compose_ps", "svc2_compose_ps"}
 	containerNames := []string{"container1_compose_ps", "container2_compose_ps"}
-	imageNames := []string{defaultImage, defaultImage}
+	imageNames := []string{localImages[defaultImage], localImages[defaultImage]}
 
 	ginkgo.Describe("Compose ps command", func() {
 		var composeContext string

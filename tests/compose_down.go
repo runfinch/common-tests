@@ -94,6 +94,6 @@ services:
       - compose_data_volume:/usr/local/data
 volumes:
   compose_data_volume:
-`, serviceNames[0], serviceNames[1], defaultImage, containerNames[0], containerNames[1])
+`, serviceNames[0], serviceNames[1], localImages[defaultImage], containerNames[0], containerNames[1])
 	return ffs.CreateComposeYmlContext(composeYmlContent)
 }

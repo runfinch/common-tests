@@ -24,7 +24,7 @@ func Stop(o *option.Option) {
 		})
 
 		ginkgo.It("should stop the container if the container is running", func() {
-			command.Run(o, "run", "-d", "--name", testContainerName, defaultImage, "nc", "-l")
+			command.Run(o, "run", "-d", "--name", testContainerName, localImages[defaultImage], "nc", "-l")
 			containerShouldBeRunning(o, testContainerName)
 
 			command.Run(o, "stop", testContainerName)
@@ -36,7 +36,7 @@ func Stop(o *option.Option) {
 			ginkgo.It(fmt.Sprintf("should stop running container within specified time by %s flag", timeFlag), func() {
 				// With PID=1, `sleep infinity` does not exit due to receiving a SIGTERM, which is sent by the stop command.
 				// Ref. https://superuser.com/a/1299463/730265
-				command.Run(o, "run", "-d", "--name", testContainerName, defaultImage, "sleep", "infinity")
+				command.Run(o, "run", "-d", "--name", testContainerName, localImages[defaultImage], "sleep", "infinity")
 				gomega.Expect(command.StdoutStr(o, "exec", testContainerName, "echo", "foo")).To(gomega.Equal("foo"))
 				startTime := time.Now()
 				command.Run(o, "stop", "-t", "1", testContainerName)

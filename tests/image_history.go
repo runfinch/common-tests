@@ -22,7 +22,7 @@ func ImageHistory(o *option.Option) {
 	ginkgo.Describe("show the history of an image", func() {
 		ginkgo.BeforeEach(func() {
 			command.RemoveAll(o)
-			pullImage(o, defaultImage)
+			pullImage(o, localImages[defaultImage])
 		})
 
 		ginkgo.AfterEach(func() {
@@ -30,19 +30,19 @@ func ImageHistory(o *option.Option) {
 		})
 
 		ginkgo.It("should display image history", func() {
-			gomega.Expect(command.StdoutStr(o, "image", "history", defaultImage)).ShouldNot(gomega.BeEmpty())
+			gomega.Expect(command.StdoutStr(o, "image", "history", localImages[defaultImage])).ShouldNot(gomega.BeEmpty())
 		})
 
 		for _, quiet := range []string{"-q", "--quiet"} {
 			quiet := quiet
 			ginkgo.It(fmt.Sprintf("should only display snapshot ID with %s flag", quiet), func() {
-				ids := removeMissingID(command.StdoutAsLines(o, "image", "history", quiet, defaultImage))
+				ids := removeMissingID(command.StdoutAsLines(o, "image", "history", quiet, localImages[defaultImage]))
 				gomega.Expect(ids).Should(gomega.HaveEach(gomega.MatchRegexp(sha256RegexFull)))
 			})
 		}
 
 		ginkgo.It("should only display snapshot ID with --format flag", func() {
-			ids := removeMissingID(command.StdoutAsLines(o, "image", "history", defaultImage, "--format", "{{.Snapshot}}"))
+			ids := removeMissingID(command.StdoutAsLines(o, "image", "history", localImages[defaultImage], "--format", "{{.Snapshot}}"))
 			gomega.Expect(ids).Should(gomega.HaveEach(gomega.MatchRegexp(sha256RegexFull)))
 		})
 
@@ -50,7 +50,7 @@ func ImageHistory(o *option.Option) {
 			const text = "a very very very very long test phrase that only serves for testing purpose"
 			buildContext := ffs.CreateBuildContext(fmt.Sprintf(`FROM %s
 			CMD ["echo", %s]
-			`, defaultImage, text))
+			`, localImages[defaultImage], text))
 			ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 
 			command.Run(o, "build", "-t", testImageName, buildContext)

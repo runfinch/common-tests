@@ -24,7 +24,7 @@ func Start(o *option.Option) {
 		})
 
 		ginkgo.It("should start the container if it is in Exited status", func() {
-			command.Run(o, "run", "-d", "--name", testContainerName, defaultImage, "nc", "-l")
+			command.Run(o, "run", "-d", "--name", testContainerName, localImages[defaultImage], "nc", "-l")
 			containerShouldBeRunning(o, testContainerName)
 
 			command.Run(o, "stop", testContainerName)
@@ -37,7 +37,7 @@ func Start(o *option.Option) {
 		for _, attach := range []string{"--attach", "-a"} {
 			attach := attach
 			ginkgo.It(fmt.Sprintf("with %s flag, should start the container with stdout", attach), func() {
-				command.Run(o, "create", "--name", testContainerName, defaultImage, "echo", "foo")
+				command.Run(o, "create", "--name", testContainerName, localImages[defaultImage], "echo", "foo")
 				output := command.StdoutStr(o, "start", attach, testContainerName)
 				gomega.Expect(output).To(gomega.Equal("foo"))
 			})

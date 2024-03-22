@@ -26,7 +26,7 @@ func Push(o *option.Option) {
 			command.RemoveAll(o)
 			buildContext = ffs.CreateBuildContext(fmt.Sprintf(`FROM %s
 		CMD ["echo", "bar"]
-			`, defaultImage))
+			`, localImages[defaultImage]))
 			ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 			port = fnet.GetFreePort()
 			command.Run(o, "run", "-dp", fmt.Sprintf("%d:5000", port), "--name", "registry", registryImage)

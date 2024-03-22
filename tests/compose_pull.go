@@ -18,7 +18,7 @@ import (
 // ComposePull tests functionality of `compose pull` command.
 func ComposePull(o *option.Option) {
 	services := []string{"svc1_compose_pull", "svc2_compose_pull"}
-	imageNames := []string{defaultImage, olderAlpineImage}
+	imageNames := []string{localImages[defaultImage], localImages[olderAlpineImage]}
 	ginkgo.Describe("Compose pull command", func() {
 		var composeContext string
 		var composeFilePath string

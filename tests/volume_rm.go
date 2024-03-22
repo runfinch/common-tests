@@ -45,7 +45,7 @@ func VolumeRm(o *option.Option) {
 		ginkgo.When("a volume is used by a container", func() {
 			ginkgo.BeforeEach(func() {
 				command.Run(o, "volume", "create", testVolumeName)
-				command.Run(o, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), defaultImage)
+				command.Run(o, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), localImages[defaultImage])
 			})
 
 			// It's expected that `volume rm` can't remove the volume that is referenced to a container despite the container status.

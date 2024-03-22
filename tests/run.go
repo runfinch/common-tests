@@ -50,7 +50,7 @@ func Run(o *RunOption) {
 			ginkgo.BeforeEach(func() {
 				dockerfile := fmt.Sprintf(`FROM %s
 			CMD ["echo", "finch-test-dummy-output"]
-			`, defaultImage)
+			`, localImages[defaultImage])
 				buildContext := ffs.CreateBuildContext(dockerfile)
 				ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 				command.Run(o.BaseOpt, "build", "-q", "-t", testImageName, buildContext)
@@ -68,7 +68,7 @@ func Run(o *RunOption) {
 		})
 
 		ginkgo.It("with --rm flag, container should be removed when it exits", func() {
-			command.Run(o.BaseOpt, "run", "--rm", "--name", testContainerName, defaultImage)
+			command.Run(o.BaseOpt, "run", "--rm", "--name", testContainerName, localImages[defaultImage])
 			err := containerShouldNotExist(o.BaseOpt, testContainerName)
 			gomega.Expect(err).NotTo(gomega.HaveOccurred())
 		})
@@ -77,7 +77,7 @@ func Run(o *RunOption) {
 			for _, label := range []string{"-l", "--label"} {
 				label := label
 				ginkgo.It(fmt.Sprintf("should set meta data on a container with %s flag", label), func() {
-					command.Run(o.BaseOpt, "run", "--name", testContainerName, label, "testKey=testValue", defaultImage)
+					command.Run(o.BaseOpt, "run", "--name", testContainerName, label, "testKey=testValue", localImages[defaultImage])
 					gomega.Expect(command.StdoutStr(o.BaseOpt, "inspect", testContainerName,
 						"--format", "{{.Config.Labels.testKey}}")).To(gomega.Equal("testValue"))
 				})
@@ -87,7 +87,7 @@ func Run(o *RunOption) {
 				dir := ffs.CreateTempDir("finch-test-cid")
 				ginkgo.DeferCleanup(os.RemoveAll, dir)
 				path := filepath.Join(dir, "test.cid")
-				containerID := command.StdoutStr(o.BaseOpt, "run", "-d", "--cidfile", path, defaultImage)
+				containerID := command.StdoutStr(o.BaseOpt, "run", "-d", "--cidfile", path, localImages[defaultImage])
 				output, err := os.ReadFile(filepath.Clean(path))
 				gomega.Expect(err).ShouldNot(gomega.HaveOccurred())
 				gomega.Expect(strings.TrimSpace(string(output))).Should(gomega.Equal(containerID))
@@ -96,7 +96,7 @@ func Run(o *RunOption) {
 			ginkgo.It("should read labels from file with --label-file flag", func() {
 				path := ffs.CreateTempFile("label-file", "key=value")
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(path))
-				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--label-file", path, defaultImage)
+				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--label-file", path, localImages[defaultImage])
 				gomega.Expect(command.StdoutStr(o.BaseOpt, "inspect", testContainerName,
 					"--format", "{{.Config.Labels.key}}")).To(gomega.Equal("value"))
 			})
@@ -107,7 +107,7 @@ func Run(o *RunOption) {
 				dockerfile := fmt.Sprintf(`FROM %s
 		ENTRYPOINT ["echo", "foo"]
 		CMD ["echo", "bar"]
-			`, defaultImage)
+			`, localImages[defaultImage])
 				buildContext := ffs.CreateBuildContext(dockerfile)
 				defer func() {
 					gomega.Expect(os.RemoveAll(buildContext)).To(gomega.Succeed())
@@ -124,7 +124,16 @@ func Run(o *RunOption) {
 				workDir := workDir
 				ginkgo.It(fmt.Sprintf("should set working directory inside the container specified by %s flag", workDir), func() {
 					dir := "/tmp"
-					gomega.Expect(command.StdoutStr(o.BaseOpt, "run", workDir, dir, defaultImage, "pwd")).Should(gomega.Equal(dir))
+					gomega.Expect(
+						command.StdoutStr(
+							o.BaseOpt,
+							"run",
+							workDir,
+							dir,
+							localImages[defaultImage],
+							"pwd",
+						),
+					).Should(gomega.Equal(dir))
 				})
 			}
 
@@ -133,7 +142,7 @@ func Run(o *RunOption) {
 				ginkgo.It(fmt.Sprintf("with %s flag, environment variables should be set in the container", env), func() {
 					envOutput := command.Stdout(o.BaseOpt, "run", "--rm",
 						env, "FOO=BAR", env, "FOO1", env, "ENV1=1", env, "ENV1=2",
-						defaultImage, "env")
+						localImages[defaultImage], "env")
 					gomega.Expect(envOutput).To(gomega.ContainSubstring("FOO=BAR"))
 					gomega.Expect(envOutput).ToNot(gomega.ContainSubstring("FOO1"))
 					gomega.Expect(envOutput).To(gomega.ContainSubstring("ENV1=2"))
@@ -143,7 +152,7 @@ func Run(o *RunOption) {
 			ginkgo.It("with -e flag passing env variables without a value, only host set vars should be set in the container", func() {
 				gomega.Expect(os.Setenv("AVAR1", "avalue")).To(gomega.Succeed())
 				envOutput := command.Stdout(o.BaseOpt, "run", "--rm",
-					"-e", "AVAR1", "-e", "AVAR2", defaultImage, "env")
+					"-e", "AVAR1", "-e", "AVAR2", localImages[defaultImage], "env")
 				gomega.Expect(envOutput).To(gomega.ContainSubstring("AVAR1=avalue"))
 				gomega.Expect(envOutput).ToNot(gomega.ContainSubstring("AVAR2"))
 			})
@@ -153,7 +162,7 @@ func Run(o *RunOption) {
 				envPath := ffs.CreateTempFile("env", envPair)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(envPath))
 
-				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--env-file", envPath, defaultImage, "env")
+				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--env-file", envPath, localImages[defaultImage], "env")
 				gomega.Expect(envOutput).To(gomega.ContainSubstring(envPair))
 			})
 
@@ -162,7 +171,7 @@ func Run(o *RunOption) {
 				envPath := ffs.CreateTempFile("env", envPair)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(envPath))
 				gomega.Expect(os.Setenv("AVAR1", "avalue")).To(gomega.Succeed())
-				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--env-file", envPath, defaultImage, "env")
+				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--env-file", envPath, localImages[defaultImage], "env")
 				gomega.Expect(envOutput).To(gomega.ContainSubstring("ENVKEY=ENVVAL"))
 				gomega.Expect(envOutput).To(gomega.ContainSubstring("AVAR1=avalue"))
 				gomega.Expect(envOutput).ToNot(gomega.ContainSubstring("AVAR2"))
@@ -173,7 +182,7 @@ func Run(o *RunOption) {
 				envPath := ffs.CreateTempFile("env", envPair)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(envPath))
 				gomega.Expect(os.Setenv("AVAR1", "avalue")).To(gomega.Succeed())
-				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--env-file", envPath, defaultImage, "env")
+				envOutput := command.Stdout(o.BaseOpt, "run", "--rm", "--env-file", envPath, localImages[defaultImage], "env")
 				gomega.Expect(envOutput).To(gomega.ContainSubstring("ENVKEY=ENVVAL"))
 				gomega.Expect(envOutput).To(gomega.ContainSubstring("AVAR1=avalue"))
 				gomega.Expect(envOutput).ToNot(gomega.ContainSubstring("AVAR2"))
@@ -182,37 +191,37 @@ func Run(o *RunOption) {
 
 		ginkgo.When("running an image with --pull flag", func() {
 			ginkgo.It("should have an error if set --pull=never and the image doesn't exist", func() {
-				command.RunWithoutSuccessfulExit(o.BaseOpt, "run", "--pull", "never", defaultImage)
-				imageShouldNotExist(o.BaseOpt, defaultImage)
+				command.RunWithoutSuccessfulExit(o.BaseOpt, "run", "--pull", "never", localImages[defaultImage])
+				imageShouldNotExist(o.BaseOpt, localImages[defaultImage])
 			})
 
 			ginkgo.It("should be able to run the container if set --pull=never and the image exists", func() {
 				const containerName = "test-container"
-				pullImage(o.BaseOpt, defaultImage)
-				command.Run(o.BaseOpt, "run", "--name", containerName, "--pull", "never", defaultImage)
+				pullImage(o.BaseOpt, localImages[defaultImage])
+				command.Run(o.BaseOpt, "run", "--name", containerName, "--pull", "never", localImages[defaultImage])
 				containerShouldExist(o.BaseOpt, containerName)
 			})
 
 			ginkgo.It("should be able to run the container if set --pull=missing and the image doesn't exist", func() {
-				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--pull", "missing", defaultImage)
+				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--pull", "missing", localImages[defaultImage])
 				containerShouldExist(o.BaseOpt, testContainerName)
-				imageShouldExist(o.BaseOpt, defaultImage)
+				imageShouldExist(o.BaseOpt, localImages[defaultImage])
 			})
 
 			ginkgo.It("should be able to run the container if set --pull=missing and the image exists", func() {
-				pullImage(o.BaseOpt, defaultImage)
-				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--pull", "missing", defaultImage)
+				pullImage(o.BaseOpt, localImages[defaultImage])
+				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--pull", "missing", localImages[defaultImage])
 				containerShouldExist(o.BaseOpt, testContainerName)
 			})
 
 			ginkgo.It("should be able to run the container if set --pull=always and the image doesn't exist", func() {
-				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--pull", "always", defaultImage)
+				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--pull", "always", localImages[defaultImage])
 				containerShouldExist(o.BaseOpt, testContainerName)
-				imageShouldExist(o.BaseOpt, defaultImage)
+				imageShouldExist(o.BaseOpt, localImages[defaultImage])
 			})
 			ginkgo.It("should be able to run the container if set --pull=always and the image exists", func() {
-				pullImage(o.BaseOpt, defaultImage)
-				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--pull", "always", defaultImage)
+				pullImage(o.BaseOpt, localImages[defaultImage])
+				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--pull", "always", localImages[defaultImage])
 			})
 		})
 
@@ -220,7 +229,7 @@ func Run(o *RunOption) {
 			interactive := interactive
 			ginkgo.It(fmt.Sprintf("should output string if %s flag keeps STDIN open", interactive), func() {
 				want := []byte("hello")
-				got := command.New(o.BaseOpt, "run", interactive, defaultImage, "cat").
+				got := command.New(o.BaseOpt, "run", interactive, localImages[defaultImage], "cat").
 					WithStdin(gbytes.BufferWithBytes(want)).Run().Out.Contents()
 				gomega.Expect(got).Should(gomega.Equal(want))
 			})
@@ -229,7 +238,18 @@ func Run(o *RunOption) {
 		ginkgo.It("should stop running container within specified time by --stop-timeout flag", func() {
 			// With PID=1, `sleep infinity` does not exit due to receiving a SIGTERM, which is sent by the stop command.
 			// Ref. https://superuser.com/a/1299463/730265
-			command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--stop-timeout", "1", defaultImage, "sleep", "infinity")
+			command.Run(
+				o.BaseOpt,
+				"run",
+				"-d",
+				"--name",
+				testContainerName,
+				"--stop-timeout",
+				"1",
+				localImages[defaultImage],
+				"sleep",
+				"infinity",
+			)
 			gomega.Expect(command.StdoutStr(o.BaseOpt, "exec", testContainerName, "echo", "foo")).To(gomega.Equal("foo"))
 			startTime := time.Now()
 			command.Run(o.BaseOpt, "stop", testContainerName)
@@ -240,7 +260,18 @@ func Run(o *RunOption) {
 
 		ginkgo.It("should immediately stop the container with --stop-signal=SIGKILL", func() {
 			// With PID=1, `sleep infinity` will only exit when receiving SIGKILL, while the signal sent by stop command is SIGTERM.
-			command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--stop-signal", "SIGKILL", defaultImage, "sleep", "infinity")
+			command.Run(
+				o.BaseOpt,
+				"run",
+				"-d",
+				"--name",
+				testContainerName,
+				"--stop-signal",
+				"SIGKILL",
+				localImages[defaultImage],
+				"sleep",
+				"infinity",
+			)
 			containerShouldBeRunning(o.BaseOpt, testContainerName)
 			startTime := time.Now()
 			command.Run(o.BaseOpt, "stop", testContainerName)
@@ -251,13 +282,13 @@ func Run(o *RunOption) {
 		})
 
 		ginkgo.It("should share PID namespace with host with --pid=host", func() {
-			command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--pid=host", defaultImage, "sleep", "infinity")
+			command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--pid=host", localImages[defaultImage], "sleep", "infinity")
 			pid := command.StdoutStr(o.BaseOpt, "inspect", "--format", "{{.State.Pid}}", testContainerName)
 			command.Run(o.BaseOpt, "exec", testContainerName, "sh", "-c", fmt.Sprintf("ps -o pid,comm | grep '%s sleep'", pid))
 		})
 
 		ginkgo.It("should share PID namespace with a container with --pid=container:<container>", func() {
-			command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, defaultImage, "sleep", "infinity")
+			command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, localImages[defaultImage], "sleep", "infinity")
 			// We are joining the pid namespace that was "created" by testContainerName,
 			// so the pid=1 process will be the main process of testContainerName, which is `sleep`.
 			command.Run(o.BaseOpt, "exec", testContainerName, "sh", "-c", "ps -o pid,comm | grep '1 sleep'")
@@ -269,30 +300,38 @@ func Run(o *RunOption) {
 				network := network
 				ginkgo.It(fmt.Sprintf("should connect a container to a network with %s flag", network), func() {
 					command.Run(o.BaseOpt, "run", "-d", network, "bridge", "--name", testContainerName,
-						defaultImage, "sh", "-c", "echo hello | nc -l -p 80")
+						localImages[defaultImage], "sh", "-c", "echo hello | nc -l -p 80")
 					ipAddr := command.StdoutStr(o.BaseOpt, "inspect", "--format",
 						"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}", testContainerName)
-					output := command.StdoutStr(o.BaseOpt, "run", network, "bridge", defaultImage, "nc", fmt.Sprintf("%s:80", ipAddr))
+					output := command.StdoutStr(
+						o.BaseOpt,
+						"run",
+						network,
+						"bridge",
+						localImages[defaultImage],
+						"nc",
+						fmt.Sprintf("%s:80", ipAddr),
+					)
 					gomega.Expect(output).Should(gomega.Equal("hello"))
 				})
 
 				ginkgo.It(fmt.Sprintf("should use the same network with container specified by %s=container:<name>", network), func() {
 					command.Run(o.BaseOpt, "run", "-d", network, "bridge", "--name", testContainerName,
-						defaultImage, "sh", "-c", "echo hello | nc -l -p 80")
+						localImages[defaultImage], "sh", "-c", "echo hello | nc -l -p 80")
 					ipAddr := command.StdoutStr(o.BaseOpt, "inspect", "--format",
 						"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}", testContainerName)
 					output := command.StdoutStr(o.BaseOpt, "run", fmt.Sprintf("%s=container:%s", network, testContainerName),
-						defaultImage, "nc", fmt.Sprintf("%s:80", ipAddr))
+						localImages[defaultImage], "nc", fmt.Sprintf("%s:80", ipAddr))
 					gomega.Expect(output).Should(gomega.Equal("hello"))
 				})
 
 				ginkgo.It(fmt.Sprintf("should use the same network with container specified by %s=container:<id>", network), func() {
 					id := command.StdoutStr(o.BaseOpt, "run", "-d", network, "bridge", "--name", testContainerName,
-						defaultImage, "sh", "-c", "echo hello | nc -l -p 80")
+						localImages[defaultImage], "sh", "-c", "echo hello | nc -l -p 80")
 					ipAddr := command.StdoutStr(o.BaseOpt, "inspect", "--format",
 						"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}", testContainerName)
 					output := command.StdoutStr(o.BaseOpt, "run", fmt.Sprintf("%s=container:%s", network, id),
-						defaultImage, "nc", fmt.Sprintf("%s:80", ipAddr))
+						localImages[defaultImage], "nc", fmt.Sprintf("%s:80", ipAddr))
 					gomega.Expect(output).Should(gomega.Equal("hello"))
 				})
 			}
@@ -300,13 +339,13 @@ func Run(o *RunOption) {
 			ginkgo.It("should be able to set custom DNS servers with --dns flag", func() {
 				const nameserver = "10.10.10.10"
 				lines := command.StdoutAsLines(o.BaseOpt, "run", "--dns", nameserver, "--name", testContainerName,
-					defaultImage, "cat", "/etc/resolv.conf")
+					localImages[defaultImage], "cat", "/etc/resolv.conf")
 				gomega.Expect(lines).Should(gomega.ContainElement(fmt.Sprintf("nameserver %s", nameserver)))
 			})
 
 			ginkgo.It("should be able to set custom DNS search domains with --dns-search flag", func() {
 				lines := command.StdoutAsLines(o.BaseOpt, "run", "--dns-search", "test", "--name", testContainerName,
-					defaultImage, "cat", "/etc/resolv.conf")
+					localImages[defaultImage], "cat", "/etc/resolv.conf")
 				gomega.Expect(lines).Should(gomega.ContainElement("search test"))
 			})
 
@@ -314,7 +353,7 @@ func Run(o *RunOption) {
 				dnsOption := dnsOption
 				ginkgo.It(fmt.Sprintf("should be able to set DNS option with %s flag", dnsOption), func() {
 					lines := command.StdoutAsLines(o.BaseOpt, "run", dnsOption, "debug", "--name", testContainerName,
-						defaultImage, "cat", "/etc/resolv.conf")
+						localImages[defaultImage], "cat", "/etc/resolv.conf")
 					gomega.Expect(lines).Should(gomega.ContainElement("options debug"))
 				})
 			}
@@ -322,13 +361,21 @@ func Run(o *RunOption) {
 			for _, hostname := range []string{"--hostname", "-h"} {
 				hostname := hostname
 				ginkgo.It(fmt.Sprintf("should be able to set container host name with %s flag", hostname), func() {
-					name := command.StdoutStr(o.BaseOpt, "run", hostname, "foo", defaultImage, "hostname")
+					name := command.StdoutStr(o.BaseOpt, "run", hostname, "foo", localImages[defaultImage], "hostname")
 					gomega.Expect(name).Should(gomega.Equal("foo"))
 				})
 			}
 
 			ginkgo.It("should add a custom host-to-IP mapping with --add-host flag", func() {
-				mapping := command.StdoutStr(o.BaseOpt, "run", "--add-host", "test-host:6.6.6.6", defaultImage, "cat", "/etc/hosts")
+				mapping := command.StdoutStr(
+					o.BaseOpt,
+					"run",
+					"--add-host",
+					"test-host:6.6.6.6",
+					localImages[defaultImage],
+					"cat",
+					"/etc/hosts",
+				)
 				gomega.Expect(mapping).Should(gomega.ContainSubstring("6.6.6.6"))
 				gomega.Expect(mapping).Should(gomega.ContainSubstring("test-host"))
 			})
@@ -336,7 +383,7 @@ func Run(o *RunOption) {
 			ginkgo.It("should add a custom host-to-IP mapping with --add-host flag with special IP", func(ctx ginkgo.SpecContext) {
 				response := "This is the expected response for --add-host special IP test."
 				mux := http.NewServeMux()
-				mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+				mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 					io.WriteString(w, response) //nolint:errcheck,gosec // Function call in server handler for testing only.
 				})
 				hostPort := fnet.GetFreePort()
@@ -346,14 +393,14 @@ func Run(o *RunOption) {
 				time.Sleep(5 * time.Second)
 				ginkgo.DeferCleanup(s.Shutdown, ctx)
 				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--add-host", "test-host:host-gateway",
-					amazonLinux2Image, "sleep", "infinity")
+					localImages[amazonLinux2Image], "sleep", "infinity")
 				mapping := command.StdoutStr(o.BaseOpt, "exec", testContainerName, "cat", "/etc/hosts")
 				gomega.Expect(mapping).Should(gomega.ContainSubstring(o.DefaultHostGatewayIP))
 				gomega.Expect(mapping).Should(gomega.ContainSubstring("test-host"))
 				gomega.Expect(command.StdoutStr(o.BaseOpt, "exec", testContainerName, "curl",
 					fmt.Sprintf("test-host:%d", hostPort))).Should(gomega.Equal(response))
 				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName2, "--add-host=test-host:host-gateway",
-					amazonLinux2Image, "sleep", "infinity")
+					localImages[amazonLinux2Image], "sleep", "infinity")
 				mapping = command.StdoutStr(o.BaseOpt, "exec", testContainerName2, "cat", "/etc/hosts")
 				gomega.Expect(mapping).Should(gomega.ContainSubstring(o.DefaultHostGatewayIP))
 				gomega.Expect(mapping).Should(gomega.ContainSubstring("test-host"))
@@ -369,7 +416,7 @@ func Run(o *RunOption) {
 					// Start an Nginx container in detached mode with the specified publish flag and mapping the container port to
 					// a randomly selected host port.
 					command.
-						New(o.BaseOpt, "run", "-d", publish, fmt.Sprintf("%d:%d", hostPort, containerPort), nginxImage).
+						New(o.BaseOpt, "run", "-d", publish, fmt.Sprintf("%d:%d", hostPort, containerPort), localImages[nginxImage]).
 						WithTimeoutInSeconds(20).
 						Run()
 					fnet.HTTPGetAndAssert(fmt.Sprintf("http://localhost:%d", hostPort), 200, 20, 200*time.Millisecond)
@@ -388,19 +435,19 @@ func Run(o *RunOption) {
 				volume := volume
 				ginkgo.It(fmt.Sprintf("should mount a volume when running a container with %s", volume), func() {
 					command.Run(o.BaseOpt, "run", "--name", testContainerName, volume,
-						fmt.Sprintf("%s:%s", testVolumeName, destDir), defaultImage, "sh", "-c", "echo foo > /tmp/test.txt")
+						fmt.Sprintf("%s:%s", testVolumeName, destDir), localImages[defaultImage], "sh", "-c", "echo foo > /tmp/test.txt")
 					srcDir := command.StdoutStr(o.BaseOpt, "volume", "inspect", testVolumeName, "--format", "{{.Mountpoint}}")
 					expectedMount := []MountJSON{makeMount(volumeType, srcDir, destDir, "", true)}
 					actualMount := getContainerMounts(o.BaseOpt, testContainerName)
 					verifyMountsInfo(actualMount, expectedMount)
-					output := command.StdoutStr(o.BaseOpt, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), defaultImage,
+					output := command.StdoutStr(o.BaseOpt, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), localImages[defaultImage],
 						"cat", "/tmp/test.txt")
 					gomega.Expect(output).Should(gomega.Equal("foo"))
 				})
 
 				ginkgo.It(fmt.Sprintf("should be able to set the volume options with %s testVol:%s:ro", volume, destDir), func() {
 					command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, volume,
-						fmt.Sprintf("%s:%s:ro", testVolumeName, destDir), defaultImage, "sleep", "infinity")
+						fmt.Sprintf("%s:%s:ro", testVolumeName, destDir), localImages[defaultImage], "sleep", "infinity")
 					srcDir := command.StdoutStr(o.BaseOpt, "volume", "inspect", "--format", "{{.Mountpoint}}", testVolumeName)
 					expectedMount := []MountJSON{makeMount(volumeType, srcDir, destDir, "ro", false)}
 					actualMount := getContainerMounts(o.BaseOpt, testContainerName)
@@ -414,7 +461,7 @@ func Run(o *RunOption) {
 			ginkgo.It("should create a tmpfs mount in a container", func() {
 				const tmpfsContainerName = "tmpfs-ctr"
 				command.Run(o.BaseOpt, "run", "-d", "--tmpfs", fmt.Sprintf("%s:size=64m,exec", destDir),
-					"--name", tmpfsContainerName, defaultImage, "sleep", "infinity")
+					"--name", tmpfsContainerName, localImages[defaultImage], "sleep", "infinity")
 				expectedMount := []MountJSON{makeMount(tmpfsType, tmpfsType, destDir, "size=64m,exec", true)}
 				actualMount := getContainerMounts(o.BaseOpt, tmpfsContainerName)
 				verifyMountsInfo(actualMount, expectedMount)
@@ -432,7 +479,7 @@ func Run(o *RunOption) {
 				ginkgo.DeferCleanup(os.RemoveAll, fileDir)
 				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--mount",
 					fmt.Sprintf("type=bind,source=%s,target=%s", fileDir, destDir),
-					defaultImage, "sleep", "infinity")
+					localImages[defaultImage], "sleep", "infinity")
 
 				if runtime.GOOS == "windows" {
 					fileDir, err = getWslPath(fileDir)
@@ -454,7 +501,7 @@ func Run(o *RunOption) {
 				// verify the bind mount is readonly by piping the command of creating a file in the interactive mode to the container
 				command.New(o.BaseOpt, "run", "-i", "--name", testContainerName, "--mount",
 					fmt.Sprintf("type=bind,source=%s,target=%s,ro", fileDir, destDir),
-					defaultImage).WithStdin(gbytes.BufferWithBytes(cmd)).WithoutSuccessfulExit().Run()
+					localImages[defaultImage]).WithStdin(gbytes.BufferWithBytes(cmd)).WithoutSuccessfulExit().Run()
 
 				if runtime.GOOS == "windows" {
 					fileDir, err = getWslPath(fileDir)
@@ -490,14 +537,14 @@ func Run(o *RunOption) {
 				output := command.StdoutStr(o.BaseOpt, "run", "--rm", "--name", testContainerName,
 					"-v", nestedHostDir+":"+nestedContainerDir,
 					"-v", tempDir+":"+containerOuterDir,
-					defaultImage, "sh", "-c", "ls "+nestedContainerDir)
+					localImages[defaultImage], "sh", "-c", "ls "+nestedContainerDir)
 				gomega.Expect(output).Should(gomega.ContainSubstring("file1.txt"))
 
 				// Mount parent directory first followed by nested
 				output = command.StdoutStr(o.BaseOpt, "run", "--rm", "--name", testContainerName2,
 					"-v", tempDir+":"+containerOuterDir,
 					"-v", nestedHostDir+":"+nestedContainerDir,
-					defaultImage, "sh", "-c", "ls "+nestedContainerDir)
+					localImages[defaultImage], "sh", "-c", "ls "+nestedContainerDir)
 				gomega.Expect(output).Should(gomega.ContainSubstring("file1.txt"))
 			})
 
@@ -505,7 +552,7 @@ func Run(o *RunOption) {
 				tmpfsDir := "/tmpfsDir"
 				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--mount",
 					fmt.Sprintf("type=tmpfs,destination=%s,tmpfs-mode=1770,tmpfs-size=64m", tmpfsDir),
-					defaultImage, "sleep", "infinity")
+					localImages[defaultImage], "sleep", "infinity")
 				expectedMount := []MountJSON{makeMount(tmpfsType, tmpfsType, tmpfsDir, "mode=1770,size=64m", true)}
 				actualMount := getContainerMounts(o.BaseOpt, testContainerName)
 				verifyMountsInfo(actualMount, expectedMount)
@@ -518,7 +565,7 @@ func Run(o *RunOption) {
 
 			ginkgo.It("should mount a volume using --mount type=volume flag", func() {
 				command.Run(o.BaseOpt, "run", "--name", testContainerName, "--mount",
-					fmt.Sprintf("type=volume,source=%s,target=%s", testVolumeName, destDir), defaultImage)
+					fmt.Sprintf("type=volume,source=%s,target=%s", testVolumeName, destDir), localImages[defaultImage])
 				srcDir := command.StdoutStr(o.BaseOpt, "volume", "inspect", testVolumeName, "--format", "{{.Mountpoint}}")
 				expectedMount := []MountJSON{makeMount(volumeType, srcDir, destDir, "", true)}
 				actualMount := getContainerMounts(o.BaseOpt, testContainerName)
@@ -534,13 +581,23 @@ func Run(o *RunOption) {
 				}
 			})
 			ginkgo.It("should set number of CPUs with --cpus flag", func() {
-				cpuMax := command.StdoutStr(o.BaseOpt, "run", "--cpus", "0.42", "-w", "/sys/fs/cgroup", defaultImage, "cat", "cpu.max")
+				cpuMax := command.StdoutStr(
+					o.BaseOpt,
+					"run",
+					"--cpus",
+					"0.42",
+					"-w",
+					"/sys/fs/cgroup",
+					localImages[defaultImage],
+					"cat",
+					"cpu.max",
+				)
 				gomega.Expect(cpuMax).To(gomega.Equal("42000 100000"))
 			})
 
 			ginkgo.It("should limit CPU CFS (Completely Fair Scheduler) quota and period with --cpu-quota and --cpu-period flags", func() {
 				cpuMax := command.StdoutStr(o.BaseOpt, "run", "--cpu-quota", "42000",
-					"--cpu-period", "100000", "-w", "/sys/fs/cgroup", defaultImage, "cat", "cpu.max")
+					"--cpu-period", "100000", "-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "cpu.max")
 				gomega.Expect(cpuMax).To(gomega.Equal("42000 100000"))
 			})
 
@@ -549,7 +606,7 @@ func Run(o *RunOption) {
 				//nolint: lll // the source of the CPUShares calculation formula
 				// Ref. https://github.com/google/cadvisor/blob/ce07bb28eadc18183df15ca5346293af6b020b33/integration/tests/api/docker_test.go#L216-L222
 				cpuWeight := command.StdoutStr(o.BaseOpt, "run", "--rm", "--cpu-shares", "2000",
-					"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpu.weight")
+					"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "cpu.weight")
 				gomega.Expect(cpuWeight).To(gomega.Equal("77"))
 			})
 
@@ -557,19 +614,19 @@ func Run(o *RunOption) {
 			ginkgo.When("--cpuset-cpus is used", func() {
 				ginkgo.It("should set CPUs in which to allow execution as cpu 1 with --cpuset-cpus=1", func() {
 					cpuSet := command.StdoutStr(o.BaseOpt, "run", "--cpuset-cpus", "1",
-						"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpuset.cpus")
+						"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "cpuset.cpus")
 					gomega.Expect(cpuSet).To(gomega.Equal("1"))
 				})
 
 				ginkgo.It("should set CPUs in which to allow execution as cpu 0-1 with --cpuset-cpus=0-1", func() {
 					cpuSet := command.StdoutStr(o.BaseOpt, "run", "--cpuset-cpus", "0-1",
-						"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpuset.cpus")
+						"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "cpuset.cpus")
 					gomega.Expect(cpuSet).To(gomega.Equal("0-1"))
 				})
 
 				ginkgo.It("should set CPUs in which to allow execution as cpu 0-1 with --cpuset-cpus=0,1", func() {
 					cpuSet := command.StdoutStr(o.BaseOpt, "run", "--cpuset-cpus", "0,1",
-						"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpuset.cpus")
+						"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "cpuset.cpus")
 					gomega.Expect(cpuSet).To(gomega.Equal("0-1"))
 				})
 			})
@@ -579,31 +636,31 @@ func Run(o *RunOption) {
 			// https://man7.org/linux/man-pages/man7/cpuset.7.html#WARNINGS
 			ginkgo.It("should set memory nodes (MEMs) in which to allow execution as memory node 0 with --cpuset-mems=0", func() {
 				cpuMems := command.StdoutStr(o.BaseOpt, "run", "--cpuset-mems", "0",
-					"-w", "/sys/fs/cgroup", defaultImage, "cat", "cpuset.mems")
+					"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "cpuset.mems")
 				gomega.Expect(cpuMems).To(gomega.Equal("0"))
 			})
 
 			ginkgo.It("should set the memory limit with --memory", func() {
 				mem := command.StdoutStr(o.BaseOpt, "run", "--memory", "42m",
-					"-w", "/sys/fs/cgroup", defaultImage, "cat", "memory.max")
+					"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "memory.max")
 				gomega.Expect(mem).To(gomega.Equal("44040192"))
 			})
 
 			ginkgo.It("should set the memory soft limit with --memory-reservation", func() {
 				mem := command.StdoutStr(o.BaseOpt, "run", "--memory-reservation", "6m",
-					"-w", "/sys/fs/cgroup", defaultImage, "cat", "memory.low")
+					"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "memory.low")
 				gomega.Expect(mem).To(gomega.Equal("6291456"))
 			})
 
 			ginkgo.It("should set the amount of memory this container is allowed to swap to disk with --memory-swap", func() {
 				mem := command.StdoutStr(o.BaseOpt, "run", "--memory", "42m", "--memory-swap", "100m",
-					"-w", "/sys/fs/cgroup", defaultImage, "cat", "memory.max", "memory.swap.max")
+					"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "memory.max", "memory.swap.max")
 				gomega.Expect(mem).To(gomega.Equal("44040192\n60817408"))
 			})
 
 			ginkgo.It("should set the container pids limit with --pids-limit", func() {
 				pidsLimit := command.StdoutStr(o.BaseOpt, "run", "--pids-limit", "42",
-					"-w", "/sys/fs/cgroup", defaultImage, "cat", "pids.max")
+					"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "pids.max")
 				gomega.Expect(pidsLimit).To(gomega.Equal("42"))
 			})
 
@@ -611,7 +668,15 @@ func Run(o *RunOption) {
 				// 100 is the minimum because finch VM runs rootless containerd inside.
 				testcases := []string{"100", "1000"}
 				for _, tc := range testcases {
-					score := command.StdoutStr(o.BaseOpt, "run", "--oom-score-adj", tc, defaultImage, "cat", "/proc/self/oom_score_adj")
+					score := command.StdoutStr(
+						o.BaseOpt,
+						"run",
+						"--oom-score-adj",
+						tc,
+						localImages[defaultImage],
+						"cat",
+						"/proc/self/oom_score_adj",
+					)
 					gomega.Expect(score).To(gomega.Equal(tc))
 				}
 			})
@@ -637,7 +702,7 @@ func Run(o *RunOption) {
 					"nobody:100":   {"uid=65534(nobody) gid=100(users)", "uid=65534(nobody) gid=100(users) groups=100(users)"},
 				}
 				for userStr, expected := range testCases {
-					output := command.StdoutStr(o.BaseOpt, "run", user, userStr, defaultImage, "id")
+					output := command.StdoutStr(o.BaseOpt, "run", user, userStr, localImages[defaultImage], "id")
 					// TODO: Remove the Or operator after upgrading the nerdctl dependency to 1.2.1 to only match expected[1]
 					gomega.Expect(output).Should(gomega.Or(gomega.Equal(expected[0]), gomega.Equal(expected[1])))
 				}
@@ -676,7 +741,7 @@ func Run(o *RunOption) {
 					for _, group := range tc.groups {
 						args = append(args, "--group-add", group)
 					}
-					args = append(args, defaultImage, "id")
+					args = append(args, localImages[defaultImage], "id")
 					output := command.StdoutStr(o.BaseOpt, args...)
 					// TODO: Remove the Or operator after upgrading the nerdctl dependency to 1.2.1 to only match tc.expected[1]
 					gomega.Expect(output).Should(gomega.Or(gomega.Equal(tc.expected[0]), gomega.Equal(tc.expected[1])))

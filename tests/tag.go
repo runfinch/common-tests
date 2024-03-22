@@ -21,10 +21,10 @@ func Tag(o *option.Option) {
 			command.RemoveAll(o)
 		})
 		ginkgo.It("should tag an image when the image exists", func() {
-			pullImage(o, defaultImage)
+			pullImage(o, localImages[defaultImage])
 
-			command.Run(o, "tag", defaultImage, testImageName)
-			defaultImageID := command.Stdout(o, "images", "--quiet", "--no-trunc", defaultImage)
+			command.Run(o, "tag", localImages[defaultImage], testImageName)
+			defaultImageID := command.Stdout(o, "images", "--quiet", "--no-trunc", localImages[defaultImage])
 			taggedImageID := command.Stdout(o, "images", "--quiet", "--no-trunc", testImageName)
 			gomega.Expect(taggedImageID).ShouldNot(gomega.BeEmpty())
 			gomega.Expect(taggedImageID).To(gomega.Equal(defaultImageID))

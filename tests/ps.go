@@ -25,10 +25,10 @@ func Ps(o *option.Option) {
 			command.Run(o, "network", "create", testNetwork)
 			command.Run(o, "run", "-d",
 				"--name", containerNames[0],
-				defaultImage)
+				localImages[defaultImage])
 			command.Run(o, "run", "-d",
 				"--name", containerNames[1],
-				defaultImage, "sleep", "infinity")
+				localImages[defaultImage], "sleep", "infinity")
 		})
 
 		ginkgo.AfterEach(func() {
@@ -54,7 +54,7 @@ func Ps(o *option.Option) {
 		})
 		ginkgo.It("should list image of the containers", func() {
 			psOutput := command.StdoutAsLines(o, "ps", "--format", "{{.Image}}")
-			gomega.Expect(psOutput).Should(gomega.ContainElement(defaultImage))
+			gomega.Expect(psOutput).Should(gomega.ContainElement(localImages[defaultImage]))
 		})
 		ginkgo.It("should list command of the containers", func() {
 			psOutput := command.StdoutStr(o, "ps", "--format", "{{.Command}}")
@@ -121,13 +121,13 @@ func Ps(o *option.Option) {
 				"--label", "color=red",
 				"-v", fmt.Sprintf("%s:%s", pwd, pwd),
 				"-w", pwd,
-				defaultImage)
+				localImages[defaultImage])
 			command.Run(o, "run", "-d",
 				"--label", "color=green",
 				"--network", testNetwork,
 				"-p", "8081:80",
 				"--name", containerNames[1],
-				defaultImage, "sleep", "infinity")
+				localImages[defaultImage], "sleep", "infinity")
 		})
 
 		ginkgo.AfterEach(func() {
@@ -149,13 +149,13 @@ func Ps(o *option.Option) {
 				"--label", "color=red",
 				"-v", fmt.Sprintf("%s:%s", pwd, pwd),
 				"-w", pwd,
-				defaultImage)
+				localImages[defaultImage])
 			command.Run(o, "run", "-d",
 				"--label", "color=green",
 				"--network", testNetwork,
 				"-p", "8081:80",
 				"--name", containerNames[1],
-				defaultImage, "sleep", "infinity")
+				localImages[defaultImage], "sleep", "infinity")
 		})
 
 		ginkgo.AfterEach(func() {

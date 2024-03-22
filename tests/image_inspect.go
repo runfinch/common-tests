@@ -16,25 +16,33 @@ func ImageInspect(o *option.Option) {
 	ginkgo.Describe("display detailed information on one or more images", func() {
 		ginkgo.BeforeEach(func() {
 			command.RemoveAll(o)
-			pullImage(o, defaultImage)
+			pullImage(o, localImages[defaultImage])
 		})
 		ginkgo.AfterEach(func() {
 			command.RemoveAll(o)
 		})
 
 		ginkgo.It("should display detailed information on an image", func() {
-			gomega.Expect(command.StdoutStr(o, "image", "inspect", defaultImage)).ShouldNot(gomega.BeEmpty())
+			gomega.Expect(command.StdoutStr(o, "image", "inspect", localImages[defaultImage])).ShouldNot(gomega.BeEmpty())
 		})
 
 		ginkgo.It("should display image RepoTags with --format flag", func() {
-			image := command.StdoutStr(o, "image", "inspect", defaultImage, "--format", "{{(index .RepoTags 0)}}")
-			gomega.Expect(image).Should(gomega.Equal(defaultImage))
+			image := command.StdoutStr(o, "image", "inspect", localImages[defaultImage], "--format", "{{(index .RepoTags 0)}}")
+			gomega.Expect(image).Should(gomega.Equal(localImages[defaultImage]))
 		})
 
 		ginkgo.It("should display multiple image RepoTags with --format flag", func() {
-			pullImage(o, olderAlpineImage)
-			lines := command.StdoutAsLines(o, "image", "inspect", defaultImage, olderAlpineImage, "--format", "{{(index .RepoTags 0)}}")
-			gomega.Expect(lines).Should(gomega.ConsistOf(defaultImage, olderAlpineImage))
+			pullImage(o, localImages[olderAlpineImage])
+			lines := command.StdoutAsLines(
+				o,
+				"image",
+				"inspect",
+				localImages[defaultImage],
+				localImages[olderAlpineImage],
+				"--format",
+				"{{(index .RepoTags 0)}}",
+			)
+			gomega.Expect(lines).Should(gomega.ConsistOf(localImages[defaultImage], localImages[olderAlpineImage]))
 		})
 
 		ginkgo.It("should not display information if image doesn't exist", func() {

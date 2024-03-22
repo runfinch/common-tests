@@ -21,38 +21,38 @@ func ImagePrune(o *option.Option) {
 	ginkgo.Describe("Remove unused images", func() {
 		ginkgo.BeforeEach(func() {
 			command.RemoveAll(o)
-			pullImage(o, defaultImage)
+			pullImage(o, localImages[defaultImage])
 		})
 		ginkgo.AfterEach(func() {
 			command.RemoveAll(o)
 		})
 
 		ginkgo.It("should remove all unused images with inputting y in prompt confirmation", func() {
-			imageShouldExist(o, defaultImage)
+			imageShouldExist(o, localImages[defaultImage])
 			command.New(o, "image", "prune", "-a").WithStdin(gbytes.BufferWithBytes([]byte("y"))).Run()
-			imageShouldNotExist(o, defaultImage)
+			imageShouldNotExist(o, localImages[defaultImage])
 		})
 
 		ginkgo.It("should not remove any unused image with inputting n in prompt confirmation", func() {
-			imageShouldExist(o, defaultImage)
+			imageShouldExist(o, localImages[defaultImage])
 			command.New(o, "image", "prune", "-a").WithStdin(gbytes.BufferWithBytes([]byte("n"))).Run()
-			imageShouldExist(o, defaultImage)
+			imageShouldExist(o, localImages[defaultImage])
 		})
 
 		for _, force := range []string{"-f", "--force"} {
 			force := force
 			ginkgo.It(fmt.Sprintf("with %s flag, should remove unused images without prompting a confirmation", force), func() {
-				imageShouldExist(o, defaultImage)
+				imageShouldExist(o, localImages[defaultImage])
 				command.Run(o, "image", "prune", "-a", "-f")
-				imageShouldNotExist(o, defaultImage)
+				imageShouldNotExist(o, localImages[defaultImage])
 			})
 		}
 
 		ginkgo.It("should not remove an image if it's used by a dead container", func() {
-			command.Run(o, "run", defaultImage)
-			imageShouldExist(o, defaultImage)
+			command.Run(o, "run", localImages[defaultImage])
+			imageShouldExist(o, localImages[defaultImage])
 			command.Run(o, "image", "prune", "-a", "-f")
-			imageShouldExist(o, defaultImage)
+			imageShouldExist(o, localImages[defaultImage])
 		})
 	})
 }

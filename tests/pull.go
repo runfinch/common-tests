@@ -22,8 +22,8 @@ func Pull(o *option.Option) {
 		})
 
 		ginkgo.It("should pull the default image successfully", func() {
-			command.Run(o, "pull", defaultImage)
-			imageShouldExist(o, defaultImage)
+			command.Run(o, "pull", localImages[defaultImage])
+			imageShouldExist(o, localImages[defaultImage])
 		})
 	})
 }
