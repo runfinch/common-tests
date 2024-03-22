@@ -29,14 +29,14 @@ func Events(o *option.Option) {
 			session := command.RunWithoutWait(o, "system", "events")
 			defer session.Kill()
 			gomega.Expect(session.Out.Contents()).Should(gomega.BeEmpty())
-			command.Run(o, "pull", defaultImage)
+			command.Run(o, "pull", localImages["defaultImage"])
 			// allow propagation time
 			gomega.Eventually(func(session *gexec.Session) string {
 				return strings.TrimSpace(string(session.Out.Contents()))
 			}).WithArguments(session).
 				WithTimeout(15 * time.Second).
 				WithPolling(1 * time.Second).
-				Should(gomega.ContainSubstring(defaultImage))
+				Should(gomega.ContainSubstring(localImages["defaultImage"]))
 		})
 	})
 }

@@ -19,7 +19,7 @@ import (
 func ComposeLogs(o *option.Option) {
 	services := []string{"svc1_compose_logs", "svc2_compose_logs"}
 	containerNames := []string{"container1_compose_logs", "container2_compose_logs"}
-	imageNames := []string{defaultImage, defaultImage}
+	imageNames := []string{localImages["defaultImage"], localImages["defaultImage"]}
 
 	ginkgo.Describe("Compose logs command", func() {
 		var buildContext string

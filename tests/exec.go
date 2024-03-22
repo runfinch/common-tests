@@ -29,7 +29,7 @@ func Exec(o *option.Option) {
 		// TODO: specifying -t flag will have error in test -> panic: provided file is not a console
 		ginkgo.When("then container is running", func() {
 			ginkgo.BeforeEach(func() {
-				command.Run(o, "run", "-d", "--name", testContainerName, defaultImage, "sleep", "infinity")
+				command.Run(o, "run", "-d", "--name", testContainerName, localImages["defaultImage"], "sleep", "infinity")
 			})
 
 			ginkgo.It("should execute a command in a running container", func() {
@@ -109,7 +109,7 @@ func Exec(o *option.Option) {
 		})
 
 		ginkgo.It("should not execute a command when the container is not running", func() {
-			command.Run(o, "run", "--name", testContainerName, defaultImage)
+			command.Run(o, "run", "--name", testContainerName, localImages["defaultImage"])
 			command.RunWithoutSuccessfulExit(o, "exec", testContainerName)
 		})
 	})

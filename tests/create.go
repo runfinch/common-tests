@@ -24,7 +24,7 @@ func Create(o *option.Option) {
 		})
 
 		ginkgo.It("should create a container and able to start the container", func() {
-			command.Run(o, "create", "--name", testContainerName, defaultImage, "sleep", "infinity")
+			command.Run(o, "create", "--name", testContainerName, localImages["defaultImage"], "sleep", "infinity")
 			status := command.StdoutStr(o, "ps", "-a", "--filter", fmt.Sprintf("name=%s", testContainerName), "--format", "{{.Status}}")
 			gomega.Expect(status).Should(gomega.Equal("Created"))
 

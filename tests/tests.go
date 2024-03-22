@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -26,9 +27,6 @@ import (
 
 const (
 	alpineImage              = "public.ecr.aws/docker/library/alpine:latest"
-	olderAlpineImage         = "public.ecr.aws/docker/library/alpine:3.13"
-	amazonLinux2Image        = "public.ecr.aws/amazonlinux/amazonlinux:2"
-	nginxImage               = "public.ecr.aws/docker/library/nginx:latest"
 	testImageName            = "test:tag"
 	nonexistentImageName     = "ne-repo:ne-tag"
 	nonexistentContainerName = "ne-ctr"
@@ -44,7 +42,12 @@ const (
 	testNetwork              = "test-network"
 )
 
-var defaultImage = alpineImage
+var localImages = map[string]string{
+	"defaultImage":      alpineImage,
+	"olderAlpineImage":  "public.ecr.aws/docker/library/alpine:3.13",
+	"amazonLinux2Image": "public.ecr.aws/amazonlinux/amazonlinux:2",
+	"nginxImage":        "public.ecr.aws/docker/library/nginx:latest",
+}
 
 // CGMode is the cgroups mode of the host system.
 // We copy the struct from containerd/cgroups [1] instead of using it as a library
@@ -66,10 +69,10 @@ const (
 	Unified
 )
 
-// SetupLocalRegistry can be invoked before running the tests to save time when pulling defaultImage.
+// SetupLocalRegistry can be invoked before running the tests to save time when pulling images during tests.
 //
-// It spins up a local registry, tags the alpine image, pushes the tagged image to local registry,
-// and changes defaultImage to be the one pushed to local registry.
+// It spins up a local registry, tags all localImages, pushes the new tagged image to local registry,
+// and changes map entry to be the one pushed to local registry.
 //
 // After all the tests are done, invoke CleanupLocalRegistry to clean up the local registry.
 func SetupLocalRegistry(o *option.Option) {
@@ -82,11 +85,17 @@ func SetupLocalRegistry(o *option.Option) {
 	command.SetLocalRegistryImageID(imageID)
 	command.SetLocalRegistryImageName(registryImage)
 
-	command.Run(o, "pull", alpineImage)
-	defaultImage = fmt.Sprintf("localhost:%d/alpine:latest", hostPort)
-	command.Run(o, "tag", alpineImage, defaultImage)
-	command.Run(o, "push", defaultImage)
-	command.Run(o, "rmi", alpineImage)
+	for k, ref := range localImages {
+		// split image tag according to spec
+		// https://github.com/distribution/distribution/blob/d0deff9cd6c2b8c82c6f3d1c713af51df099d07b/reference/reference.go
+		_, name, _ := strings.Cut(ref, "/")
+		command.Run(o, "pull", ref)
+		localRef := fmt.Sprintf("localhost:%d/%s", hostPort, name)
+		command.Run(o, "tag", ref, localRef)
+		command.Run(o, "push", localRef)
+		command.Run(o, "rmi", ref)
+		localImages[k] = localRef
+	}
 }
 
 // CleanupLocalRegistry removes the local registry container and image. It's used together with SetupLocalRegistry,
@@ -183,7 +192,7 @@ func fileShouldNotExistInContainer(o *option.Option, containerName, path string)
 func buildImage(o *option.Option, imageName string) {
 	dockerfile := fmt.Sprintf(`FROM %s
 		CMD ["echo", "finch-test-dummy-output"]
-		`, defaultImage)
+		`, localImages["defaultImage"])
 	buildContext := ffs.CreateBuildContext(dockerfile)
 	ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 	command.Run(o, "build", "-q", "-t", imageName, buildContext)

@@ -24,7 +24,7 @@ func Restart(o *option.Option) {
 			// which means that we'll have to wait for the default timeout (10 seconds for now) to restart the container,
 			// so we use `nc -l` instead to save time.
 			// TODO: Remove the above comment after we add a test case for -t/--time flag with `sleep infinity` because it's more obvious.
-			command.Run(o, "run", "-d", "--name", testContainerName, defaultImage, "nc", "-l")
+			command.Run(o, "run", "-d", "--name", testContainerName, localImages["defaultImage"], "nc", "-l")
 		})
 
 		ginkgo.AfterEach(func() {
@@ -41,7 +41,7 @@ func Restart(o *option.Option) {
 
 		ginkgo.It("should restart multiple running containers", func() {
 			const ctrName = "ctr-name"
-			command.Run(o, "run", "-d", "--name", ctrName, defaultImage, "nc", "-l")
+			command.Run(o, "run", "-d", "--name", ctrName, localImages["defaultImage"], "nc", "-l")
 			pid := getContainerPID(o, testContainerName)
 			pid2 := getContainerPID(o, ctrName)
 			command.Run(o, "restart", testContainerName, ctrName)

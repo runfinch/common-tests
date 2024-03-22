@@ -30,7 +30,7 @@ func Build(o *option.Option) {
 			ginkgo.BeforeEach(func() {
 				buildContext = ffs.CreateBuildContext(fmt.Sprintf(`FROM %s
 			CMD ["echo", "finch-test-dummy-output"]
-			`, defaultImage))
+			`, localImages["defaultImage"]))
 				ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 				command.RemoveAll(o)
 			})
@@ -53,7 +53,7 @@ func Build(o *option.Option) {
 					dockerFilePath = filepath.Join(buildContext, "AnotherDockerfile")
 					ffs.WriteFile(dockerFilePath, fmt.Sprintf(`FROM %s
 			RUN ["echo", "built from AnotherDockerfile"]
-			`, defaultImage))
+			`, localImages["defaultImage"]))
 				})
 
 				for _, file := range []string{"-f", "--file"} {
@@ -68,7 +68,7 @@ func Build(o *option.Option) {
 			ginkgo.It("build image with --secret option", func() {
 				containerWithSecret := fmt.Sprintf(`FROM %s
 			RUN --mount=type=secret,id=mysecret cat /run/secrets/mysecret
-			`, defaultImage)
+			`, localImages["defaultImage"])
 				dockerFilePath := filepath.Join(buildContext, "Dockerfile.with-secret")
 				ffs.WriteFile(dockerFilePath, containerWithSecret)
 				secretFile := filepath.Join(buildContext, "secret.txt")
@@ -83,7 +83,7 @@ func Build(o *option.Option) {
 			RUN echo output from build_env
 			FROM %s AS prod_env
 			RUN  echo "output from prod_env
-			`, defaultImage, defaultImage)
+			`, localImages["defaultImage"], localImages["defaultImage"])
 				dockerFilePath := filepath.Join(buildContext, "Dockerfile.with-target")
 				ffs.WriteFile(dockerFilePath, containerWithTarget)
 				stdEr := command.Stderr(o, "build", "--progress=plain", "--no-cache",
@@ -110,7 +110,7 @@ func Build(o *option.Option) {
 			ginkgo.It("build image with --progress=plain", func() {
 				dockerFile := fmt.Sprintf(`FROM %s
 				RUN echo "progress flag set:$((1 + 1))"
-			`, defaultImage)
+			`, localImages["defaultImage"])
 				dockerFilePath := filepath.Join(buildContext, "Dockerfile.progress")
 				ffs.WriteFile(dockerFilePath, dockerFile)
 				stdErr := command.Stderr(o, "build", "-f", dockerFilePath, "--no-cache", "--progress=plain", buildContext)
@@ -133,7 +133,7 @@ func Build(o *option.Option) {
 				}
 				containerWithSSH := fmt.Sprintf(`FROM %s
 				RUN ["echo", "built from Dockerfile.with-ssh"]
-			`, defaultImage)
+			`, localImages["defaultImage"])
 				dockerFilePath := filepath.Join(buildContext, "Dockerfile.with-ssh")
 				ffs.WriteFile(dockerFilePath, containerWithSSH)
 				stdErr := command.Stderr(o, "build", "--ssh", "default", "-f", dockerFilePath, buildContext)
@@ -158,7 +158,7 @@ func Build(o *option.Option) {
 						fileName: "Dockerfile.NoEnv",
 						instructions: fmt.Sprintf(`FROM %s
 				ENV PATH
-				`, defaultImage),
+				`, localImages["defaultImage"]),
 						errorMessage: "ENV must have two arguments",
 					},
 					{
@@ -195,10 +195,10 @@ func Build(o *option.Option) {
 				command.RemoveAll(o)
 			})
 			// If SetupLocalRegistry is invoked before this test case,
-			// then defaultImage will point to the image in the local registry,
+			// then localImages["defaultImage"] will point to the image in the local registry,
 			// and there will be only one platform (i.e., the platform of the running machine) available for that image in the local registry.
 			// As a result, to make this test case not flaky even when SetupLocalRegistry is used,
-			// we need to pull alpineImage instead of defaultImage
+			// we need to pull alpineImage instead of localImages["defaultImage"]
 			// because we can be sure that the registry associated with the former provides the image with the platform specified below.
 			ginkgo.It("build basic alpine image with --platform option", func() {
 				command.Run(o, "build", "-t", testImageName, "--platform=amd64", buildContext)

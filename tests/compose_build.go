@@ -40,7 +40,7 @@ func ComposeBuild(o *option.Option) {
 			gomega.Expect(imageList).Should(gomega.ContainElement(gomega.HaveSuffix(imageSuffix[0])))
 			gomega.Expect(imageList).Should(gomega.ContainElement(gomega.HaveSuffix(imageSuffix[1])))
 			// The built image should print 'Compose build test' when run.
-			output := command.StdoutStr(o, "run", defaultImage)
+			output := command.StdoutStr(o, "run", localImages["defaultImage"])
 			gomega.Expect(output).Should(gomega.Equal("Compose build test"))
 		})
 
@@ -93,7 +93,7 @@ ARG CMD_MSG="Compose build test"
 RUN printf "should only see the final answer when '--progress' is set to be 'plain': %%d\n" $(expr 1 + 1) 
 ENV ENV_CMD_MSG=${CMD_MSG}
 CMD echo ${ENV_CMD_MSG}
-`, defaultImage)
+`, localImages["defaultImage"])
 
 	composeYmlContent := fmt.Sprintf(
 		`
@@ -107,7 +107,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-`, serviceNames[0], serviceNames[1], defaultImage)
+`, serviceNames[0], serviceNames[1], localImages["defaultImage"])
 
 	composeDir, composeFilePath := ffs.CreateComposeYmlContext(composeYmlContent)
 	ffs.WriteFile(filepath.Join(composeDir, "Dockerfile"), dockerFileContent)

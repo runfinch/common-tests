@@ -30,8 +30,8 @@ func VolumeCreate(o *option.Option) {
 
 		ginkgo.It("data in volume should be shared between containers", func() {
 			command.Run(o, "volume", "create", testVolumeName)
-			command.Run(o, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), defaultImage, "sh", "-c", "echo foo > /tmp/test.txt")
-			output := command.StdoutStr(o, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), defaultImage, "cat", "/tmp/test.txt")
+			command.Run(o, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), localImages["defaultImage"], "sh", "-c", "echo foo > /tmp/test.txt")
+			output := command.StdoutStr(o, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), localImages["defaultImage"], "cat", "/tmp/test.txt")
 			gomega.Expect(output).Should(gomega.Equal("foo"))
 		})
 

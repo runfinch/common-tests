@@ -21,7 +21,7 @@ func Load(o *option.Option) {
 		var tarFilePath string
 		ginkgo.BeforeEach(func() {
 			command.RemoveAll(o)
-			pullImage(o, defaultImage)
+			pullImage(o, localImages["defaultImage"])
 			tarFilePath = ffs.CreateTarFilePath()
 			ginkgo.DeferCleanup(os.RemoveAll, filepath.Join(tarFilePath, "../"))
 		})
@@ -33,26 +33,26 @@ func Load(o *option.Option) {
 		for _, inputOption := range []string{"-i", "--input"} {
 			inputOption := inputOption
 			ginkgo.It(fmt.Sprintf("should load an image with %s option", inputOption), func() {
-				command.Run(o, "save", "-o", tarFilePath, defaultImage)
+				command.Run(o, "save", "-o", tarFilePath, localImages["defaultImage"])
 
-				command.Run(o, "rmi", defaultImage)
-				imageShouldNotExist(o, defaultImage)
+				command.Run(o, "rmi", localImages["defaultImage"])
+				imageShouldNotExist(o, localImages["defaultImage"])
 
 				command.Run(o, "load", inputOption, tarFilePath)
-				imageShouldExist(o, defaultImage)
+				imageShouldExist(o, localImages["defaultImage"])
 			})
 
 			ginkgo.It(fmt.Sprintf("should load multiple images with %s option", inputOption), func() {
-				pullImage(o, olderAlpineImage)
-				command.Run(o, "save", "-o", tarFilePath, defaultImage, olderAlpineImage)
+				pullImage(o, localImages["olderAlpineImage"])
+				command.Run(o, "save", "-o", tarFilePath, localImages["defaultImage"], localImages["olderAlpineImage"])
 
-				command.Run(o, "rmi", defaultImage, olderAlpineImage)
-				imageShouldNotExist(o, defaultImage)
-				imageShouldNotExist(o, olderAlpineImage)
+				command.Run(o, "rmi", localImages["defaultImage"], localImages["olderAlpineImage"])
+				imageShouldNotExist(o, localImages["defaultImage"])
+				imageShouldNotExist(o, localImages["olderAlpineImage"])
 
 				command.Run(o, "load", inputOption, tarFilePath)
-				imageShouldExist(o, defaultImage)
-				imageShouldExist(o, olderAlpineImage)
+				imageShouldExist(o, localImages["defaultImage"])
+				imageShouldExist(o, localImages["olderAlpineImage"])
 			})
 		}
 	})

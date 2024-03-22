@@ -25,7 +25,7 @@ func Stats(o *option.Option) {
 		// TODO: add test for streaming data
 		ginkgo.When("the container is running", func() {
 			ginkgo.BeforeEach(func() {
-				command.Run(o, "run", "-d", "--name", testContainerName, defaultImage, "sleep", "infinity")
+				command.Run(o, "run", "-d", "--name", testContainerName, localImages["defaultImage"], "sleep", "infinity")
 			})
 
 			ginkgo.It("should disable streaming usage stats and print result with --no-stream flag", func() {

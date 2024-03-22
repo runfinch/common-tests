@@ -24,7 +24,7 @@ func Rm(o *option.Option) {
 		})
 
 		ginkgo.It("should remove the container when it is not running", func() {
-			command.Run(o, "run", "--name", testContainerName, defaultImage)
+			command.Run(o, "run", "--name", testContainerName, localImages["defaultImage"])
 			containerShouldExist(o, testContainerName)
 
 			command.Run(o, "rm", testContainerName)
@@ -34,7 +34,7 @@ func Rm(o *option.Option) {
 
 		ginkgo.Context("when the container is running", func() {
 			ginkgo.BeforeEach(func() {
-				command.Run(o, "run", "-d", "--name", testContainerName, defaultImage, "sleep", "infinity")
+				command.Run(o, "run", "-d", "--name", testContainerName, localImages["defaultImage"], "sleep", "infinity")
 			})
 
 			ginkgo.It("should not be able to remove the container without -f/--force flag", func() {
@@ -57,7 +57,7 @@ func Rm(o *option.Option) {
 				volumes := volumes
 				ginkgo.It(fmt.Sprintf("with %s flag, should remove the container and the anonymous volume used by the container", volumes),
 					func() {
-						command.Run(o, "run", "-v", "/usr/share", "--name", testContainerName, defaultImage)
+						command.Run(o, "run", "-v", "/usr/share", "--name", testContainerName, localImages["defaultImage"])
 						anonymousVolume := command.StdoutStr(o, "inspect", testContainerName,
 							"--format", "{{range .Mounts}}{{.Name}}{{end}}")
 						containerShouldExist(o, testContainerName)
@@ -71,7 +71,7 @@ func Rm(o *option.Option) {
 
 				ginkgo.It(fmt.Sprintf("with %s flag, should remove the container but can't remove the named volume used by container", volumes),
 					func() {
-						command.Run(o, "run", "-v", "foo:/usr/share", "--name", testContainerName, defaultImage)
+						command.Run(o, "run", "-v", "foo:/usr/share", "--name", testContainerName, localImages["defaultImage"])
 						volumeShouldExist(o, "foo")
 
 						command.Run(o, "rm", volumes, testContainerName)
