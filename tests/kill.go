@@ -24,7 +24,7 @@ func Kill(o *option.Option) {
 
 		ginkgo.When("the container is running", func() {
 			ginkgo.BeforeEach(func() {
-				command.Run(o, "run", "-d", "--name", testContainerName, localImages["defaultImage"], "sleep", "infinity")
+				command.Run(o, "run", "-d", "--name", testContainerName, localImages[defaultImage], "sleep", "infinity")
 			})
 
 			ginkgo.It("should kill the running container", func() {

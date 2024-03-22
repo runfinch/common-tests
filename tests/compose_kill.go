@@ -71,6 +71,6 @@ services:
     image: "%[3]s"
     container_name: "%[5]s"
     command: sleep infinity
-`, serviceNames[0], serviceNames[1], localImages["defaultImage"], containerNames[0], containerNames[1])
+`, serviceNames[0], serviceNames[1], localImages[defaultImage], containerNames[0], containerNames[1])
 	return ffs.CreateComposeYmlContext(composeYmlContent)
 }

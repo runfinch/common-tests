@@ -54,7 +54,7 @@ func Login(o *option.Option) {
 				tag = fmt.Sprintf(`%s/test-login:tag`, registry)
 				buildContext := ffs.CreateBuildContext(fmt.Sprintf(`FROM %s
 		CMD ["echo", "bar"]
-			`, localImages["defaultImage"]))
+			`, localImages[defaultImage]))
 				ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 				command.Run(o, "build", "-t", tag, buildContext)
 			})

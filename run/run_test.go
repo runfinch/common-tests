@@ -31,7 +31,7 @@ func TestRun(t *testing.T) {
 	ginkgo.SynchronizedBeforeSuite(func() []byte {
 		tests.SetupLocalRegistry(o)
 		return nil
-	}, func(bytes []byte) {})
+	}, func(_ []byte) {})
 
 	ginkgo.SynchronizedAfterSuite(func() {
 		tests.CleanupLocalRegistry(o)

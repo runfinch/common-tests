@@ -42,11 +42,20 @@ const (
 	testNetwork              = "test-network"
 )
 
-var localImages = map[string]string{
-	"defaultImage":      alpineImage,
-	"olderAlpineImage":  "public.ecr.aws/docker/library/alpine:3.13",
-	"amazonLinux2Image": "public.ecr.aws/amazonlinux/amazonlinux:2",
-	"nginxImage":        "public.ecr.aws/docker/library/nginx:latest",
+type localImage string
+
+const (
+	defaultImage      localImage = "defaultImage"
+	olderAlpineImage  localImage = "olderAlpineImage"
+	amazonLinux2Image localImage = "amazonLinux2Image"
+	nginxImage        localImage = "nginxImage"
+)
+
+var localImages = map[localImage]string{
+	defaultImage:      alpineImage,
+	olderAlpineImage:  "public.ecr.aws/docker/library/alpine:3.13",
+	amazonLinux2Image: "public.ecr.aws/amazonlinux/amazonlinux:2",
+	nginxImage:        "public.ecr.aws/docker/library/nginx:latest",
 }
 
 // CGMode is the cgroups mode of the host system.
@@ -192,7 +201,7 @@ func fileShouldNotExistInContainer(o *option.Option, containerName, path string)
 func buildImage(o *option.Option, imageName string) {
 	dockerfile := fmt.Sprintf(`FROM %s
 		CMD ["echo", "finch-test-dummy-output"]
-		`, localImages["defaultImage"])
+		`, localImages[defaultImage])
 	buildContext := ffs.CreateBuildContext(dockerfile)
 	ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 	command.Run(o, "build", "-q", "-t", imageName, buildContext)

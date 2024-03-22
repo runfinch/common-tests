@@ -33,7 +33,7 @@ func Cp(o *option.Option) {
 
 		ginkgo.When("the container is running", func() {
 			ginkgo.BeforeEach(func() {
-				command.Run(o, "run", "-d", "--name", testContainerName, localImages["defaultImage"], "sleep", "infinity")
+				command.Run(o, "run", "-d", "--name", testContainerName, localImages[defaultImage], "sleep", "infinity")
 			})
 
 			ginkgo.It("should be able to copy file from host to container", func() {
@@ -105,7 +105,7 @@ func Cp(o *option.Option) {
 
 		ginkgo.When("the container is not running", func() {
 			ginkgo.It("should be able to copy file from host to container", func() {
-				command.Run(o, "run", "--name", testContainerName, localImages["defaultImage"], "sleep", "5")
+				command.Run(o, "run", "--name", testContainerName, localImages[defaultImage], "sleep", "5")
 				command.Run(o, "stop", testContainerName)
 				path := ffs.CreateTempFile(filename, content)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(path))
@@ -119,7 +119,7 @@ func Cp(o *option.Option) {
 
 			ginkgo.It("should be able to copy file from container to host", func() {
 				cmd := fmt.Sprintf("echo -n %s > %s", content, containerFilepath)
-				command.Run(o, "run", "--name", testContainerName, localImages["defaultImage"], "sh", "-c", cmd)
+				command.Run(o, "run", "--name", testContainerName, localImages[defaultImage], "sh", "-c", cmd)
 				fileDir := ffs.CreateTempDir("finch-test")
 				path := filepath.Join(fileDir, filename)
 				ginkgo.DeferCleanup(os.RemoveAll, fileDir)

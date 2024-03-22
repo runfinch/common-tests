@@ -31,7 +31,7 @@ func Logs(o *option.Option) {
 			ginkgo.BeforeEach(func() {
 				// Currently, only containers created with `run -d` are supported.
 				// https://github.com/containerd/nerdctl#whale-nerdctl-logs
-				command.Run(o, "run", "-d", "--name", testContainerName, localImages["defaultImage"], "echo", foo)
+				command.Run(o, "run", "-d", "--name", testContainerName, localImages[defaultImage], "echo", foo)
 			})
 
 			ginkgo.It("should fetch the logs of a container", func() {
@@ -71,7 +71,7 @@ func Logs(o *option.Option) {
 		ginkgo.When("the container is not running and has multiple lines of logs", func() {
 			const bar = "bar"
 			ginkgo.BeforeEach(func() {
-				command.Run(o, "run", "-d", "--name", testContainerName, localImages["defaultImage"],
+				command.Run(o, "run", "-d", "--name", testContainerName, localImages[defaultImage],
 					"sh", "-c", fmt.Sprintf("echo %s; echo %s", foo, bar))
 			})
 
@@ -89,7 +89,7 @@ func Logs(o *option.Option) {
 
 		ginkgo.When("the container is running", func() {
 			ginkgo.BeforeEach(func() {
-				command.Run(o, "run", "-d", "--name", testContainerName, localImages["defaultImage"], "sleep", "infinity")
+				command.Run(o, "run", "-d", "--name", testContainerName, localImages[defaultImage], "sleep", "infinity")
 			})
 
 			for _, follow := range []string{"-f", "--follow"} {

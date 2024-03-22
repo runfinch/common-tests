@@ -43,16 +43,16 @@ func Save(o *option.Option) {
 
 		ginkgo.Context("when the images exist", func() {
 			ginkgo.BeforeEach(func() {
-				pullImage(o, localImages["defaultImage"])
+				pullImage(o, localImages[defaultImage])
 			})
 
 			ginkgo.It("should save an image to stdout", func() {
-				stdout := command.New(o, "save", localImages["defaultImage"]).WithStdout(gbytes.NewBuffer()).Run().Out
+				stdout := command.New(o, "save", localImages[defaultImage]).WithStdout(gbytes.NewBuffer()).Run().Out
 				untar(stdout, tarFileContext)
 				manifestContent := readManifestContent(tarFileContext)
 
 				gomega.Expect(len(manifestContent)).Should(gomega.Equal(1))
-				gomega.Expect(manifestContent[0].RepoTags[0]).Should(gomega.Equal(localImages["defaultImage"]))
+				gomega.Expect(manifestContent[0].RepoTags[0]).Should(gomega.Equal(localImages[defaultImage]))
 
 				layersShouldExist(manifestContent[0].Layers, tarFileContext)
 			})
@@ -60,19 +60,19 @@ func Save(o *option.Option) {
 			for _, outputOption := range []string{"-o", "--output"} {
 				outputOption := outputOption
 				ginkgo.It(fmt.Sprintf("should save an image with %s option", outputOption), func() {
-					command.Run(o, "save", localImages["defaultImage"], outputOption, tarFilePath)
+					command.Run(o, "save", localImages[defaultImage], outputOption, tarFilePath)
 
 					untarFile(tarFilePath, tarFileContext)
 
 					manifestContent := readManifestContent(tarFileContext)
 					gomega.Expect(len(manifestContent)).Should(gomega.Equal(1))
-					gomega.Expect(manifestContent[0].RepoTags[0]).Should(gomega.Equal(localImages["defaultImage"]))
+					gomega.Expect(manifestContent[0].RepoTags[0]).Should(gomega.Equal(localImages[defaultImage]))
 					layersShouldExist(manifestContent[0].Layers, tarFileContext)
 				})
 
 				ginkgo.It(fmt.Sprintf("should save multiple images with %s option", outputOption), func() {
-					pullImage(o, localImages["olderAlpineImage"])
-					command.Run(o, "save", outputOption, tarFilePath, localImages["defaultImage"], localImages["olderAlpineImage"])
+					pullImage(o, localImages[olderAlpineImage])
+					command.Run(o, "save", outputOption, tarFilePath, localImages[defaultImage], localImages[olderAlpineImage])
 
 					untarFile(tarFilePath, tarFileContext)
 

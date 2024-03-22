@@ -17,13 +17,13 @@ func Images(o *option.Option) {
 	ginkgo.Describe("list container images", ginkgo.Ordered, func() {
 		testImageName := "fn-test-images-cmd:latest"
 		ginkgo.BeforeAll(func() {
-			pullImage(o, localImages["defaultImage"])
+			pullImage(o, localImages[defaultImage])
 			buildImage(o, testImageName)
 		})
 
 		ginkgo.AfterAll(func() {
 			removeImage(o, testImageName)
-			removeImage(o, localImages["defaultImage"])
+			removeImage(o, localImages[defaultImage])
 		})
 
 		ginkgo.It("should list all the images in a tabular format", func() {
@@ -47,7 +47,7 @@ func Images(o *option.Option) {
 			images := command.StdoutAsLines(o, "images", "--format", "{{.Repository}}:{{.Tag}}")
 			gomega.Expect(images).ShouldNot(gomega.BeEmpty())
 			gomega.Expect(images).Should(gomega.ContainElements(testImageName))
-			gomega.Expect(images).Should(gomega.ContainElements(localImages["defaultImage"]))
+			gomega.Expect(images).Should(gomega.ContainElements(localImages[defaultImage]))
 		})
 		ginkgo.It("should list truncated IMAGE IDs", func() {
 			images := command.StdoutAsLines(o, "images", "--quiet")

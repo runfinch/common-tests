@@ -21,7 +21,7 @@ func BuilderPrune(o *option.Option) {
 		ginkgo.BeforeEach(func() {
 			buildContext = ffs.CreateBuildContext(fmt.Sprintf(`FROM %s
 			CMD ["echo", "finch-test-dummy-output"]
-			`, localImages["defaultImage"]))
+			`, localImages[defaultImage]))
 			ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 			command.RemoveAll(o)
 		})

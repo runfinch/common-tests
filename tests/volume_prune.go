@@ -23,7 +23,7 @@ func VolumePrune(o *option.Option) {
 		})
 
 		ginkgo.It("should not remove a volume if it is used by a container", func() {
-			command.Run(o, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), "--name", testContainerName, localImages["defaultImage"])
+			command.Run(o, "run", "-v", fmt.Sprintf("%s:/tmp", testVolumeName), "--name", testContainerName, localImages[defaultImage])
 			command.Run(o, "volume", "prune", "--force", "--all")
 			volumeShouldExist(o, testVolumeName)
 		})
