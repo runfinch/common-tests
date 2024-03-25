@@ -51,12 +51,14 @@ const (
 	nginxImage        localImage = "nginxImage"
 )
 
-var localImages = map[localImage]string{
+var remoteImages = map[localImage]string{
 	defaultImage:      alpineImage,
 	olderAlpineImage:  "public.ecr.aws/docker/library/alpine:3.13",
 	amazonLinux2Image: "public.ecr.aws/amazonlinux/amazonlinux:2",
 	nginxImage:        "public.ecr.aws/docker/library/nginx:latest",
 }
+
+var localImages = map[localImage]string{}
 
 // CGMode is the cgroups mode of the host system.
 // We copy the struct from containerd/cgroups [1] instead of using it as a library
@@ -80,8 +82,8 @@ const (
 
 // SetupLocalRegistry can be invoked before running the tests to save time when pulling images during tests.
 //
-// It spins up a local registry, tags all localImages, pushes the new tagged image to local registry,
-// and changes map entry to be the one pushed to local registry.
+// It spins up a local registry, tags all remoteImages, pushes the new tagged images to the local registry,
+// and changes adds corresponding entries to localImages for all of the new tags pushed to local registry.
 //
 // After all the tests are done, invoke CleanupLocalRegistry to clean up the local registry.
 func SetupLocalRegistry(o *option.Option) {
@@ -94,7 +96,7 @@ func SetupLocalRegistry(o *option.Option) {
 	command.SetLocalRegistryImageID(imageID)
 	command.SetLocalRegistryImageName(registryImage)
 
-	for k, ref := range localImages {
+	for k, ref := range remoteImages {
 		// split image tag according to spec
 		// https://github.com/distribution/distribution/blob/d0deff9cd6c2b8c82c6f3d1c713af51df099d07b/reference/reference.go
 		_, name, _ := strings.Cut(ref, "/")
@@ -114,6 +116,7 @@ func CleanupLocalRegistry(o *option.Option) {
 	command.Run(o, "rm", "-f", containerID)
 	imageID := command.StdoutStr(o, "images", "-q")
 	command.Run(o, "rmi", "-f", imageID)
+	localImages = map[localImage]string{}
 }
 
 func pullImage(o *option.Option, imageName string) {
