@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.17](https://github.com/runfinch/common-tests/compare/v0.7.16...v0.7.17) (2024-03-25)
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.17.0 to 2.17.1 ([#132](https://github.com/runfinch/common-tests/issues/132)) ([c55e33b](https://github.com/runfinch/common-tests/commit/c55e33bf70ecce4f44d02d17a44a681739764abe))
+
+
+### Bug Fixes
+
+* track localImages in a new map to enable proper cleanup ([#133](https://github.com/runfinch/common-tests/issues/133)) ([c8a5e72](https://github.com/runfinch/common-tests/commit/c8a5e7222feb9fd476070727d8edec91068c1280))
+
 ## [0.7.16](https://github.com/runfinch/common-tests/compare/v0.7.15...v0.7.16) (2024-03-22)
 
 
