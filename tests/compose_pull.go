@@ -18,11 +18,13 @@ import (
 // ComposePull tests functionality of `compose pull` command.
 func ComposePull(o *option.Option) {
 	services := []string{"svc1_compose_pull", "svc2_compose_pull"}
-	imageNames := []string{localImages[defaultImage], localImages[olderAlpineImage]}
 	ginkgo.Describe("Compose pull command", func() {
 		var composeContext string
 		var composeFilePath string
+		var imageNames []string
+
 		ginkgo.BeforeEach(func() {
+			imageNames = []string{localImages[defaultImage], localImages[olderAlpineImage]}
 			command.RemoveAll(o)
 			composeContext, composeFilePath = createComposeYmlForPullCmd(services, imageNames)
 			ginkgo.DeferCleanup(os.RemoveAll, composeContext)
