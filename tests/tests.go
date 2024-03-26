@@ -100,7 +100,9 @@ func SetupLocalRegistry(o *option.Option) {
 		// split image tag according to spec
 		// https://github.com/distribution/distribution/blob/d0deff9cd6c2b8c82c6f3d1c713af51df099d07b/reference/reference.go
 		_, name, _ := strings.Cut(ref, "/")
-		command.Run(o, "pull", ref)
+		// allow up to a minute for remote pulls to account for external network
+		// latency/throughput issues or throttling (default is 10 seconds)
+		command.New(o, "pull", ref).WithTimeoutInSeconds(60).Run()
 		localRef := fmt.Sprintf("localhost:%d/%s", hostPort, name)
 		command.Run(o, "tag", ref, localRef)
 		command.Run(o, "push", localRef)

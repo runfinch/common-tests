@@ -19,12 +19,14 @@ import (
 func ComposePs(o *option.Option) {
 	services := []string{"svc1_compose_ps", "svc2_compose_ps"}
 	containerNames := []string{"container1_compose_ps", "container2_compose_ps"}
-	imageNames := []string{localImages[defaultImage], localImages[defaultImage]}
 
 	ginkgo.Describe("Compose ps command", func() {
 		var composeContext string
 		var composeFilePath string
+		var imageNames []string
+
 		ginkgo.BeforeEach(func() {
+			imageNames = []string{localImages[defaultImage], localImages[defaultImage]}
 			command.RemoveAll(o)
 			composeContext, composeFilePath = createComposeYmlForPsCmd(services, imageNames, containerNames)
 			ginkgo.DeferCleanup(os.RemoveAll, composeContext)

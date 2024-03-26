@@ -19,12 +19,14 @@ import (
 func ComposeLogs(o *option.Option) {
 	services := []string{"svc1_compose_logs", "svc2_compose_logs"}
 	containerNames := []string{"container1_compose_logs", "container2_compose_logs"}
-	imageNames := []string{localImages[defaultImage], localImages[defaultImage]}
 
 	ginkgo.Describe("Compose logs command", func() {
 		var buildContext string
 		var composeFilePath string
+		var imageNames []string
+
 		ginkgo.BeforeEach(func() {
+			imageNames = []string{localImages[defaultImage], localImages[defaultImage]}
 			command.RemoveAll(o)
 			buildContext, composeFilePath = createComposeYmlForLogsCmd(services, imageNames, containerNames)
 			ginkgo.DeferCleanup(os.RemoveAll, buildContext)
