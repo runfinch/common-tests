@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.18](https://github.com/runfinch/common-tests/compare/v0.7.17...v0.7.18) (2024-03-26)
+
+
+### Bug Fixes
+
+* use of uninitialized global variable ([#135](https://github.com/runfinch/common-tests/issues/135)) ([02a134d](https://github.com/runfinch/common-tests/commit/02a134d69a1eecf6406c50d3088b23645c2726ff))
+
 ## [0.7.17](https://github.com/runfinch/common-tests/compare/v0.7.16...v0.7.17) (2024-03-25)
 
 
