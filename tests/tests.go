@@ -17,6 +17,7 @@ import (
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+	"github.com/onsi/gomega/gexec"
 
 	"github.com/runfinch/common-tests/fnet"
 
@@ -78,6 +79,8 @@ const (
 	Hybrid
 	// Unified with only cgroups v2 mounted.
 	Unified
+
+	retryPull = 3
 )
 
 // SetupLocalRegistry can be invoked before running the tests to save time when pulling images during tests.
@@ -102,7 +105,18 @@ func SetupLocalRegistry(o *option.Option) {
 		_, name, _ := strings.Cut(ref, "/")
 		// allow up to a minute for remote pulls to account for external network
 		// latency/throughput issues or throttling (default is 10 seconds)
-		command.New(o, "pull", ref).WithTimeoutInSeconds(60).Run()
+		// retry pull for 3 times
+		var session *gexec.Session
+		for i := 0; i < retryPull; i++ {
+			session = command.New(o, "pull", ref).WithTimeoutInSeconds(30).WithoutSuccessfulExit().Run()
+			if session.ExitCode() == 0 {
+				break
+			}
+		}
+		if session.ExitCode() != 0 {
+			ginkgo.Fail("Failed to pull image " + ref)
+		}
+
 		localRef := fmt.Sprintf("localhost:%d/%s", hostPort, name)
 		command.Run(o, "tag", ref, localRef)
 		command.Run(o, "push", localRef)
