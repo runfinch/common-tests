@@ -108,7 +108,7 @@ func SetupLocalRegistry(o *option.Option) {
 		// retry pull for 3 times
 		var session *gexec.Session
 		for i := 0; i < retryPull; i++ {
-			session = command.New(o, "pull", ref).WithTimeoutInSeconds(30).WithoutSuccessfulExit().Run()
+			session = command.New(o, "pull", ref).WithTimeoutInSeconds(30).WithoutCheckingExitCode().Run()
 			if session.ExitCode() == 0 {
 				break
 			}
