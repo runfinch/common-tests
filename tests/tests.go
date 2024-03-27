@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -105,15 +106,36 @@ func SetupLocalRegistry(o *option.Option) {
 		_, name, _ := strings.Cut(ref, "/")
 		// allow up to a minute for remote pulls to account for external network
 		// latency/throughput issues or throttling (default is 10 seconds)
-		// retry pull for 3 times
+		// retry pull for 3 times.
 		var session *gexec.Session
+		exitCode := -1
 		for i := 0; i < retryPull; i++ {
-			session = command.New(o, "pull", ref).WithTimeoutInSeconds(30).WithoutCheckingExitCode().Run()
-			if session.ExitCode() == 0 {
+			session = command.New(o, "pull", ref).WithoutWait().WithoutCheckingExitCode().Run()
+			exitCodeChan := make(chan int)
+
+			go func() {
+				for {
+					if session.ExitCode() != -1 {
+						exitCodeChan <- session.ExitCode()
+						return
+					}
+					time.Sleep(1 * time.Second)
+				}
+			}()
+
+			select {
+			case exitCode = <-exitCodeChan:
+
+			case <-time.After(30 * time.Second):
+				fmt.Println("Timeout occurred, command hasn't exited yet")
+				session.Kill()
+			}
+			if exitCode == 0 {
 				break
 			}
 		}
-		if session.ExitCode() != 0 {
+
+		if exitCode != 0 {
 			ginkgo.Fail("Failed to pull image " + ref)
 		}
 
