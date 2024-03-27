@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.19](https://github.com/runfinch/common-tests/compare/v0.7.18...v0.7.19) (2024-03-27)
+
+
+### Bug Fixes
+
+* Retry image pull for 3 times and then fail ([#137](https://github.com/runfinch/common-tests/issues/137)) ([3f4765f](https://github.com/runfinch/common-tests/commit/3f4765f82d255f710dae6aaf9a889b58e18f08ca))
+
 ## [0.7.18](https://github.com/runfinch/common-tests/compare/v0.7.17...v0.7.18) (2024-03-26)
 
 
