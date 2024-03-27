@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.20](https://github.com/runfinch/common-tests/compare/v0.7.19...v0.7.20) (2024-03-27)
+
+
+### Bug Fixes
+
+* image pull retry logic ([#139](https://github.com/runfinch/common-tests/issues/139)) ([4c30166](https://github.com/runfinch/common-tests/commit/4c30166cc5f7e1af73c7730aeea5dc72fea8d8d5))
+
 ## [0.7.19](https://github.com/runfinch/common-tests/compare/v0.7.18...v0.7.19) (2024-03-27)
 
 
