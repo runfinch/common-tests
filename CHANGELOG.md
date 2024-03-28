@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.21](https://github.com/runfinch/common-tests/compare/v0.7.20...v0.7.21) (2024-03-28)
+
+
+### Bug Fixes
+
+* add a delay for system event monitoring to start before pull completes as the run commands are async ([#144](https://github.com/runfinch/common-tests/issues/144)) ([5de585f](https://github.com/runfinch/common-tests/commit/5de585f5bece7ed358928444cbde4cfe4426ff57))
+* add custom wait for retry logic ([#141](https://github.com/runfinch/common-tests/issues/141)) ([3b69319](https://github.com/runfinch/common-tests/commit/3b693190773706dde9b6f8dd11171e26cc0df404))
+
 ## [0.7.20](https://github.com/runfinch/common-tests/compare/v0.7.19...v0.7.20) (2024-03-27)
 
 
