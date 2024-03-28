@@ -28,8 +28,13 @@ func Events(o *option.Option) {
 		ginkgo.It("should get real time events from command", func() {
 			session := command.RunWithoutWait(o, "system", "events")
 			defer session.Kill()
+
+			// Give time for the system events to be running and monitoring before pull is called.
+			time.Sleep(5 * time.Second)
+
 			gomega.Expect(session.Out.Contents()).Should(gomega.BeEmpty())
 			command.Run(o, "pull", localImages[defaultImage])
+
 			// allow propagation time
 			gomega.Eventually(func(session *gexec.Session) string {
 				return strings.TrimSpace(string(session.Out.Contents()))
