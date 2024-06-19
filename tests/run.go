@@ -387,10 +387,57 @@ func Run(o *RunOption) {
 					io.WriteString(w, response) //nolint:errcheck,gosec // Function call in server handler for testing only.
 				})
 				hostPort := fnet.GetFreePort()
-				s := http.Server{Addr: fmt.Sprintf(":%d", hostPort), Handler: mux, ReadTimeout: 30 * time.Second}
+				serverAddress := fmt.Sprintf(":%d", hostPort)
+				s := http.Server{Addr: serverAddress, Handler: mux, ReadTimeout: 30 * time.Second}
 				go s.ListenAndServe() //nolint:errcheck // Asynchronously starting server for testing only.
 
-				time.Sleep(5 * time.Second)
+				upChan := make(chan struct{})
+				timeoutChan := make(chan struct{})
+				const serverCheckBackoff = 5 * time.Second
+				go func() {
+					verifyServerIsUp := func() error {
+						client := http.Client{}
+						resp, err := client.Get(serverAddress)
+						if err != nil {
+							return fmt.Errorf("server has not started: %w", err)
+						}
+						defer func() {
+							err := resp.Body.Close()
+							if err != nil {
+								ginkgo.GinkgoLogr.WithValues("err", err).Info("Error closing response body")
+							}
+						}()
+						return nil
+					}
+
+					attempt := 0
+					for {
+						select {
+						case <-timeoutChan:
+							return
+						default:
+						}
+
+						err := verifyServerIsUp()
+						if err != nil {
+							close(upChan)
+							return
+						}
+
+						attempt++
+						ginkgo.GinkgoLogr.WithValues("server", serverAddress, "attempt", attempt, "err", err).Info("Try server failed")
+
+						time.Sleep(serverCheckBackoff)
+					}
+				}()
+
+				select {
+				case <-time.After(30 * time.Second):
+					close(timeoutChan)
+					ginkgo.Fail("Server failed to start after 30 seconds")
+				case <-upChan:
+				}
+
 				ginkgo.DeferCleanup(s.Shutdown, ctx)
 				command.Run(o.BaseOpt, "run", "-d", "--name", testContainerName, "--add-host", "test-host:host-gateway",
 					localImages[amazonLinux2Image], "sleep", "infinity")
