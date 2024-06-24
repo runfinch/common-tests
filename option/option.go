@@ -8,6 +8,7 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // Option customizes how tests are run.
@@ -49,4 +50,33 @@ func (o *Option) NewCmd(args ...string) *exec.Cmd {
 	cmd := exec.Command(cmdName, cmdArgs...)  //nolint:gosec // G204 is not an issue because cmdName is fully controlled by the user.
 	cmd.Env = append(os.Environ(), o.env...)
 	return cmd
+}
+
+// UpdateEnv updates the environment variable for the key name of the input.
+func (o *Option) UpdateEnv(env string) {
+	if i, exists := containsEnv(o.env, env); exists {
+		o.env[i] = env
+	} else {
+		o.env = append(o.env, env)
+	}
+}
+
+// DeleteEnv deletes the environment variable for the key name of the input.
+func (o *Option) DeleteEnv(env string) {
+	if i, exists := containsEnv(o.env, env); exists {
+		o.env = append(o.env[:i], o.env[i+1:]...)
+	}
+}
+
+// containsEnv determines whether an environment variable exists.
+func containsEnv(envs []string, targetEnv string) (int, bool) {
+	for i, env := range envs {
+		envKey := strings.Split(env, "=")[0]
+		targetEnvKey := strings.Split(targetEnv, "=")[0]
+		if envKey == targetEnvKey {
+			return i, true
+		}
+	}
+
+	return -1, false
 }

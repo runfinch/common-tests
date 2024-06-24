@@ -44,6 +44,22 @@ func ComposeBuild(o *option.Option) {
 			gomega.Expect(output).Should(gomega.Equal("Compose build test"))
 		})
 
+		ginkgo.It("should build services defined in the compose file specified by the COMPOSE_FILE environment variable", func() {
+			envValue := fmt.Sprintf("COMPOSE_FILE=%s", composeFilePath)
+			o.UpdateEnv(envValue)
+
+			command.Run(o, "compose", "build")
+
+			imageList := command.GetAllImageNames(o)
+			gomega.Expect(imageList).Should(gomega.ContainElement(gomega.HaveSuffix(imageSuffix[0])))
+			gomega.Expect(imageList).Should(gomega.ContainElement(gomega.HaveSuffix(imageSuffix[1])))
+			// The built image should print 'Compose build test' when run.
+			output := command.StdoutStr(o, "run", localImages[defaultImage])
+			gomega.Expect(output).Should(gomega.Equal("Compose build test"))
+
+			o.DeleteEnv(envValue)
+		})
+
 		ginkgo.It("should output progress in plain text format", func() {
 			composeBuildOutput := command.StderrStr(o, "compose", "build", "--progress",
 				"plain", "--no-cache", "--file", composeFilePath)
