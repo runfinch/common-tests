@@ -6,6 +6,7 @@ package option
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -53,8 +54,9 @@ func (o *Option) NewCmd(args ...string) *exec.Cmd {
 }
 
 // UpdateEnv updates the environment variable for the key name of the input.
-func (o *Option) UpdateEnv(env string) {
-	if i, exists := containsEnv(o.env, env); exists {
+func (o *Option) UpdateEnv(envKey, envValue string) {
+	env := fmt.Sprintf("%s=%s", envKey, envValue)
+	if i, exists := containsEnv(o.env, envKey); exists {
 		o.env[i] = env
 	} else {
 		o.env = append(o.env, env)
@@ -62,18 +64,16 @@ func (o *Option) UpdateEnv(env string) {
 }
 
 // DeleteEnv deletes the environment variable for the key name of the input.
-func (o *Option) DeleteEnv(env string) {
-	if i, exists := containsEnv(o.env, env); exists {
+func (o *Option) DeleteEnv(envKey string) {
+	if i, exists := containsEnv(o.env, envKey); exists {
 		o.env = append(o.env[:i], o.env[i+1:]...)
 	}
 }
 
 // containsEnv determines whether an environment variable exists.
-func containsEnv(envs []string, targetEnv string) (int, bool) {
+func containsEnv(envs []string, targetEnvKey string) (int, bool) {
 	for i, env := range envs {
-		envKey := strings.Split(env, "=")[0]
-		targetEnvKey := strings.Split(targetEnv, "=")[0]
-		if envKey == targetEnvKey {
+		if strings.Split(env, "=")[0] == targetEnvKey {
 			return i, true
 		}
 	}

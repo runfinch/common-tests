@@ -45,8 +45,8 @@ func ComposeBuild(o *option.Option) {
 		})
 
 		ginkgo.It("should build services defined in the compose file specified by the COMPOSE_FILE environment variable", func() {
-			envValue := fmt.Sprintf("COMPOSE_FILE=%s", composeFilePath)
-			o.UpdateEnv(envValue)
+			envKey := "COMPOSE_FILE"
+			o.UpdateEnv(envKey, composeFilePath)
 
 			command.Run(o, "compose", "build")
 
@@ -57,7 +57,7 @@ func ComposeBuild(o *option.Option) {
 			output := command.StdoutStr(o, "run", localImages[defaultImage])
 			gomega.Expect(output).Should(gomega.Equal("Compose build test"))
 
-			o.DeleteEnv(envValue)
+			o.DeleteEnv(envKey)
 		})
 
 		ginkgo.It("should output progress in plain text format", func() {
