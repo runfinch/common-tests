@@ -67,6 +67,14 @@ func Run(o *RunOption) {
 			})
 		})
 
+		ginkgo.It("container should exit with exit code in case of an error", func() {
+			exitCode := 10
+			cmd := fmt.Sprintf("exit %d", exitCode)
+			session := command.RunWithoutSuccessfulExit(o.BaseOpt, "run", "--rm", "--name", testContainerName,
+				localImages[defaultImage], "sh", "-c", cmd)
+			gomega.Expect(session.ExitCode()).To(gomega.Equal(exitCode))
+		})
+
 		ginkgo.It("with --rm flag, container should be removed when it exits", func() {
 			command.Run(o.BaseOpt, "run", "--rm", "--name", testContainerName, localImages[defaultImage])
 			err := containerShouldNotExist(o.BaseOpt, testContainerName)
