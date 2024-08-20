@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.8.0](https://github.com/runfinch/common-tests/compare/v0.7.23...v0.8.0) (2024-08-20)
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.19.0 to 2.19.1 ([#175](https://github.com/runfinch/common-tests/issues/175)) ([8e65eb6](https://github.com/runfinch/common-tests/commit/8e65eb6aca0ad50722b7fa24d759a9fec8a2d449))
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.19.1 to 2.20.0 ([#179](https://github.com/runfinch/common-tests/issues/179)) ([0b08ffe](https://github.com/runfinch/common-tests/commit/0b08ffee46d53036019e8fad5e50165d632f2763))
+* **deps:** Bump github.com/onsi/gomega from 1.33.1 to 1.34.1 ([#177](https://github.com/runfinch/common-tests/issues/177)) ([829666b](https://github.com/runfinch/common-tests/commit/829666be652642129ce79ccc94d50963b8eec998))
+
+
+### Features
+
+* Add test to check exit code ([#180](https://github.com/runfinch/common-tests/issues/180)) ([5710c25](https://github.com/runfinch/common-tests/commit/5710c251ec841b08e2b09ca3f9fcc282bb479352))
+
 ## [0.7.23](https://github.com/runfinch/common-tests/compare/v0.7.22...v0.7.23) (2024-06-24)
 
 
