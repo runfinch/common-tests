@@ -38,7 +38,7 @@ func Exec(o *option.Option) {
 				gomega.Expect(output).Should(gomega.Equal(strEchoed))
 			})
 
-			for _, interactive := range []string{"-i", "--interactive"} {
+			for _, interactive := range []string{"-i", "--interactive", "-i=true", "--interactive=true"} {
 				interactive := interactive
 				ginkgo.It(fmt.Sprintf("should output string by piping if %s flag keeps STDIN open", interactive), func() {
 					want := []byte("hello")
@@ -48,7 +48,7 @@ func Exec(o *option.Option) {
 				})
 			}
 
-			for _, detach := range []string{"-d", "--detach"} {
+			for _, detach := range []string{"-d", "--detach", "-d=true", "--detach=true"} {
 				detach := detach
 				ginkgo.It(fmt.Sprintf("should execute command in detached mode with %s flag", detach), func() {
 					command.Run(o, "exec", detach, testContainerName, "nc", "-l")
@@ -84,12 +84,15 @@ func Exec(o *option.Option) {
 				gomega.Expect(envOutput).Should(gomega.ContainElement(envPair))
 			})
 
-			ginkgo.It("should execute command in privileged mode with --privileged flag", func() {
-				command.RunWithoutSuccessfulExit(o, "exec", testContainerName, "ip", "link", "add", "dummy1", "type", "dummy")
-				command.Run(o, "exec", "--privileged", testContainerName, "ip", "link", "add", "dummy1", "type", "dummy")
-				output := command.StdoutStr(o, "exec", "--privileged", testContainerName, "ip", "link")
-				gomega.Expect(output).Should(gomega.ContainSubstring("dummy1"))
-			})
+			for _, privilegedFlag := range []string{"--privileged", "--privileged=true"} {
+				privilegedFlag := privilegedFlag
+				ginkgo.It(fmt.Sprintf("should execute command in privileged mode with %s flag", privilegedFlag), func() {
+					command.RunWithoutSuccessfulExit(o, "exec", testContainerName, "ip", "link", "add", "dummy1", "type", "dummy")
+					command.Run(o, "exec", privilegedFlag, testContainerName, "ip", "link", "add", "dummy1", "type", "dummy")
+					output := command.StdoutStr(o, "exec", privilegedFlag, testContainerName, "ip", "link")
+					gomega.Expect(output).Should(gomega.ContainSubstring("dummy1"))
+				})
+			}
 
 			for _, user := range []string{"-u", "--user"} {
 				user := user

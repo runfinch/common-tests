@@ -5,6 +5,7 @@ package tests
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
@@ -34,7 +35,7 @@ func Start(o *option.Option) {
 			containerShouldBeRunning(o, testContainerName)
 		})
 
-		for _, attach := range []string{"--attach", "-a"} {
+		for _, attach := range []string{"--attach", "-a", "-a=true", "--attach=true"} {
 			attach := attach
 			ginkgo.It(fmt.Sprintf("with %s flag, should start the container with stdout", attach), func() {
 				command.Run(o, "create", "--name", testContainerName, localImages[defaultImage], "echo", "foo")
@@ -42,5 +43,24 @@ func Start(o *option.Option) {
 				gomega.Expect(output).To(gomega.Equal("foo"))
 			})
 		}
+
+		ginkgo.It("should run a container without an init process when --init=false flag is used", func() {
+			command.Run(o, "run", "--name", testContainerName, "--init=false", localImages[defaultImage], "ps", "-ao", "pid,comm")
+			psOutput := command.StdoutStr(o, "logs", testContainerName)
+
+			// Split the output into lines
+			lines := strings.Split(strings.TrimSpace(psOutput), "\n")
+
+			processLine := lines[1] // Second line (after header)
+			fields := strings.Fields(processLine)
+
+			pid := fields[0]
+			command := fields[1]
+			gomega.Expect(pid).To(gomega.Equal("1"), "The only process should have PID 1")
+			gomega.Expect(command).To(gomega.Equal("ps"), "The only process should be ps")
+
+			// Verify there's no init process
+			gomega.Expect(psOutput).NotTo(gomega.ContainSubstring("tini"), "There should be no tini process")
+		})
 	})
 }
