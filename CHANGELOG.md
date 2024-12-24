@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.1](https://github.com/runfinch/common-tests/compare/v0.8.0...v0.8.1) (2024-12-24)
+
+
+### Bug Fixes
+
+* linter issues ([#188](https://github.com/runfinch/common-tests/issues/188)) ([ecbae8a](https://github.com/runfinch/common-tests/commit/ecbae8a3574fa098cab857c6918c6029f8d04a3e))
+* Update go mod to fix CVE-2024-45338 ([#193](https://github.com/runfinch/common-tests/issues/193)) ([8d78f75](https://github.com/runfinch/common-tests/commit/8d78f757574b73c03e544d08367554470a41d96a))
+
 ## [0.8.0](https://github.com/runfinch/common-tests/compare/v0.7.23...v0.8.0) (2024-08-20)
 
 
