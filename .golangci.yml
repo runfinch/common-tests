@@ -5,7 +5,7 @@ linters-settings:
   goheader:
     template-path: copyright_header
   goimports:
-    local-prefixes: github.com/runfinch/tests
+    local-prefixes: github.com/runfinch/common-tests
   gosec:
     config:
       G306: "0o644"
@@ -23,9 +23,9 @@ linters-settings:
     checks: ["all", "-ST1003"]
 linters:
   enable:
+    - copyloopvar
     - errname
     - errorlint
-    - exportloopref
     - forcetypeassert
     - gocritic
     - godot

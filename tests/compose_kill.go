@@ -44,9 +44,7 @@ func ComposeKill(o *option.Option) {
 		// With PID=1, `sleep infinity` will only exit when receiving SIGKILL. Default signal for kill is SIGKILL.
 		// https://stackoverflow.com/questions/45148381/why-cant-i-ctrl-c-a-sleep-infinity-in-docker-when-it-runs-as-pid-1
 		for _, signal := range []string{"-s", "--signal"} {
-			signal := signal
 			for _, term := range []string{"SIGTERM", "TERM"} {
-				term := term
 				ginkgo.It(fmt.Sprintf("should not kill running containers with %s %s", signal, term), func() {
 					command.Run(o, "compose", "kill", signal, term, "--file", composeFilePath)
 					containerShouldBeRunning(o, containerNames...)

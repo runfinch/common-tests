@@ -41,7 +41,6 @@ func Rmi(o *option.Option) {
 			})
 
 			for _, force := range []string{"-f", "--force"} {
-				force := force
 				ginkgo.It(fmt.Sprintf("should be able to remove the image with %s flag", force), func() {
 					command.Run(o, "rmi", force, localImages[defaultImage])
 					imageShouldNotExist(o, localImages[defaultImage])

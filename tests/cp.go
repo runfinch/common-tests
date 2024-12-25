@@ -56,7 +56,6 @@ func Cp(o *option.Option) {
 			})
 
 			for _, link := range []string{"-L", "--follow-link"} {
-				link := link
 				ginkgo.It(fmt.Sprintf("with %s flag, should be able to copy file from host to container and follow symbolic link",
 					link), func() {
 					path := ffs.CreateTempFile(filename, content)

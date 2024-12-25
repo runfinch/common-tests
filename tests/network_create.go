@@ -78,9 +78,7 @@ func NetworkCreate(o *option.Option) {
 		})
 
 		for _, driverFlag := range []string{"-d", "--driver"} {
-			driverFlag := driverFlag
 			for _, driver := range []string{"macvlan", "ipvlan"} {
-				driver := driver
 				ginkgo.It(fmt.Sprintf("should create %s network with %s flag", driver, driverFlag), func() {
 					command.Run(o, "network", "create", driverFlag, driver, testNetwork)
 					netType := command.StdoutStr(o, "network", "inspect", testNetwork, "--mode=native",
@@ -91,7 +89,6 @@ func NetworkCreate(o *option.Option) {
 		}
 
 		for _, opt := range []string{"-o", "--opt"} {
-			opt := opt
 			ginkgo.It(fmt.Sprintf("should set the containers network MTU with %s flag", opt), func() {
 				command.Run(o, "network", "create", opt, "com.docker.network.driver.mtu=500", testNetwork)
 				mtu := command.StdoutStr(o, "network", "inspect", testNetwork, "--mode=native", "--format", "{{(index .CNI.plugins 0).mtu}}")

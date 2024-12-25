@@ -32,7 +32,6 @@ func VolumeLs(o *option.Option) {
 		})
 
 		for _, quiet := range []string{"--quiet", "-q"} {
-			quiet := quiet
 			ginkgo.It(fmt.Sprintf("should only display volume names with %s flag", quiet), func() {
 				command.Run(o, "volume", "create", testVolumeName)
 				gomega.Expect(command.StdoutAsLines(o, "volume", "ls", quiet)).Should(gomega.ContainElement(testVolumeName))

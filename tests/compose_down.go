@@ -11,6 +11,7 @@ import (
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/ffs"
 	"github.com/runfinch/common-tests/option"
@@ -46,7 +47,6 @@ func ComposeDown(o *option.Option) {
 		})
 
 		for _, volumes := range []string{"-v", "--volumes"} {
-			volumes := volumes
 			ginkgo.It(fmt.Sprintf("should stop compose services and delete volumes by specifying %s flag", volumes), func() {
 				volumes := volumes
 				output := command.StdoutStr(o, "compose", "down", volumes, "--file", composeFilePath)

@@ -58,7 +58,6 @@ func Save(o *option.Option) {
 			})
 
 			for _, outputOption := range []string{"-o", "--output"} {
-				outputOption := outputOption
 				ginkgo.It(fmt.Sprintf("should save an image with %s option", outputOption), func() {
 					command.Run(o, "save", localImages[defaultImage], outputOption, tarFilePath)
 

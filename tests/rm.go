@@ -43,7 +43,6 @@ func Rm(o *option.Option) {
 			})
 
 			for _, force := range []string{"-f", "--force"} {
-				force := force
 				ginkgo.It(fmt.Sprintf("should be able to remove the container with %s flag", force), func() {
 					command.Run(o, "rm", force, testContainerName)
 					err := containerShouldNotExist(o, testContainerName)
@@ -54,7 +53,6 @@ func Rm(o *option.Option) {
 
 		ginkgo.Context("when a volume is used by the container", func() {
 			for _, volumes := range []string{"-v", "--volumes"} {
-				volumes := volumes
 				ginkgo.It(fmt.Sprintf("with %s flag, should remove the container and the anonymous volume used by the container", volumes),
 					func() {
 						command.Run(o, "run", "-v", "/usr/share", "--name", testContainerName, localImages[defaultImage])

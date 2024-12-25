@@ -83,7 +83,6 @@ func Run(o *RunOption) {
 
 		ginkgo.When("running a container with metadata related flags", func() {
 			for _, label := range []string{"-l", "--label"} {
-				label := label
 				ginkgo.It(fmt.Sprintf("should set meta data on a container with %s flag", label), func() {
 					command.Run(o.BaseOpt, "run", "--name", testContainerName, label, "testKey=testValue", localImages[defaultImage])
 					gomega.Expect(command.StdoutStr(o.BaseOpt, "inspect", testContainerName,
@@ -129,7 +128,6 @@ func Run(o *RunOption) {
 			})
 
 			for _, workDir := range []string{"--workdir", "-w"} {
-				workDir := workDir
 				ginkgo.It(fmt.Sprintf("should set working directory inside the container specified by %s flag", workDir), func() {
 					dir := "/tmp"
 					gomega.Expect(
@@ -146,7 +144,6 @@ func Run(o *RunOption) {
 			}
 
 			for _, env := range []string{"-e", "--env"} {
-				env := env
 				ginkgo.It(fmt.Sprintf("with %s flag, environment variables should be set in the container", env), func() {
 					envOutput := command.Stdout(o.BaseOpt, "run", "--rm",
 						env, "FOO=BAR", env, "FOO1", env, "ENV1=1", env, "ENV1=2",
@@ -234,7 +231,6 @@ func Run(o *RunOption) {
 		})
 
 		for _, interactive := range []string{"-i", "--interactive"} {
-			interactive := interactive
 			ginkgo.It(fmt.Sprintf("should output string if %s flag keeps STDIN open", interactive), func() {
 				want := []byte("hello")
 				got := command.New(o.BaseOpt, "run", interactive, localImages[defaultImage], "cat").
@@ -305,7 +301,6 @@ func Run(o *RunOption) {
 		ginkgo.When("running a container with network related flags", func() {
 			// TODO: add tests for --ip, --mac-address flags
 			for _, network := range []string{"--net", "--network"} {
-				network := network
 				ginkgo.It(fmt.Sprintf("should connect a container to a network with %s flag", network), func() {
 					command.Run(o.BaseOpt, "run", "-d", network, "bridge", "--name", testContainerName,
 						localImages[defaultImage], "sh", "-c", "echo hello | nc -l -p 80")
@@ -358,7 +353,6 @@ func Run(o *RunOption) {
 			})
 
 			for _, dnsOption := range []string{"--dns-opt", "--dns-option"} {
-				dnsOption := dnsOption
 				ginkgo.It(fmt.Sprintf("should be able to set DNS option with %s flag", dnsOption), func() {
 					lines := command.StdoutAsLines(o.BaseOpt, "run", dnsOption, "debug", "--name", testContainerName,
 						localImages[defaultImage], "cat", "/etc/resolv.conf")
@@ -367,7 +361,6 @@ func Run(o *RunOption) {
 			}
 
 			for _, hostname := range []string{"--hostname", "-h"} {
-				hostname := hostname
 				ginkgo.It(fmt.Sprintf("should be able to set container host name with %s flag", hostname), func() {
 					name := command.StdoutStr(o.BaseOpt, "run", hostname, "foo", localImages[defaultImage], "hostname")
 					gomega.Expect(name).Should(gomega.Equal("foo"))
@@ -417,7 +410,6 @@ func Run(o *RunOption) {
 			})
 
 			for _, publish := range []string{"-p", "--publish"} {
-				publish := publish
 				ginkgo.It(fmt.Sprintf("port of the container should be published to the host port with %s flag", publish), func() {
 					const containerPort = 80
 					hostPort := fnet.GetFreePort()
@@ -440,7 +432,6 @@ func Run(o *RunOption) {
 				tmpfsType  = "tmpfs"
 			)
 			for _, volume := range []string{"-v", "--volume"} {
-				volume := volume
 				ginkgo.It(fmt.Sprintf("should mount a volume when running a container with %s", volume), func() {
 					command.Run(o.BaseOpt, "run", "--name", testContainerName, volume,
 						fmt.Sprintf("%s:%s", testVolumeName, destDir), localImages[defaultImage], "sh", "-c", "echo foo > /tmp/test.txt")
@@ -700,7 +691,6 @@ func Run(o *RunOption) {
 		})
 
 		for _, user := range []string{"-u", "--user"} {
-			user := user
 			ginkgo.It(fmt.Sprintf("should set the user of a container with %s flag", user), func() {
 				// Ref: https://wiki.gentoo.org/wiki/UID_GID_Assignment_Table
 				testCases := map[string][]string{

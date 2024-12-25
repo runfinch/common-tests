@@ -40,7 +40,6 @@ func Build(o *option.Option) {
 			})
 
 			for _, tag := range []string{"-t", "--tag"} {
-				tag := tag
 				ginkgo.It(fmt.Sprintf("build basic alpine image with %s option", tag), func() {
 					command.Run(o, "build", tag, testImageName, buildContext)
 					imageShouldExist(o, testImageName)
@@ -57,7 +56,6 @@ func Build(o *option.Option) {
 				})
 
 				for _, file := range []string{"-f", "--file"} {
-					file := file
 					ginkgo.It(fmt.Sprintf("build an image with %s option", file), func() {
 						stdErr := command.Stderr(o, "build", "--no-cache", file, dockerFilePath, buildContext)
 						gomega.Expect(stdErr).Should(gomega.ContainSubstring("built from AnotherDockerfile"))
@@ -170,7 +168,6 @@ func Build(o *option.Option) {
 				}
 
 				for _, test := range negativeTests {
-					test := test
 					ginkgo.It("should not successfully build a container", func() {
 						dockerFilePath := filepath.Join(buildContext, test.fileName)
 						ffs.WriteFile(dockerFilePath, test.instructions)

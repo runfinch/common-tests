@@ -9,6 +9,7 @@ import (
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/option"
 )
@@ -32,7 +33,6 @@ func Stop(o *option.Option) {
 		})
 
 		for _, timeFlag := range []string{"-t", "--time"} {
-			timeFlag := timeFlag
 			ginkgo.It(fmt.Sprintf("should stop running container within specified time by %s flag", timeFlag), func() {
 				// With PID=1, `sleep infinity` does not exit due to receiving a SIGTERM, which is sent by the stop command.
 				// Ref. https://superuser.com/a/1299463/730265

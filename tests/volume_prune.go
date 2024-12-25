@@ -8,6 +8,7 @@ import (
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega/gbytes"
+
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/option"
 )
@@ -41,7 +42,6 @@ func VolumePrune(o *option.Option) {
 		})
 
 		for _, force := range []string{"--force", "-f"} {
-			force := force
 			ginkgo.It(fmt.Sprintf("should remove all unused volumes without prompting for confirmation with %s flag", force), func() {
 				command.Run(o, "volume", "create", testVolumeName)
 				command.Run(o, "volume", "prune", force, "--all")

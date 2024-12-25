@@ -65,7 +65,6 @@ func ComposeLogs(o *option.Option) {
 		})
 
 		for _, tFlag := range []string{"-t", "--timestamps"} {
-			tFlag := tFlag
 			ginkgo.It(fmt.Sprintf("should show the logs with timestamp with no prefixes and no color [flag %s]", tFlag), func() {
 				// Log format: YYYY-MM-DDThh:mm:ss.000000000Z LOG MSG
 				timestampMatcher := gomega.MatchRegexp("^[0-9]{1,4}-[0-9]{1,2}-[0-9]{1,2}T[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}.*")

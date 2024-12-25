@@ -5,6 +5,7 @@ package command
 
 import (
 	"github.com/onsi/ginkgo/v2"
+
 	"github.com/runfinch/common-tests/option"
 )
 
