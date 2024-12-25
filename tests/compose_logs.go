@@ -35,7 +35,8 @@ func ComposeLogs(o *option.Option) {
 		})
 
 		ginkgo.AfterEach(func() {
-			command.Run(o, "compose", "down", "--file", composeFilePath)
+			command.Run(o, "compose", "stop", "--timeout", "1", "--file", composeFilePath)
+			command.Run(o, "compose", "rm", "--force", "--file", composeFilePath)
 			command.RemoveAll(o)
 		})
 		ginkgo.It("should show the logs with prefixes", func() {
