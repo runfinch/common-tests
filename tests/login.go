@@ -60,7 +60,6 @@ func Login(o *option.Option) {
 			})
 			for _, username := range []string{"-u", "--username"} {
 				for _, password := range []string{"-p", "--password"} {
-					username, password := username, password
 					ginkgo.It("should push an image after successfully logging in the registry with a correct credential", func() {
 						command.Run(o, "login", registry, username, testUser, password, testPassword)
 						ginkgo.DeferCleanup(func() {

@@ -36,7 +36,6 @@ func Start(o *option.Option) {
 		})
 
 		for _, attach := range []string{"--attach", "-a", "-a=true", "--attach=true"} {
-			attach := attach
 			ginkgo.It(fmt.Sprintf("with %s flag, should start the container with stdout", attach), func() {
 				command.Run(o, "create", "--name", testContainerName, localImages[defaultImage], "echo", "foo")
 				output := command.StdoutStr(o, "start", attach, testContainerName)

@@ -31,7 +31,6 @@ func Load(o *option.Option) {
 		// TODO: add test for input redirection sign
 		// REF issue: https://github.com/lima-vm/lima/issues/1078
 		for _, inputOption := range []string{"-i", "--input"} {
-			inputOption := inputOption
 			ginkgo.It(fmt.Sprintf("should load an image with %s option", inputOption), func() {
 				command.Run(o, "save", "-o", tarFilePath, localImages[defaultImage])
 

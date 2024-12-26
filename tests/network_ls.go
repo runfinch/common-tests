@@ -34,7 +34,6 @@ func NetworkLs(o *option.Option) {
 		})
 
 		for _, quiet := range []string{"-q", "--quiet"} {
-			quiet := quiet
 			ginkgo.It(fmt.Sprintf("should only display network id with %s flag", quiet), func() {
 				output := command.StdoutStr(o, "network", "ls", quiet)
 				gomega.Expect(output).ShouldNot(gomega.BeEmpty())

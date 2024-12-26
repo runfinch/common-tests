@@ -40,7 +40,6 @@ func Logs(o *option.Option) {
 			})
 
 			for _, timestamps := range []string{"-t", "--timestamps"} {
-				timestamps := timestamps
 				ginkgo.It(fmt.Sprintf("should include timestamp with %s flag", timestamps), func() {
 					output := command.StdoutStr(o, "logs", timestamps, testContainerName)
 					// `logs --timestamps` command will add an RFC3339Nano timestamp,
@@ -76,7 +75,6 @@ func Logs(o *option.Option) {
 			})
 
 			for _, tail := range []string{"-n", "--tail"} {
-				tail := tail
 				ginkgo.It(fmt.Sprintf("should show number of lines from end of the logs with %s flag", tail), func() {
 					expectedOutput := fmt.Sprintf("%s\n%s", foo, bar)
 					output := command.StdoutStr(o, "logs", tail, "1", testContainerName)
@@ -93,7 +91,6 @@ func Logs(o *option.Option) {
 			})
 
 			for _, follow := range []string{"-f", "--follow"} {
-				follow := follow
 				ginkgo.It(fmt.Sprintf("should follow log output with %s flag", follow), func() {
 					const newLog = "hello"
 					session := command.RunWithoutWait(o, "logs", follow, testContainerName)

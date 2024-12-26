@@ -40,7 +40,6 @@ func ImagePrune(o *option.Option) {
 		})
 
 		for _, force := range []string{"-f", "--force"} {
-			force := force
 			ginkgo.It(fmt.Sprintf("with %s flag, should remove unused images without prompting a confirmation", force), func() {
 				imageShouldExist(o, localImages[defaultImage])
 				command.Run(o, "image", "prune", "-a", "-f")

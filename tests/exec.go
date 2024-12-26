@@ -39,7 +39,6 @@ func Exec(o *option.Option) {
 			})
 
 			for _, interactive := range []string{"-i", "--interactive", "-i=true", "--interactive=true"} {
-				interactive := interactive
 				ginkgo.It(fmt.Sprintf("should output string by piping if %s flag keeps STDIN open", interactive), func() {
 					want := []byte("hello")
 					got := command.New(o, "exec", interactive, testContainerName, "cat").
@@ -49,7 +48,6 @@ func Exec(o *option.Option) {
 			}
 
 			for _, detach := range []string{"-d", "--detach", "-d=true", "--detach=true"} {
-				detach := detach
 				ginkgo.It(fmt.Sprintf("should execute command in detached mode with %s flag", detach), func() {
 					command.Run(o, "exec", detach, testContainerName, "nc", "-l")
 					processes := command.StdoutStr(o, "exec", testContainerName, "ps", "aux")
@@ -58,7 +56,6 @@ func Exec(o *option.Option) {
 			}
 
 			for _, workDir := range []string{"-w", "--workdir"} {
-				workDir := workDir
 				ginkgo.It(fmt.Sprintf("should execute command under directory specified by %s flag", workDir), func() {
 					dir := "/tmp"
 					output := command.StdoutStr(o, "exec", workDir, dir, testContainerName, "pwd")
@@ -67,7 +64,6 @@ func Exec(o *option.Option) {
 			}
 
 			for _, env := range []string{"-e", "--env"} {
-				env := env
 				ginkgo.It(fmt.Sprintf("should set the environment variable with %s flag", env), func() {
 					const envPair = "ENV=1"
 					lines := command.StdoutAsLines(o, "exec", env, envPair, testContainerName, "env")
@@ -85,7 +81,6 @@ func Exec(o *option.Option) {
 			})
 
 			for _, privilegedFlag := range []string{"--privileged", "--privileged=true"} {
-				privilegedFlag := privilegedFlag
 				ginkgo.It(fmt.Sprintf("should execute command in privileged mode with %s flag", privilegedFlag), func() {
 					command.RunWithoutSuccessfulExit(o, "exec", testContainerName, "ip", "link", "add", "dummy1", "type", "dummy")
 					command.Run(o, "exec", privilegedFlag, testContainerName, "ip", "link", "add", "dummy1", "type", "dummy")
@@ -95,7 +90,6 @@ func Exec(o *option.Option) {
 			}
 
 			for _, user := range []string{"-u", "--user"} {
-				user := user
 				ginkgo.It(fmt.Sprintf("should output user id according to user name specified by %s flag", user), func() {
 					testCases := map[string][]string{
 						"1000":       {"uid=1000 gid=0(root)", "uid=1000 gid=0(root) groups=0(root)"},
