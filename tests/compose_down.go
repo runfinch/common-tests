@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+	"github.com/onsi/gomega/gexec"
 
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/ffs"
@@ -33,11 +35,20 @@ func ComposeDown(o *option.Option) {
 			containerShouldExist(o, containerNames...)
 		})
 
+		composeDown := func(args ...string) *gexec.Session {
+			// Compose down will sequentially stop and remove services.
+			// For services with stubborn containers that do not handle SIGTERM, this can take
+			// up to ten seconds per service before SIGKILL is sent.
+			timeout := time.Duration(10 * (len(services) + 1))
+			args = append([]string{"compose", "down"}, args...)
+			return command.New(o, args...).WithTimeoutInSeconds(timeout).Run()
+		}
+
 		ginkgo.AfterEach(func() {
 			command.RemoveAll(o)
 		})
 		ginkgo.It("should stop services defined in compose file without deleting volumes", func() {
-			command.Run(o, "compose", "down", "--file", composeFilePath)
+			composeDown("--file", composeFilePath)
 			// Container removing is asynchronous in compose down.
 			// https://github.com/containerd/nerdctl/blob/242c6b92bcb6a6d1522104dc7206d2886b7e9cc8/pkg/composer/rm.go#L89.
 			gomega.Eventually(func() error {
@@ -48,8 +59,8 @@ func ComposeDown(o *option.Option) {
 
 		for _, volumes := range []string{"-v", "--volumes"} {
 			ginkgo.It(fmt.Sprintf("should stop compose services and delete volumes by specifying %s flag", volumes), func() {
-				volumes := volumes
-				output := command.StdoutStr(o, "compose", "down", volumes, "--file", composeFilePath)
+				session := composeDown(volumes, "--file", composeFilePath)
+				output := strings.TrimSpace(string(session.Out.Contents()))
 				gomega.Eventually(func() error {
 					return containerShouldNotExist(o, containerNames...)
 				}, 10*time.Second, 5*time.Second).Should(gomega.BeNil())
