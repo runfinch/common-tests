@@ -80,17 +80,32 @@ func createComposeYmlForLogsCmd(serviceNames []string, imageNames []string, cont
 	gomega.Expect(imageNames).Should(gomega.HaveLen(2))
 	gomega.Expect(containerNames).Should(gomega.HaveLen(2))
 
+	// Service commands should have SIGTERM handlers so graceful shutdown is quick.
 	composeYmlContent := fmt.Sprintf(
 		`
 services:
   %[1]s:
     image: "%[3]s"
     container_name: "%[5]s"
-    command: sh -c 'echo "hello from service 1"; echo "again hello"; sleep infinity'
+    command: |
+      sh -c "
+        trap 'echo shutting down; exit 0' SIGTERM
+        echo 'hello from service 2'
+        echo 'again hello'
+        sleep infinity &
+        wait
+      "
   %[2]s:
     image: "%[4]s"
     container_name: "%[6]s"
-    command: sh -c 'echo "hello from service 2"; echo "again hello"; sleep infinity'
+    command: |
+      sh -c "
+        trap 'echo shutting down; exit 0' SIGTERM
+        echo 'hello from service 2'
+        echo 'again hello'
+        sleep infinity &
+        wait
+      "
 `, serviceNames[0], serviceNames[1], imageNames[0], imageNames[1], containerNames[0], containerNames[1])
 	return ffs.CreateComposeYmlContext(composeYmlContent)
 }

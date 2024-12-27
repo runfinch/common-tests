@@ -77,19 +77,30 @@ func createComposeYmlForDownCmd(serviceNames []string, containerNames []string) 
 	gomega.Expect(serviceNames).Should(gomega.HaveLen(2))
 	gomega.Expect(containerNames).Should(gomega.HaveLen(2))
 
+	// Service commands should have SIGTERM handlers so graceful shutdown is quick.
 	composeYmlContent := fmt.Sprintf(
 		`
 services:
   %[1]s:
     image: "%[3]s"
     container_name: "%[4]s"
-    command: sleep infinity
+    command: |
+      sh -c "
+        trap 'echo shutting down; exit 0' SIGTERM
+        sleep infinity &
+        wait
+      "
     volumes:
       - compose_data_volume:/usr/local/data
   %[2]s:
     image: "%[3]s"
     container_name: "%[5]s"
-    command: sleep infinity
+    command: |
+      sh -c "
+        trap 'echo shutting down; exit 0' SIGTERM
+        sleep infinity &
+        wait
+      "
     volumes:
       - compose_data_volume:/usr/local/data
 volumes:
