@@ -45,6 +45,10 @@ func ComposeBuild(o *option.Option) {
 		})
 
 		ginkgo.It("should build services defined in the compose file specified by the COMPOSE_FILE environment variable", func() {
+			if !o.SupportsEnvVarPassthrough() {
+				ginkgo.Skip("Test requires option environment variable passthrough")
+			}
+
 			envKey := "COMPOSE_FILE"
 			o.UpdateEnv(envKey, composeFilePath)
 
