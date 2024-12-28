@@ -12,6 +12,12 @@ import (
 	"strings"
 )
 
+type feature int
+
+const (
+	environmentVariablePassthrough feature = iota
+)
+
 // Option customizes how tests are run.
 //
 // If a testing function needs special customizations other than the ones specified in Option,
@@ -19,8 +25,9 @@ import (
 // For example, to test login functionality,
 // we may create a struct named LoginOption that embeds Option and contains additional fields like Username and Password.
 type Option struct {
-	subject []string
-	env     []string
+	subject  []string
+	env      []string
+	features map[feature]bool
 }
 
 // New does some sanity checks on the arguments before initializing an Option.
@@ -36,7 +43,7 @@ func New(subject []string, modifiers ...Modifier) (*Option, error) {
 		return nil, errors.New("missing subject")
 	}
 
-	o := &Option{subject: subject}
+	o := &Option{subject: subject, features: map[feature]bool{environmentVariablePassthrough: true}}
 	for _, modifier := range modifiers {
 		modifier.modify(o)
 	}
@@ -79,4 +86,11 @@ func containsEnv(envs []string, targetEnvKey string) (int, bool) {
 	}
 
 	return -1, false
+}
+
+// SupportsEnvVarPassthrough is used by tests to check if the option
+// supports [feature.environmentVariablePassthrough].
+func (o *Option) SupportsEnvVarPassthrough() bool {
+	support, ok := o.features[environmentVariablePassthrough]
+	return ok && support
 }
