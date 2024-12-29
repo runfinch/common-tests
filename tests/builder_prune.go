@@ -32,7 +32,7 @@ func BuilderPrune(o *option.Option) {
 			command.Run(o, "build", "--output=type=docker", buildContext)
 			// There is no interface to validate the current builder cache size.
 			// To validate in Buildkit, run `buildctl du -v`.
-			command.Run(o, "builder", "prune")
+			command.Run(o, "builder", "prune", "-f")
 		})
 	})
 }
