@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.9.0](https://github.com/runfinch/common-tests/compare/v0.8.0...v0.9.0) (2024-12-29)
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.20.0 to 2.22.1 ([#204](https://github.com/runfinch/common-tests/issues/204)) ([9a08ff8](https://github.com/runfinch/common-tests/commit/9a08ff848827d2ad189ab35e30fbe177bd792af8))
+
+
+### Features
+
+* add option features to skip tests ([#210](https://github.com/runfinch/common-tests/issues/210)) ([5f437eb](https://github.com/runfinch/common-tests/commit/5f437eba1235f80e83dd9fee4075a9d40913312e))
+* create volume command should be idempotent ([#199](https://github.com/runfinch/common-tests/issues/199)) ([0cd8a88](https://github.com/runfinch/common-tests/commit/0cd8a88dca3f6ef8b1e282a193fbcd468fbbc37d))
+* specify builder prune -f for no prompt ([#197](https://github.com/runfinch/common-tests/issues/197)) ([a72356f](https://github.com/runfinch/common-tests/commit/a72356f260d401211a7e29cd390f43fd0c4a0f10))
+* specify no-trunc for full snapshot ID ([#201](https://github.com/runfinch/common-tests/issues/201)) ([c32f6bf](https://github.com/runfinch/common-tests/commit/c32f6bf2360eda4471684f3947594be0248d0459))
+
+
+### Bug Fixes
+
+* add sigterm handler to compose services ([#208](https://github.com/runfinch/common-tests/issues/208)) ([ede5fbf](https://github.com/runfinch/common-tests/commit/ede5fbf6b15454ac2d1246d71bf9d40c3d593050))
+* linter issues ([#188](https://github.com/runfinch/common-tests/issues/188)) ([ecbae8a](https://github.com/runfinch/common-tests/commit/ecbae8a3574fa098cab857c6918c6029f8d04a3e))
+* Update go mod to fix CVE-2024-45338 ([#193](https://github.com/runfinch/common-tests/issues/193)) ([8d78f75](https://github.com/runfinch/common-tests/commit/8d78f757574b73c03e544d08367554470a41d96a))
+
 ## [0.8.0](https://github.com/runfinch/common-tests/compare/v0.7.23...v0.8.0) (2024-08-20)
 
 
