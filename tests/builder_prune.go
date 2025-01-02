@@ -25,14 +25,31 @@ func BuilderPrune(o *option.Option) {
 			ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 			command.RemoveAll(o)
 		})
+
 		ginkgo.AfterEach(func() {
 			command.RemoveAll(o)
 		})
-		ginkgo.It("should prune the builder cache successfully", func() {
-			command.Run(o, "build", "--output=type=docker", buildContext)
-			// There is no interface to validate the current builder cache size.
-			// To validate in Buildkit, run `buildctl du -v`.
-			command.Run(o, "builder", "prune", "-f")
-		})
+
+		for _, flag := range []string{"-f", "--force"} {
+			ginkgo.Describe(fmt.Sprintf("with %s flag", flag), func() {
+				ginkgo.It("should prune the builder cache successfully", func() {
+					command.Run(o, "build", "--output=type=docker", buildContext)
+					// There is no interface to validate the current builder cache size.
+					// To validate in Buildkit, run `buildctl du -v`.
+					command.Run(o, "builder", "prune", flag)
+				})
+			})
+		}
+
+		for _, flag := range []string{"-a", "--all"} {
+			ginkgo.Describe(fmt.Sprintf("with %s flag", flag), func() {
+				ginkgo.It("should prune the builder cache successfully", func() {
+					command.Run(o, "build", "--output=type=docker", buildContext)
+					// There is no interface to validate the current builder cache size.
+					// To validate in Buildkit, run `buildctl du -v`.
+					command.Run(o, "builder", "prune", flag, "--force")
+				})
+			})
+		}
 	})
 }
