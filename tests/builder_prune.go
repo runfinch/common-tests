@@ -25,22 +25,40 @@ func BuilderPrune(o *option.Option) {
 			ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 			command.RemoveAll(o)
 		})
+
 		ginkgo.AfterEach(func() {
 			command.RemoveAll(o)
 		})
-		ginkgo.It("should prune the builder cache successfully", func() {
-			command.Run(o, "build", "--output=type=docker", buildContext)
-			// There is no interface to validate the current builder cache size.
-			// To validate in Buildkit, run `buildctl du -v`.
-			args := []string{"builder", "prune"}
 
-			// TODO(macedonv): remove after nerdctlv2 is supported across all platforms.
+		ginkgo.Describe("with nerdctl v1.x command", func() {
 			if o.IsNerdctlV2() {
-				// Do not prompt for user response during automated testing.
-				args = append(args, "--force")
+				ginkgo.Skip("nerdctl runtime dependency is v2")
 			}
+			ginkgo.It("should prune the builder cache successfully", func() {
+				// There is no interface to validate the current builder cache size.
+				// To validate in Buildkit, run `buildctl du -v`.
+				command.Run(o, "build", "--output=type=docker", buildContext)
+				command.Run(o, "builder", "prune")
+			})
+		})
 
-			command.Run(o, args...)
+		ginkgo.Describe("with nerdctl v2.x command", func() {
+			if o.IsNerdctlV1() {
+				ginkgo.Skip("nerdctl runtime dependency is v1")
+			}
+			ginkgo.DescribeTable("should prune the builder cache successfully",
+				func(args ...string) {
+					// There is no interface to validate the current builder cache size.
+					// To validate in Buildkit, run `buildctl du -v`.
+					args = append([]string{"builder", "prune"}, args...)
+					command.Run(o, "build", "--output=type=docker", buildContext)
+					command.Run(o, args...)
+				},
+				ginkgo.Entry("with '-f -a' flags", "-f", "-a"),
+				ginkgo.Entry("with '--force -a' flags", "--force", "-a"),
+				ginkgo.Entry("with '-f --all' flags", "-f", "--all"),
+				ginkgo.Entry("with '--force --all' flags", "--force", "--all"),
+			)
 		})
 	})
 }
