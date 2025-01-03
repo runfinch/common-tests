@@ -32,7 +32,15 @@ func BuilderPrune(o *option.Option) {
 			command.Run(o, "build", "--output=type=docker", buildContext)
 			// There is no interface to validate the current builder cache size.
 			// To validate in Buildkit, run `buildctl du -v`.
-			command.Run(o, "builder", "prune", "-f")
+			args := []string{"builder", "prune"}
+
+			// TODO(macedonv): remove after nerdctlv2 is supported across all platforms.
+			if o.IsNerdctlV2() {
+				// Do not prompt for user response during automated testing.
+				args = append(args, "--force")
+			}
+
+			command.Run(o, args...)
 		})
 	})
 }

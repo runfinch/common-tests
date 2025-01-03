@@ -64,7 +64,20 @@ func VolumeCreate(o *option.Option) {
 			gomega.Expect(tag1).Should(gomega.Equal("tag1"))
 		})
 
+		ginkgo.It("should not create a volume if the volume with the same name exists", func() {
+			// TODO(macedonv): remove entire test after nerdctl v2 is supported on all platforms.
+			if o.IsNerdctlV2() {
+				ginkgo.Skip("Behavior is not supported on nerdctl v2")
+			}
+			command.Run(o, "volume", "create", testVolumeName)
+			command.RunWithoutSuccessfulExit(o, "volume", "create", testVolumeName)
+		})
+
 		ginkgo.It("should warn volume already exists if a volume with the same name exists", func() {
+			// TODO(macedonv): remove check when nerdctl v2 is supported on all platforms.
+			if o.IsNerdctlV1() {
+				ginkgo.Skip("Behavior is not supported on nerdctl v1")
+			}
 			command.Run(o, "volume", "create", testVolumeName)
 			session := command.Run(o, "volume", "create", testVolumeName)
 			gomega.Expect(string(session.Err.Contents())).Should(gomega.ContainSubstring("already exists"))

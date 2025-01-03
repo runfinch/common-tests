@@ -39,3 +39,13 @@ func WithNoEnvironmentVariablePassthrough() Modifier {
 		delete(o.features, environmentVariablePassthrough)
 	})
 }
+
+// WithNerdctlVersion denotes the underlying nerdctl version.
+//
+// This is useful for tests whose expectations change based on
+// the underlying nerdctl version.
+func WithNerdctlVersion(version string) Modifier {
+	return newFuncModifier(func(o *Option) {
+		o.features[nerdctlVersion] = version
+	})
+}
