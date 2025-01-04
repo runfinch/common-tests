@@ -16,6 +16,7 @@ type feature int
 
 const (
 	environmentVariablePassthrough feature = iota
+	nerdctlVersion                 feature = iota
 )
 
 // Option customizes how tests are run.
@@ -27,7 +28,7 @@ const (
 type Option struct {
 	subject  []string
 	env      []string
-	features map[feature]bool
+	features map[feature]any
 }
 
 // New does some sanity checks on the arguments before initializing an Option.
@@ -43,7 +44,13 @@ func New(subject []string, modifiers ...Modifier) (*Option, error) {
 		return nil, errors.New("missing subject")
 	}
 
-	o := &Option{subject: subject, features: map[feature]bool{environmentVariablePassthrough: true}}
+	o := &Option{
+		subject: subject,
+		features: map[feature]any{
+			environmentVariablePassthrough: true,
+			nerdctlVersion:                 nerdctl2xx,
+		},
+	}
 	for _, modifier := range modifiers {
 		modifier.modify(o)
 	}
@@ -91,6 +98,32 @@ func containsEnv(envs []string, targetEnvKey string) (int, bool) {
 // SupportsEnvVarPassthrough is used by tests to check if the option
 // supports [feature.environmentVariablePassthrough].
 func (o *Option) SupportsEnvVarPassthrough() bool {
-	support, ok := o.features[environmentVariablePassthrough]
-	return ok && support
+	if value, exists := o.features[environmentVariablePassthrough]; exists {
+		if boolValue, ok := value.(bool); ok {
+			return boolValue
+		}
+	}
+	return false
+}
+
+// IsNerdctlV1 is used by tests to check if the option supports [feature.nerdctlVersion] == nerdctl1xx.
+func (o *Option) IsNerdctlV1() bool {
+	return o.isNerdctlVersion(isNerdctl1xx)
+}
+
+// IsNerdctlV2 is used by tests to check if the option supports [feature.nerdctlVersion] == nerdctl2xx.
+func (o *Option) IsNerdctlV2() bool {
+	return o.isNerdctlVersion(isNerdctl2xx)
+}
+
+func (o *Option) isNerdctlVersion(cmp func(string) bool) bool {
+	var version string
+
+	if value, exists := o.features[nerdctlVersion]; !exists {
+		version = defaultNerdctlVersion
+	} else if value, ok := value.(string); ok {
+		version = value
+	}
+
+	return cmp(version)
 }
