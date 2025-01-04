@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/runfinch/common-tests/compare/v0.9.0...v0.9.1) (2025-01-04)
+
+
+### Bug Fixes
+
+* make tests backwards compatible with nerdctl v1 ([#212](https://github.com/runfinch/common-tests/issues/212)) ([9f5e817](https://github.com/runfinch/common-tests/commit/9f5e8175ccf79abb3b9cc11210699c664fae3949))
+
 ## [0.9.0](https://github.com/runfinch/common-tests/compare/v0.8.0...v0.9.0) (2024-12-29)
 
 
