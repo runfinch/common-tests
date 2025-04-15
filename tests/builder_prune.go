@@ -24,23 +24,19 @@ func BuilderPrune(o *option.Option) {
 			`, localImages[defaultImage]))
 			ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 			command.RemoveAll(o)
+
+			// Build the Image and remove the resource to be able to prune
+			command.Run(o, "build", buildContext)
+			command.RemoveAll(o)
 		})
 		ginkgo.AfterEach(func() {
 			command.RemoveAll(o)
 		})
 		ginkgo.It("should prune the builder cache successfully", func() {
-			command.Run(o, "build", "--output=type=docker", buildContext)
-			// There is no interface to validate the current builder cache size.
-			// To validate in Buildkit, run `buildctl du -v`.
-			args := []string{"builder", "prune"}
-
-			// TODO(macedonv): remove after nerdctlv2 is supported across all platforms.
-			if o.IsNerdctlV2() {
-				// Do not prompt for user response during automated testing.
-				args = append(args, "--force")
-			}
-
+			buildCacheShouldExist()
+			args := []string{"builder", "prune", "--force"}
 			command.Run(o, args...)
+			buildCacheShouldNotExist()
 		})
 	})
 }
