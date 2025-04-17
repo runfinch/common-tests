@@ -234,21 +234,3 @@ func buildImage(o *option.Option, imageName string) {
 	ginkgo.DeferCleanup(os.RemoveAll, buildContext)
 	command.Run(o, "build", "-q", "-t", imageName, buildContext)
 }
-
-func buildCacheShouldExist() {
-	buildctlOpts, err := option.New([]string{"buildctl"})
-	if err != nil {
-		ginkgo.Fail(err.Error())
-	}
-	cmdOut := command.Run(buildctlOpts, "du", "--format", "json")
-	gomega.Expect(strings.TrimSpace(string(cmdOut.Out.Contents()))).ToNot(gomega.Equal("null"))
-}
-
-func buildCacheShouldNotExist() {
-	buildctlOpts, err := option.New([]string{"buildctl"})
-	if err != nil {
-		ginkgo.Fail(err.Error())
-	}
-	cmdOut := command.Run(buildctlOpts, "du", "--format", "json")
-	gomega.Expect(strings.TrimSpace(string(cmdOut.Out.Contents()))).To(gomega.Equal("null"))
-}
