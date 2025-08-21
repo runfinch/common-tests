@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.5](https://github.com/runfinch/common-tests/compare/v0.9.4...v0.9.5) (2025-08-21)
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.23.4 to 2.24.0 ([#249](https://github.com/runfinch/common-tests/issues/249)) ([7506952](https://github.com/runfinch/common-tests/commit/75069529864b200ee269595c575e140476c583e0))
+
 ## [0.9.4](https://github.com/runfinch/common-tests/compare/v0.9.3...v0.9.4) (2025-05-06)
 
 
