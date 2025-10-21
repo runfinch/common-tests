@@ -8,6 +8,10 @@ on:
       - reopened
       - synchronize
 
+permissions:
+  pull-requests: read
+  contents: read
+
 jobs:
   main:
     name: conventional-commit
