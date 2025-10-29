@@ -605,7 +605,8 @@ func Run(o *RunOption) {
 				// Ref. https://github.com/opencontainers/runc/pull/4785
 				cpuWeight := command.StdoutStr(o.BaseOpt, "run", "--rm", "--cpu-shares", "2000",
 					"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "cpu.weight")
-				gomega.Expect(cpuWeight).To(gomega.Equal("170"))
+				// Different runc versions <1.3.2 will produce different values: 170 (newer) or 77 (older)
+				gomega.Expect(cpuWeight).To(gomega.Or(gomega.Equal("170"), gomega.Equal("77")))
 			})
 
 			// assume the host has at least 2 CPUs
