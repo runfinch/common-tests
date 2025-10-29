@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.10.0](https://github.com/runfinch/common-tests/compare/v0.9.4...v0.10.0) (2025-10-29)
+
+
+### Build System or External Dependencies
+
+* **deps:** Bump github.com/onsi/ginkgo/v2 from 2.23.4 to 2.24.0 ([#249](https://github.com/runfinch/common-tests/issues/249)) ([7506952](https://github.com/runfinch/common-tests/commit/75069529864b200ee269595c575e140476c583e0))
+
+
+### Features
+
+* add tests for healthchecks ([#262](https://github.com/runfinch/common-tests/issues/262)) ([800bda9](https://github.com/runfinch/common-tests/commit/800bda9fc2f3447f9074b170b95087002bbfb74d))
+
+
+### Bug Fixes
+
+* update cpu share formula from runc 1.3.2 ([#267](https://github.com/runfinch/common-tests/issues/267)) ([d1a35f6](https://github.com/runfinch/common-tests/commit/d1a35f68660c06c87a930d3f279edc00a22a8f3b))
+
 ## [0.9.4](https://github.com/runfinch/common-tests/compare/v0.9.3...v0.9.4) (2025-05-06)
 
 
