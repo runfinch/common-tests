@@ -601,12 +601,11 @@ func Run(o *RunOption) {
 			})
 
 			ginkgo.It("should set the CPU shares with --cpu-shares flag", func() {
-				// CgroupV2 CPUShares => weight := 1 + ((shares-2)*9999)/262142
-				//nolint: lll // the source of the CPUShares calculation formula
-				// Ref. https://github.com/google/cadvisor/blob/ce07bb28eadc18183df15ca5346293af6b020b33/integration/tests/api/docker_test.go#L216-L222
+				// CgroupV2 Formula: https://github.com/opencontainers/cgroups/blob/2f41057bdff0636deea1e50c551379c5c2e6a15f/utils.go#L425
+				// Ref. https://github.com/opencontainers/runc/pull/4785
 				cpuWeight := command.StdoutStr(o.BaseOpt, "run", "--rm", "--cpu-shares", "2000",
 					"-w", "/sys/fs/cgroup", localImages[defaultImage], "cat", "cpu.weight")
-				gomega.Expect(cpuWeight).To(gomega.Equal("77"))
+				gomega.Expect(cpuWeight).To(gomega.Equal("170"))
 			})
 
 			// assume the host has at least 2 CPUs
