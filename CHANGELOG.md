@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.1](https://github.com/runfinch/common-tests/compare/v0.10.0...v0.10.1) (2025-10-29)
+
+
+### Bug Fixes
+
+* Make cpu share test backward compatible ([#268](https://github.com/runfinch/common-tests/issues/268)) ([fe55399](https://github.com/runfinch/common-tests/commit/fe55399a54f81694c4c5439513459c553ca230c7))
+
 ## [0.10.0](https://github.com/runfinch/common-tests/compare/v0.9.4...v0.10.0) (2025-10-29)
 
 
