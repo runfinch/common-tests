@@ -87,6 +87,7 @@ func TestRun(t *testing.T) {
 		tests.NetworkLs(o)
 		tests.NetworkRm(o)
 		tests.Ps(o)
+		tests.HealthCheck(o)
 	})
 
 	gomega.RegisterFailHandler(ginkgo.Fail)
