@@ -3,8 +3,16 @@ on:
     branches:
       - main
 name: release-please
+
+permissions:
+  contents: write # Required for trigger-release-automation job
+  pull-requests: write
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: googleapis/release-please-action@c2a5a2bd6a758a0937f1ddb1e8950609867ed15c # v4.3.0
