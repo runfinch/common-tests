@@ -46,6 +46,12 @@ func Run(o *RunOption) {
 			command.RemoveAll(o.BaseOpt)
 		})
 
+		ginkgo.It("should not panic when run without arguments", func() {
+			// Test finch run without arguments - should show help, not panic
+			session := command.New(o.BaseOpt, "run").WithoutCheckingExitCode().Run()
+			gomega.Expect(session.Out.Contents()).ShouldNot(gomega.BeEmpty()) // Should have output
+		})
+
 		ginkgo.When("running a container that echos dummy output", func() {
 			ginkgo.BeforeEach(func() {
 				dockerfile := fmt.Sprintf(`FROM %s
