@@ -15,6 +15,7 @@ import (
 	"github.com/runfinch/common-tests/command"
 	"github.com/runfinch/common-tests/ffs"
 	"github.com/runfinch/common-tests/option"
+	"github.com/runfinch/common-tests/testutil"
 )
 
 type testCase struct {
@@ -79,6 +80,9 @@ func HealthCheck(o *option.Option) {
 
 func testCliHealthCheckFlags(o *option.Option) {
 	ginkgo.Describe("test container healthcheck flags", func() {
+		ginkgo.BeforeEach(func() {
+			testutil.RequireNerdctlVersion(o, ">= 2.2.1")
+		})
 		ginkgo.BeforeEach(func() {
 			command.RemoveAll(o)
 		})
@@ -163,6 +167,9 @@ func testImageHealthCheckFlags(o *option.Option) {
 		var buildContext string
 
 		ginkgo.BeforeEach(func() {
+			testutil.RequireNerdctlVersion(o, ">= 2.2.1")
+		})
+		ginkgo.BeforeEach(func() {
 			buildContext = ffs.CreateBuildContext(fmt.Sprintf(`FROM %s
 			HEALTHCHECK --interval=30s --timeout=10s CMD wget -q http://localhost:8080 || exit 1
 			`, localImages[defaultImage]))
@@ -229,6 +236,9 @@ func testImageHealthCheckFlags(o *option.Option) {
 
 func testHealthCheckStatus(o *option.Option) {
 	ginkgo.Describe("test automated container healthcheck status", func() {
+		ginkgo.BeforeEach(func() {
+			testutil.RequireNerdctlVersion(o, ">= 2.2.1")
+		})
 		ginkgo.BeforeEach(func() {
 			command.RemoveAll(o)
 		})
@@ -411,6 +421,9 @@ func testHealthCheckStatus(o *option.Option) {
 
 func testHealthCheckStatusNegativeCases(o *option.Option) {
 	ginkgo.Describe("test manual container healthcheck status", func() {
+		ginkgo.BeforeEach(func() {
+			testutil.RequireNerdctlVersion(o, ">= 2.2.1")
+		})
 		ginkgo.BeforeEach(func() {
 			command.RemoveAll(o)
 		})
