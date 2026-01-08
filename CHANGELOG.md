@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.3](https://github.com/runfinch/common-tests/compare/v0.10.2...v0.10.3) (2026-01-08)
+
+
+### Bug Fixes
+
+* handle abs path in subject when getting nerdctl version ([#280](https://github.com/runfinch/common-tests/issues/280)) ([38e1fdf](https://github.com/runfinch/common-tests/commit/38e1fdf96e15a40d839592548be8b8f5dba849b5))
+
 ## [0.10.2](https://github.com/runfinch/common-tests/compare/v0.10.1...v0.10.2) (2026-01-08)
 
 
