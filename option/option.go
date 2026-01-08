@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
@@ -17,6 +18,11 @@ type feature int
 const (
 	environmentVariablePassthrough feature = iota
 	nerdctlVersion                 feature = iota
+)
+
+var (
+	nerdctlVersionRegex      = regexp.MustCompile(`nerdctl\s+version\s+(\S+)`)
+	finchNerdctlVersionRegex = regexp.MustCompile(`nerdctl:\s+Version:\s+(\S+)`)
 )
 
 // Option customizes how tests are run.
@@ -126,4 +132,47 @@ func (o *Option) isNerdctlVersion(cmp func(string) bool) bool {
 	}
 
 	return cmp(version)
+}
+
+// Subject returns the subject stored in the option.
+func (o *Option) Subject() []string {
+	return o.subject
+}
+
+// GetNerdctlVersion gets the nerdctl version from the subject. If the subject is neither "nerdctl" nor "finch", it will return an error.
+func (o *Option) GetNerdctlVersion() (string, error) {
+	switch o.subject[0] {
+	case "nerdctl":
+		//nolint:gosec // G204 is not an issue because subject is fully controlled by the user.
+		versionBytes, err := exec.Command(o.subject[0], "--version").Output()
+		if err != nil {
+			return "", fmt.Errorf("failed to run nerdctl --version: %w", err)
+		}
+		version, err := getNerdctlVersionMatch(nerdctlVersionRegex, string(versionBytes))
+		if err != nil {
+			return "", err
+		}
+		return version, nil
+	case "finch":
+		//nolint:gosec // G204 is not an issue because subject is fully controlled by the user.
+		versionBytes, err := exec.Command(o.subject[0], "version").Output()
+		if err != nil {
+			return "", fmt.Errorf("failed to run nerdctl --version: %w", err)
+		}
+		version, err := getNerdctlVersionMatch(finchNerdctlVersionRegex, string(versionBytes))
+		if err != nil {
+			return "", err
+		}
+		return version, nil
+	default:
+		return "", fmt.Errorf("unsupported subject %s", o.subject[0])
+	}
+}
+
+func getNerdctlVersionMatch(nerdctlVersionRegexp *regexp.Regexp, versionOutput string) (string, error) {
+	matches := nerdctlVersionRegexp.FindStringSubmatch(versionOutput)
+	if len(matches) < 2 {
+		return "", fmt.Errorf("failed to parse nerdctl version from: %s", versionOutput)
+	}
+	return matches[1], nil
 }
