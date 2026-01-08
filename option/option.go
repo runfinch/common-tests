@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -141,7 +142,8 @@ func (o *Option) Subject() []string {
 
 // GetNerdctlVersion gets the nerdctl version from the subject. If the subject is neither "nerdctl" nor "finch", it will return an error.
 func (o *Option) GetNerdctlVersion() (string, error) {
-	switch o.subject[0] {
+	execName := filepath.Base(o.subject[0])
+	switch execName {
 	case "nerdctl":
 		//nolint:gosec // G204 is not an issue because subject is fully controlled by the user.
 		versionBytes, err := exec.Command(o.subject[0], "--version").Output()
@@ -165,7 +167,7 @@ func (o *Option) GetNerdctlVersion() (string, error) {
 		}
 		return version, nil
 	default:
-		return "", fmt.Errorf("unsupported subject %s", o.subject[0])
+		return "", fmt.Errorf("unsupported subject %s", execName)
 	}
 }
 
