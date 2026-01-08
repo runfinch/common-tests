@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.2](https://github.com/runfinch/common-tests/compare/v0.10.1...v0.10.2) (2026-01-08)
+
+
+### Bug Fixes
+
+* skip healthcheck when nerdctl &lt; 2.2.1 ([#276](https://github.com/runfinch/common-tests/issues/276)) ([afd3ee2](https://github.com/runfinch/common-tests/commit/afd3ee2cef3120e410a3007aac8ba0c7d410643a))
+
 ## [0.10.1](https://github.com/runfinch/common-tests/compare/v0.10.0...v0.10.1) (2025-10-29)
 
 
