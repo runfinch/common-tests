@@ -26,6 +26,12 @@ func Exec(o *option.Option) {
 		ginkgo.AfterEach(func() {
 			command.RemoveAll(o)
 		})
+
+		ginkgo.It("should not panic when exec without arguments", func() {
+			// Test finch exec without arguments - should show help, not panic
+			session := command.New(o, "exec").WithoutCheckingExitCode().Run()
+			gomega.Expect(session.Out.Contents()).ShouldNot(gomega.BeEmpty()) // Should have output
+		})
 		// TODO: specifying -t flag will have error in test -> panic: provided file is not a console
 		ginkgo.When("then container is running", func() {
 			ginkgo.BeforeEach(func() {
