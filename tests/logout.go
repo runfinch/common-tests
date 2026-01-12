@@ -52,11 +52,16 @@ func Logout(o *option.Option) {
 					"-e", fmt.Sprintf("REGISTRY_AUTH_HTPASSWD_PATH=/auth/%s", filename),
 					registryImage)
 				// Wait for container to be running
+				tries := 0
 				for command.StdoutStr(o, "inspect", "-f", "{{.State.Running}}", containerID) != "true" {
+					if tries >= 5 {
+						ginkgo.Fail("Registry container failed to start after 5 seconds")
+					}
 					time.Sleep(1 * time.Second)
+					tries++
 				}
 				// Wait for registry service to be ready
-				time.Sleep(20 * time.Second)
+				time.Sleep(10 * time.Second)
 				registry = fmt.Sprintf(`localhost:%d`, port)
 				tag = fmt.Sprintf(`%s/test-login:tag`, registry)
 				buildContext := ffs.CreateBuildContext(fmt.Sprintf(`FROM %s
