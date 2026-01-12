@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega/gbytes"
@@ -42,7 +43,7 @@ func Login(o *option.Option) {
 				htpasswdDir := filepath.Dir(ffs.CreateTempFile(filename, htpasswd))
 				ginkgo.DeferCleanup(os.RemoveAll, htpasswdDir)
 				port := fnet.GetFreePort()
-				command.Run(o, "run",
+				containerID := command.StdoutStr(o, "run",
 					"-dp", fmt.Sprintf("%d:5000", port),
 					"--name", "registry",
 					"-v", fmt.Sprintf("%s:/auth", htpasswdDir),
@@ -50,6 +51,12 @@ func Login(o *option.Option) {
 					"-e", "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm",
 					"-e", fmt.Sprintf("REGISTRY_AUTH_HTPASSWD_PATH=/auth/%s", filename),
 					registryImage)
+				// Wait for container to be running
+				for command.StdoutStr(o, "inspect", "-f", "{{.State.Running}}", containerID) != "true" {
+					time.Sleep(1 * time.Second)
+				}
+				// Wait for registry service to be ready
+				time.Sleep(20 * time.Second)
 				registry = fmt.Sprintf(`localhost:%d`, port)
 				tag = fmt.Sprintf(`%s/test-login:tag`, registry)
 				buildContext := ffs.CreateBuildContext(fmt.Sprintf(`FROM %s
