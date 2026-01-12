@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.4](https://github.com/runfinch/common-tests/compare/v0.10.3...v0.10.4) (2026-01-12)
+
+
+### Bug Fixes
+
+* add grace period to allow registry to start up ([#282](https://github.com/runfinch/common-tests/issues/282)) ([cfbacce](https://github.com/runfinch/common-tests/commit/cfbaccedc5e68a6043c7ffac0e2aebf445219bdb))
+
 ## [0.10.3](https://github.com/runfinch/common-tests/compare/v0.10.2...v0.10.3) (2026-01-08)
 
 
