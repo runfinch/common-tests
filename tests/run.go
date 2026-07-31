@@ -145,6 +145,10 @@ func Run(o *RunOption) {
 
 			for _, env := range []string{"-e", "--env"} {
 				ginkgo.It(fmt.Sprintf("with %s flag, environment variables should be set in the container", env), func() {
+					if !o.BaseOpt.SupportsEnvVarPassthrough() {
+						ginkgo.Skip("Test requires option environment variable passthrough")
+					}
+
 					envOutput := command.Stdout(o.BaseOpt, "run", "--rm",
 						env, "FOO=BAR", env, "FOO1", env, "ENV1=1", env, "ENV1=2",
 						localImages[defaultImage], "env")
@@ -155,6 +159,10 @@ func Run(o *RunOption) {
 			}
 
 			ginkgo.It("with -e flag passing env variables without a value, only host set vars should be set in the container", func() {
+				if !o.BaseOpt.SupportsEnvVarPassthrough() {
+					ginkgo.Skip("Test requires option environment variable passthrough")
+				}
+
 				gomega.Expect(os.Setenv("AVAR1", "avalue")).To(gomega.Succeed())
 				envOutput := command.Stdout(o.BaseOpt, "run", "--rm",
 					"-e", "AVAR1", "-e", "AVAR2", localImages[defaultImage], "env")
@@ -172,6 +180,10 @@ func Run(o *RunOption) {
 			})
 
 			ginkgo.It("using an env var file, env vars without values should only be set in the container if they are set on the host", func() {
+				if !o.BaseOpt.SupportsEnvVarPassthrough() {
+					ginkgo.Skip("Test requires option environment variable passthrough")
+				}
+
 				const envPair = "ENVKEY=ENVVAL\nAVAR1\nAVAR2\n"
 				envPath := ffs.CreateTempFile("env", envPair)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(envPath))
@@ -183,6 +195,10 @@ func Run(o *RunOption) {
 			})
 
 			ginkgo.It("using a file with the --env-file flag, comments and whitespace should be ignored properly", func() {
+				if !o.BaseOpt.SupportsEnvVarPassthrough() {
+					ginkgo.Skip("Test requires option environment variable passthrough")
+				}
+
 				const envPair = "ENVKEY=ENVVAL   \n# this is a comment\n\n AVAR1\nAVAR1\nAVAR2\n  # comment 2\n"
 				envPath := ffs.CreateTempFile("env", envPair)
 				ginkgo.DeferCleanup(os.RemoveAll, filepath.Dir(envPath))
