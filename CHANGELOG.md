@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.0](https://github.com/runfinch/common-tests/compare/v0.10.4...v0.11.0) (2026-08-07)
+
+
+### Features
+
+* **windows:** support windows by converting windows paths to wsl paths ([#289](https://github.com/runfinch/common-tests/issues/289)) ([b79f20d](https://github.com/runfinch/common-tests/commit/b79f20db6776626a45c3cf533231a828be90f6d9))
+* **windows:** support windows by converting windows paths to wsl2 paths ([b79f20d](https://github.com/runfinch/common-tests/commit/b79f20db6776626a45c3cf533231a828be90f6d9))
+
 ## [0.10.4](https://github.com/runfinch/common-tests/compare/v0.10.3...v0.10.4) (2026-01-12)
 
 
