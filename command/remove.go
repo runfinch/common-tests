@@ -31,8 +31,13 @@ func RemoveContainers(o *option.Option) {
 		return
 	}
 
+	// Stop all containers first to ensure they can be removed
+	stopArgs := append([]string{"stop", "--time", "1"}, ids...)
+	New(o, stopArgs...).WithoutCheckingExitCode().Run()
+
+	// Remove containers, ignoring failures to prevent test cleanup from failing
 	args := append([]string{"rm", "--force"}, ids...)
-	Run(o, args...)
+	New(o, args...).WithoutCheckingExitCode().Run()
 }
 
 // RemoveVolumes removes all unused local volumes in the testing environment specified by o.
