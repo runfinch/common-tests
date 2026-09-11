@@ -103,6 +103,10 @@ func Build(o *option.Option) {
 				stdErr := command.Stderr(o, "build", "-f", dockerFilePath, "--no-cache", "--progress=plain",
 					"--build-arg", "VERSION=3.13", buildContext)
 				gomega.Expect(stdErr).Should(gomega.ContainSubstring("public.ecr.aws/docker/library/alpine:3.13"))
+				gomega.Expect(os.Setenv("VERSION", "3.13")).To(gomega.Succeed())
+				stdErr = command.Stderr(o, "build", "-f", dockerFilePath, "--no-cache", "--progress=plain",
+					"--build-arg", "VERSION", buildContext)
+				gomega.Expect(stdErr).Should(gomega.ContainSubstring("public.ecr.aws/docker/library/alpine:3.13"))
 			})
 
 			ginkgo.It("build image with --progress=plain", func() {
